@@ -1,0 +1,23 @@
+\begin{thebibliography}{1}
+% this bibliography was produced with the style dinat.bst v2.5
+\makeatletter
+\newcommand{\dinatlabel}[1]%
+{\ifNAT@numbers\else\NAT@biblabelnum{#1}\hspace{2\labelsep}\fi}
+\makeatother
+\expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
+\expandafter\ifx\csname url\endcsname\relax\def\url#1{\texttt{#1}}\fi
+
+\bibitem[Gadiraju u.\,a.(2021)Gadiraju, Garcia, Kane und
+  M.~Brock]{Gadiraju2021Understanding}
+\dinatlabel{Gadiraju u.\,a. 2021} \textsc{Gadiraju}, Vinitha~; \textsc{Garcia},
+  J\'{e}r\'{e}mie~; \textsc{Kane}, Shaun~; \textsc{M.~Brock}, Anke:
+\newblock “It is Fascinating to Make These Beasts Fly”: Understanding
+  Visually Impaired People's Motivations and Needs for Drone Piloting.
+\newblock In: \emph{Proceedings of the 23rd International ACM SIGACCESS
+  Conference on Computers and Accessibility}.
+\newblock New York, NY, USA~: Association for Computing Machinery, 2021
+\newblock (ASSETS '21). --
+\newblock URL \url{https://doi.org/10.1145/3441852.3471219}. --
+\newblock ISBN 9781450383066
+
+\end{thebibliography}
