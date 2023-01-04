@@ -1,14 +1,14 @@
 # Fdb version 4
-["bibtex thesis"] 1672415011 "thesis.aux" "thesis.bbl" "thesis" 1672415012 0
+["bibtex thesis"] 1672415011 "thesis.aux" "thesis.bbl" "thesis" 1672845391 0
   "./literature.bib" 1672069185 2133 87c6ae8b758c683377064dcc791d0440 ""
   "/usr/local/texlive/2022/texmf-dist/bibtex/bst/dinat/dinat.bst" 1136766823 44478 8171722d387d8657f0397923511dcd08 ""
-  "thesis.aux" 1672415012 15945 11792cced0efb45b73e102a675fb73e1 "pdflatex"
+  "thesis.aux" 1672845390 15945 11792cced0efb45b73e102a675fb73e1 "pdflatex"
   (generated)
   "thesis.bbl"
   "thesis.blg"
   (rewritten before read)
-["pdflatex"] 1672415011 "/media/leon/850EVO/Studium/Bachelor/ba_digitaltwindrone/ba_digitaltwindrone_doku/Bachelorarbeit/thesis.tex" "thesis.pdf" "thesis" 1672415012 0
-  "/media/leon/850EVO/Studium/Bachelor/ba_digitaltwindrone/ba_digitaltwindrone_doku/Bachelorarbeit/thesis.tex" 1672415009 2476 0e3170ed06980ffd1ef46dbe9c0bc6be ""
+["pdflatex"] 1672845389 "/media/leon/850EVO/Studium/Bachelor/ba_dt_drone/ba_digitaltwindrone_doku/Bachelorarbeit/thesis.tex" "thesis.pdf" "thesis" 1672845391 0
+  "/media/leon/850EVO/Studium/Bachelor/ba_dt_drone/ba_digitaltwindrone_doku/Bachelorarbeit/thesis.tex" 1672845389 2476 0e3170ed06980ffd1ef46dbe9c0bc6be ""
   "/usr/local/texlive/2022/texmf-dist/fonts/enc/dvips/base/8r.enc" 1165713224 4850 80dc9bab7f31fb78a000ccfed0e27cab ""
   "/usr/local/texlive/2022/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc" 1136849721 2971 def0b6c1f0b107b3b936def894055589 ""
   "/usr/local/texlive/2022/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
@@ -316,15 +316,15 @@
   "style/thesisstyle.sty" 1671450889 2721 37d5e53dbc8475375236e4b453a33e7d ""
   "style/titlepage.tex" 1668351200 2434 7ccdcc038e0b7907b3f762c94ebf8968 ""
   "thesis.acr" 0 -1 0 ""
-  "thesis.aux" 1672415012 15945 11792cced0efb45b73e102a675fb73e1 "pdflatex"
+  "thesis.aux" 1672845390 15945 11792cced0efb45b73e102a675fb73e1 "pdflatex"
   "thesis.bbl" 1672415011 1074 db89c64f318e86ab8205d3c1139659e0 "bibtex thesis"
   "thesis.gls" 0 -1 0 ""
-  "thesis.lof" 1672415012 295 34e1a38535e45e71bc06260ed28854cb "pdflatex"
-  "thesis.lot" 1672415012 523 2a476747865949dccc8be70e3390bcf7 "pdflatex"
-  "thesis.out" 1672415012 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
+  "thesis.lof" 1672845390 295 34e1a38535e45e71bc06260ed28854cb "pdflatex"
+  "thesis.lot" 1672845390 523 2a476747865949dccc8be70e3390bcf7 "pdflatex"
+  "thesis.out" 1672845390 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
   "thesis.sls" 0 -1 0 ""
-  "thesis.tex" 1672415009 2476 0e3170ed06980ffd1ef46dbe9c0bc6be ""
-  "thesis.toc" 1672415012 3035 d12186bdadc14f5e3b303fc380791057 "pdflatex"
+  "thesis.tex" 1672845389 2476 0e3170ed06980ffd1ef46dbe9c0bc6be ""
+  "thesis.toc" 1672845390 3035 d12186bdadc14f5e3b303fc380791057 "pdflatex"
   "thesisglossaries.tex" 1672411033 807 3c7c1049949c0dcff08c397af7618dec ""
   (generated)
   "thesis.acn"

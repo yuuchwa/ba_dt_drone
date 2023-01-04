@@ -1,8 +1,8 @@
-PWD /media/leon/850EVO/Studium/Bachelor/ba_digitaltwindrone/ba_digitaltwindrone_doku/Bachelorarbeit
+PWD /media/leon/850EVO/Studium/Bachelor/ba_dt_drone/ba_digitaltwindrone_doku/Bachelorarbeit
 INPUT /usr/local/texlive/2022/texmf.cnf
 INPUT /usr/local/texlive/2022/texmf-dist/web2c/texmf.cnf
 INPUT /usr/local/texlive/2022/texmf-var/web2c/pdftex/pdflatex.fmt
-INPUT /media/leon/850EVO/Studium/Bachelor/ba_digitaltwindrone/ba_digitaltwindrone_doku/Bachelorarbeit/thesis.tex
+INPUT /media/leon/850EVO/Studium/Bachelor/ba_dt_drone/ba_digitaltwindrone_doku/Bachelorarbeit/thesis.tex
 OUTPUT thesis.log
 INPUT /usr/local/texlive/2022/texmf-dist/tex/latex/koma-script/scrreprt.cls
 INPUT /usr/local/texlive/2022/texmf-dist/tex/latex/koma-script/scrreprt.cls
