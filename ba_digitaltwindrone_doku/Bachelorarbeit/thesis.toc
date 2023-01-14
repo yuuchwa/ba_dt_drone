@@ -1,35 +1,37 @@
 \babel@toc {ngerman}{}\relax 
-\contentsline {chapter}{\nonumberline Abbildungsverzeichnis}{vii}{chapter*.3}%
-\contentsline {chapter}{\nonumberline Tabellenverzeichnis}{viii}{chapter*.4}%
+\contentsline {chapter}{\nonumberline Abbildungsverzeichnis}{vi}{chapter*.3}%
+\contentsline {chapter}{\nonumberline Tabellenverzeichnis}{vii}{chapter*.4}%
 \contentsline {chapter}{\numberline {1}Einleitung}{1}{chapter.1}%
 \contentsline {section}{\numberline {1.1}Motivation}{1}{section.1.1}%
 \contentsline {section}{\numberline {1.2}Zielsetzung}{1}{section.1.2}%
-\contentsline {section}{\numberline {1.3}Glossar}{1}{section.1.3}%
-\contentsline {section}{\numberline {1.4}Eingrenzung}{1}{section.1.4}%
-\contentsline {section}{\numberline {1.5}Gliederung der Arbeit}{1}{section.1.5}%
-\contentsline {chapter}{\numberline {2}Begriffserklärung}{2}{chapter.2}%
-\contentsline {section}{\numberline {2.1}Unbemanntes Luftfahrzeug}{2}{section.2.1}%
-\contentsline {section}{\numberline {2.2}Multicopter}{2}{section.2.2}%
-\contentsline {section}{\numberline {2.3}Human-Drone Interaction}{2}{section.2.3}%
-\contentsline {subsection}{\numberline {2.3.1}Social Companion}{3}{subsection.2.3.1}%
-\contentsline {section}{\numberline {2.4}Digitaler Zwilling}{3}{section.2.4}%
-\contentsline {chapter}{\numberline {3}Verwandte Arbeit}{4}{chapter.3}%
-\contentsline {chapter}{\numberline {4}Anforderungsanalyse}{5}{chapter.4}%
-\contentsline {section}{\numberline {4.1}Funktionale Anforderungen}{5}{section.4.1}%
-\contentsline {section}{\numberline {4.2}Nicht funktionale Anforderungen}{5}{section.4.2}%
-\contentsline {section}{\numberline {4.3}Use Case}{5}{section.4.3}%
-\contentsline {chapter}{\numberline {5}Konzeption}{6}{chapter.5}%
-\contentsline {section}{\numberline {5.1}Systemarchitektur}{6}{section.5.1}%
-\contentsline {subsection}{\numberline {5.1.1}Quadroter}{6}{subsection.5.1.1}%
-\contentsline {subsection}{\numberline {5.1.2}MARS Framework}{6}{subsection.5.1.2}%
-\contentsline {chapter}{\numberline {6}Implementierung}{7}{chapter.6}%
-\contentsline {chapter}{\numberline {7}Evaluation}{8}{chapter.7}%
-\contentsline {section}{\numberline {7.1}Codeevaluation}{8}{section.7.1}%
-\contentsline {chapter}{\numberline {8}Abschluss}{9}{chapter.8}%
-\contentsline {section}{\numberline {8.1}Zusammenfassung}{9}{section.8.1}%
-\contentsline {section}{\numberline {8.2}Diskussion}{9}{section.8.2}%
-\contentsline {section}{\numberline {8.3}Ausblick}{9}{section.8.3}%
-\contentsline {chapter}{\nonumberline Literaturverzeichnis}{10}{chapter*.5}%
+\contentsline {section}{\numberline {1.3}Glossar}{2}{section.1.3}%
+\contentsline {section}{\numberline {1.4}Eingrenzung}{2}{section.1.4}%
+\contentsline {section}{\numberline {1.5}Gliederung der Arbeit}{2}{section.1.5}%
+\contentsline {chapter}{\numberline {2}Begriffserklärung}{3}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Unbemanntes Luftfahrzeug}{3}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Multicopter}{3}{section.2.2}%
+\contentsline {section}{\numberline {2.3}Human-Drone Interaction}{3}{section.2.3}%
+\contentsline {subsection}{\numberline {2.3.1}Social Drone}{4}{subsection.2.3.1}%
+\contentsline {subsection}{\numberline {2.3.2}Digitaler Zwilling}{4}{subsection.2.3.2}%
+\contentsline {chapter}{\numberline {3}Verwandte Arbeit}{5}{chapter.3}%
+\contentsline {chapter}{\numberline {4}Anforderungsanalyse}{6}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Funktionale Anforderungen}{6}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Nicht funktionale Anforderungen}{6}{section.4.2}%
+\contentsline {section}{\numberline {4.3}Use Case}{6}{section.4.3}%
+\contentsline {chapter}{\numberline {5}Konzeption}{7}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Systemarchitektur}{7}{section.5.1}%
+\contentsline {subsection}{\numberline {5.1.1}Quadroter}{7}{subsection.5.1.1}%
+\contentsline {subsection}{\numberline {5.1.2}MARS Framework}{7}{subsection.5.1.2}%
+\contentsline {subsection}{\numberline {5.1.3}Konzeptvorschlag des DTSUAV}{7}{subsection.5.1.3}%
+\contentsline {subsubsection}{\nonumberline Grundkonzept eines Digitalen Zwilling System Frameworks}{7}{subsubsection*.6}%
+\contentsline {subsubsection}{\nonumberline Konzeptvorschlag des DTSUAV}{7}{subsubsection*.8}%
+\contentsline {chapter}{\numberline {6}Implementierung}{8}{chapter.6}%
+\contentsline {chapter}{\numberline {7}Evaluation}{9}{chapter.7}%
+\contentsline {section}{\numberline {7.1}Codeevaluation}{9}{section.7.1}%
+\contentsline {chapter}{\numberline {8}Abschluss}{10}{chapter.8}%
+\contentsline {section}{\numberline {8.1}Zusammenfassung}{10}{section.8.1}%
+\contentsline {section}{\numberline {8.2}Diskussion}{10}{section.8.2}%
+\contentsline {section}{\numberline {8.3}Ausblick}{10}{section.8.3}%
 \contentsline {chapter}{\numberline {A}Anhang}{11}{appendix.A}%
 \contentsline {section}{Selbstständigkeitserklärung}{12}{appendix.A}%
 \providecommand \tocbasic@end@toc@file {}\tocbasic@end@toc@file 

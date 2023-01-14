@@ -5,11 +5,10 @@
 \begin{tabular}{ l p{12cm}}
     ID & Begriff  \\
     \hline
-    F01 & Der DZ fragt in periodischen Abständen den Status des PZ ab. \\
-    F02 & Der DZ speichert den Status des PZ ab. \\
-    F03 & Der DZ seinen letzten Zustand wiederherstellen, wenn der Zustand mit dem des PZ übereinstimmt. \\
-    F04 & Endet oder bricht die Kommunikation zwischen dem PZ und dem DZ ab, wird der letzte Zustand des UAV gespeichert und der UAV landet aus automatisch. \\
-    F05 & Der DZ alle Operationen des PZ ausführen. \\
+    F01 & Der DZ fragt in periodischen Abständen den Status des UAV ab. \\
+    F02 & Der DZ legt eine Log-Datei für die Zustandsänderungen des UAV ab. \\
+    F04 & Trennt sich die Kommunikation zwischen dem UAV und dem DZ während des Fluges, wird der letzte Zustand des UAV gespeichert und versucht einen letzten Befehl zum laden zu senden. \\
+    F05 & Das virtuelle UAV kann alle Operationen der physikalischen UAV ausführen. \\
     F06 & Falls der DZ seinen Zustand wechselt, wird die Aktion als Operation am PZ ebenso ausgeführt. \\
     F07 & Fall der PZ seinen zustand ändert, passt sich der Zustand des DZ an. \\
     F08 & Falls der DZ gestartet wird, verbindet sich das System mit dem physikalischen UAV \\
