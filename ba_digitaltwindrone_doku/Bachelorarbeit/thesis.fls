@@ -1797,6 +1797,10 @@ INPUT ./chapters/0introduction/zielsetzung.tex
 INPUT chapters/0introduction/zielsetzung.tex
 INPUT ./chapters/0introduction/zielsetzung.tex
 INPUT chapters/0introduction/zielsetzung.tex
+INPUT ./chapters/0introduction/glossar.tex
+INPUT chapters/0introduction/glossar.tex
+INPUT ./chapters/0introduction/glossar.tex
+INPUT chapters/0introduction/glossar.tex
 INPUT ./chapters/0introduction/eingrenzung.tex
 INPUT chapters/0introduction/eingrenzung.tex
 INPUT ./chapters/0introduction/eingrenzung.tex
@@ -1883,8 +1887,6 @@ INPUT appendix/example_appendix.tex
 INPUT ./appendix/example_appendix.tex
 INPUT ./appendix/example_appendix.tex
 INPUT appendix/example_appendix.tex
-INPUT /usr/local/texlive/2022/texmf-dist/fonts/vf/adobe/courier/pcrr8t.vf
-INPUT /usr/local/texlive/2022/texmf-dist/fonts/tfm/adobe/courier/pcrr8r.tfm
 INPUT ./style/statement.tex
 INPUT ./style/statement.tex
 INPUT ./style/statement.tex
@@ -1917,5 +1919,4 @@ INPUT /usr/local/texlive/2022/texmf-dist/fonts/type1/public/cm-super/sfsl1095.pf
 INPUT /usr/local/texlive/2022/texmf-dist/fonts/type1/public/cm-super/sfsx1200.pfb
 INPUT /usr/local/texlive/2022/texmf-dist/fonts/type1/public/cm-super/sfti1095.pfb
 INPUT /usr/local/texlive/2022/texmf-dist/fonts/type1/public/cm-super/sfti1200.pfb
-INPUT /usr/local/texlive/2022/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb
 INPUT /usr/local/texlive/2022/texmf-dist/fonts/type1/urw/helvetic/uhvr8a.pfb
