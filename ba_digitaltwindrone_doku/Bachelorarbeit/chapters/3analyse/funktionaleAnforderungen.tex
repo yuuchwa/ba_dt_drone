@@ -1,25 +1,71 @@
 \section{Funktionale Anforderungen}
 
-\mulcom {
-\begin{table}[h]
-\begin{tabular}{ l p{12cm}}
-    ID & Begriff  \\
+\renewcommand{\arraystretch}{1.4}
+\begin{table}[H]
+\begin{tabular}{ p{0.5cm} p{3cm} p{11cm}}
+    ID & Komponente & Beschreibung  \\
     \hline
-    F01 & Der DZ fragt in periodischen Abständen den Status des UAV ab. \\
-    F02 & Der DZ legt eine Log-Datei für die Zustandsänderungen des UAV ab. \\
-    F04 & Trennt sich die Kommunikation zwischen dem UAV und dem DZ während des Fluges, wird der letzte Zustand des UAV gespeichert und versucht einen letzten Befehl zum laden zu senden. \\
-    F05 & Das virtuelle UAV kann alle Operationen der physikalischen UAV ausführen. \\
-    F06 & Falls der DZ seinen Zustand wechselt, wird die Aktion als Operation am PZ ebenso ausgeführt. \\
-    F07 & Fall der PZ seinen zustand ändert, passt sich der Zustand des DZ an. \\
-    F08 & Falls der DZ gestartet wird, verbindet sich das System mit dem physikalischen UAV \\
-    F09 & Falls der DZ sich nach 5 Sekunden keine Verbindung zum PZ aufbauen kann, wird der Prozess beendet. \\
-    F10 & Falls die Batterie der PZ bei 10Prozent liegt, wird der UAV automatisch gelandet u \\
-    F11 & Die Statuswerte werden auf der Konsole angezeigt. \\
-    F12 & Die Videoübertragung des PZ wird auf dem Monitor in Echtzeit übertragen. \\
-    F13 & Der DZ wird visuell dargestellt. \\
-    F14 & Verliert der UAV die Sicht zum Läufer, landet die Drohne aus Sicherheitsgründen. \\    
+    F01 & Digitaler Zwilling & Der DZ fragt in periodischen Abständen Statuswerte des physikalischen UAV. \\
+    F02 & Digitaler Zwilling & Der DZ speichert alle erfassten Statuswerte des physikalischen UAV ab. \\
+    F03 & Digitaler Zwilling & Der DZ seinen letzten Zustand wiederherstellen, wenn der Zustand mit dem des PZ übereinstimmt. \\
+    F04 & Digitaler Zwilling & Endet oder bricht die Kommunikation zwischen dem PZ und dem DZ ab, wird der letzte Zustand des UAV gespeichert und der UAV landet zum automatischen Landen befohlen. \\
+    F05 & Digitaler Zwilling & Fall der physikalischen UAV seinen Zustand ändert, passt sich der Zustand des DZ an. \\
+    F06 & Phys. UAV & Falls der DZ seinen Zustand aktualisiert, wird die Änderung an den physikalischen UAV gesendet und ausgeführt. \\
+    F07 & Phys. UAV & Falls die Batterie der PZ bei 10Prozent liegt, wird der UAV automatisch gelandet. \\
+    F08 & Visualisierung & Das virtuelle UAV besitzt die gleichen kinetischen und physikalischen Eigenschaften wie die des physikalischen UAV. \\
+    F09 & Visualisierung & Alle Bewegungen und Zustandsänderungen des physikalischen UAV werden vom virtuellen UAV gespiegelt. \\
+    F10 & Visualisierung & Für die Visualisierung des physikalischen UAV im virtuellen Raum wird ein virtueller UAV erstellt. \\
+    F11 & Kommunikation & Falls der DZ gestartet wird, verbindet sich der DZ mit dem physikalischen UAV. \\
+    F12 & Kommunikation & Falls der DZ sich nach 5 Sekunden keine Verbindung zum PZ aufbauen kann, wird der Prozess beendet. \\
+    F13 & Benutzerausgabe & Die Videoübertragung des physikalischen UAV wird in Echtzeit übertragen. \\
+    F14 & Benutzerausgabe & Der Zustand und die Attributel des physikalischen UAV werden auf dem Rechner angezeigt.\\
+    F15 & Fehlerzustand & Falls das physikalische UAV nach 5 gesenden Befehlen keine Antwortnachricht zuruckliefert, wird der physikalische zum Landen befohlen. \\
+    F16 & Fehlerzustand & Falls der DZ einen unbekannten Fehlercode erhält, wird das physikalsche UAV zum Landen befohlen. \\
+    F17 & Fehlerzustand & Falls sich der physikalische UAV in einem unbekannten Zustand befindet, wird sie zum Landen befohlen.
 \end{tabular}
 \caption{Funktionale Anforderungen}\label{table:Funktionale Anforderungen}
-
 \end{table}
+
+\subsection{Use Case Beschreibung}
+
+\begin{usecase}
+    \name{Digitalen Zwilling und UAV verbinden}
+    \actor{UAV, Benutzer, System}
+    \udescription{Starten und verbinden der Drohne mit dem  Digitalen Zwilling}
+    \precondition{Das UAV ist eingeschaltet. Der Computer ist über WLan mit dem UAV verbunden}
+    \scenario{
+        \item System show something
+        \item User do this
+        \item System do that
+    }
+    \result{Digitaler Zwilling und UAV sind verbunden.}
+    \extensions{
+        \item[3a] If something do something
+    }
+    \exceptions{
+        \item[2.1] System message: "Nope"
+        \item[2.2] System message: "Bad action"
+    }
+\end{usecase}
+
+\mulcom{
+    \begin{usecase}
+        \name{Titel}
+        \actor{UAV, Benutzer, System}
+        \udescription{Starten und verbinden der Drohne mit dem  Digitalen Zwilling}
+        \precondition{Das UAV ist eingeschaltet. Der Computer ist über WLan mit dem UAV verbunden}
+        \scenario{
+            \item System show something
+            \item User do this
+            \item System do that
+        }
+        \result{Digitaler Zwilling und UAV sind verbunden.}
+        \extensions{
+            \item[3a] If something do something
+        }
+        \exceptions{
+            \item[2.1] System message: "Nope"
+            \item[2.2] System message: "Bad action"
+        }
+    \end{usecase}
 }

@@ -13,8 +13,49 @@
 \usepackage{tabularx} % Das Paket bietet Tools zum Gestalten schönerer Tabellen an. 
 \usepackage{glossaries}
 \usepackage{listings} % Paket für Source-Code Abschnitte
+\usepackage{tabularx} % Das Paket bietet Tools zum Gestalten schönerer Tabellen an. 
 
-\newcommand{\mulcom}[1]{}
+\usepackage{float}
+\usepackage{enumitem}
+
+\usepackage[column=0]{cellspace}
+\setlength{\cellspacetoplimit}{\tabcolsep}
+\setlength{\cellspacebottomlimit}{\cellspacetoplimit}
+\addparagraphcolumntypes{X}
+
+\newlist{tabenum}{enumerate}{1}
+\setlist[tabenum]{label*=\arabic*.,
+                  labelwidth=2em, 
+                  leftmargin=2em, 
+                  nosep,
+                  before=\begin{minipage}[t]{\hsize},
+                  after=\end{minipage}}
+
+% template %
+\newcommand\addrow[2]{#1 & #2\\ \hline}
+
+\newcommand\additemizedrow[2]{#1 &
+        \begin{tabenum}
+            #2
+        \end{tabenum}
+        \\ \hline}
+
+% making stuff convenient %
+\newcommand\name[1]{\addrow{Name}{#1}}
+\newcommand\actor[1]{\addrow{Actor}{#1}}
+\newcommand\udescription[1]{\addrow{Description}{#1}}
+\newcommand\precondition[1]{\addrow{Precondition}{#1}}
+\newcommand\scenario[1]{\additemizedrow{Scenario}{#1}}
+\newcommand\result[1]{\addrow{Result}{#1}}
+\newcommand\extensions[1]{\additemizedrow{Extensions}{#1}}
+\newcommand\exceptions[1]{\additemizedrow{Exceptions}{#1}}
+
+\newenvironment{usecase}{\tabularx{\textwidth}{|0{wl{3cm}}|0{X}|}\hline}{\endtabularx}
+\setlength{\parindent}{0em}
+\setlength{\parskip}{1em}
+
+\newcommand{\mulcom}[1]{} % Verwenden, um mehrere Zeilen auszukommentieren
+\renewcommand{\arraystretch}{2.5} 
 
 \makeglossaries           % create all glossary entries (remember: run makeglossaries manually)
 \loadglsentries{thesisglossaries.tex}  % load acronym, symbol and glossary entries
@@ -23,6 +64,7 @@
 %\DeclareSIUnit \fps{fps}  % a custom unit (usage: \SI{24}{\fps})
 
 \begin{document}
+
 \input{configuration/configuration}    % load all settings
 
 \hyphenation{Ba-che-lor-the-sis Mas-ter-the-sis}
