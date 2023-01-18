@@ -1,0 +1,18 @@
+\begin{thebibliography}{1}
+% this bibliography was produced with the style dinat.bst v2.5
+\makeatletter
+\newcommand{\dinatlabel}[1]%
+{\ifNAT@numbers\else\NAT@biblabelnum{#1}\hspace{2\labelsep}\fi}
+\makeatother
+\expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
+\expandafter\ifx\csname url\endcsname\relax\def\url#1{\texttt{#1}}\fi
+
+\bibitem[Adams(1995)]{adams1995douglas}
+\dinatlabel{Adams 1995} \textsc{Adams}, D.:
+\newblock \emph{Douglas Adams Trilogy/Hitchhiker's Guide to Galaxy/Restaurant
+  at the End of the Universe/Life, the Universe and Everything}.
+\newblock Random House Incorporated, 1995. --
+\newblock URL \url{https://books.google.de/books?id=bMWkPQAACAAJ}. --
+\newblock ISBN 9780345397041
+
+\end{thebibliography}

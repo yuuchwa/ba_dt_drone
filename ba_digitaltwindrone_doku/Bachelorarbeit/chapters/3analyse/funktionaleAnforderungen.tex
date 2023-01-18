@@ -5,23 +5,23 @@
 \begin{tabular}{ p{0.5cm} p{3cm} p{11cm}}
     ID & Komponente & Beschreibung  \\
     \hline
-    F01 & Digitaler Zwilling & Der DZ fragt in periodischen Abständen Statuswerte des physikalischen UAV. \\
-    F02 & Digitaler Zwilling & Der DZ speichert alle erfassten Statuswerte des physikalischen UAV ab. \\
+    F01 & Digitaler Zwilling & Der DZ fragt in periodischen Abständen Statuswerte des physischen UAV. \\
+    F02 & Digitaler Zwilling & Der DZ speichert alle erfassten Statuswerte des physischen UAV ab. \\
     F03 & Digitaler Zwilling & Der DZ seinen letzten Zustand wiederherstellen, wenn der Zustand mit dem des PZ übereinstimmt. \\
     F04 & Digitaler Zwilling & Endet oder bricht die Kommunikation zwischen dem PZ und dem DZ ab, wird der letzte Zustand des UAV gespeichert und der UAV landet zum automatischen Landen befohlen. \\
-    F05 & Digitaler Zwilling & Fall der physikalischen UAV seinen Zustand ändert, passt sich der Zustand des DZ an. \\
-    F06 & Phys. UAV & Falls der DZ seinen Zustand aktualisiert, wird die Änderung an den physikalischen UAV gesendet und ausgeführt. \\
+    F05 & Digitaler Zwilling & Fall der physischen UAV seinen Zustand ändert, passt sich der Zustand des DZ an. \\
+    F06 & Phys. UAV & Falls der DZ seinen Zustand aktualisiert, wird die Änderung an den physischen UAV gesendet und ausgeführt. \\
     F07 & Phys. UAV & Falls die Batterie der PZ bei 10Prozent liegt, wird der UAV automatisch gelandet. \\
-    F08 & Visualisierung & Das virtuelle UAV besitzt die gleichen kinetischen und physikalischen Eigenschaften wie die des physikalischen UAV. \\
-    F09 & Visualisierung & Alle Bewegungen und Zustandsänderungen des physikalischen UAV werden vom virtuellen UAV gespiegelt. \\
-    F10 & Visualisierung & Für die Visualisierung des physikalischen UAV im virtuellen Raum wird ein virtueller UAV erstellt. \\
-    F11 & Kommunikation & Falls der DZ gestartet wird, verbindet sich der DZ mit dem physikalischen UAV. \\
+    F08 & Visualisierung & Das virtuelle UAV besitzt die gleichen kinetischen und physischen Eigenschaften wie die des physischen UAV. \\
+    F09 & Visualisierung & Alle Bewegungen und Zustandsänderungen des physischen UAV werden vom virtuellen UAV gespiegelt. \\
+    F10 & Visualisierung & Für die Visualisierung des physischen UAV im virtuellen Raum wird ein virtueller UAV erstellt. \\
+    F11 & Kommunikation & Falls der DZ gestartet wird, verbindet sich der DZ mit dem physischen UAV. \\
     F12 & Kommunikation & Falls der DZ sich nach 5 Sekunden keine Verbindung zum PZ aufbauen kann, wird der Prozess beendet. \\
-    F13 & Benutzerausgabe & Die Videoübertragung des physikalischen UAV wird in Echtzeit übertragen. \\
-    F14 & Benutzerausgabe & Der Zustand und die Attributel des physikalischen UAV werden auf dem Rechner angezeigt.\\
-    F15 & Fehlerzustand & Falls das physikalische UAV nach 5 gesenden Befehlen keine Antwortnachricht zuruckliefert, wird der physikalische zum Landen befohlen. \\
+    F13 & Benutzerausgabe & Die Videoübertragung des physischen UAV wird in Echtzeit übertragen. \\
+    F14 & Benutzerausgabe & Der Zustand und die Attributel des physischen UAV werden auf dem Rechner angezeigt.\\
+    F15 & Fehlerzustand & Falls das physische UAV nach 5 gesenden Befehlen keine Antwortnachricht zuruckliefert, wird der physische zum Landen befohlen. \\
     F16 & Fehlerzustand & Falls der DZ einen unbekannten Fehlercode erhält, wird das physikalsche UAV zum Landen befohlen. \\
-    F17 & Fehlerzustand & Falls sich der physikalische UAV in einem unbekannten Zustand befindet, wird sie zum Landen befohlen.
+    F17 & Fehlerzustand & Falls sich der physische UAV in einem unbekannten Zustand befindet, wird sie zum Landen befohlen.
 \end{tabular}
 \caption{Funktionale Anforderungen}\label{table:Funktionale Anforderungen}
 \end{table}
