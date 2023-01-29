@@ -1,6 +1,0 @@
-\babel@toc {ngerman}{}\relax 
-\contentsline {chapter}{\numberline {1}Einleitung}{1}{chapter.1}%
-\contentsline {chapter}{\nonumberline Literaturverzeichnis}{2}{chapter*.2}%
-\contentsline {chapter}{\numberline {A}Anhang}{3}{appendix.A}%
-\contentsline {section}{Selbstständigkeitserklärung}{4}{appendix.A}%
-\providecommand \tocbasic@end@toc@file {}\tocbasic@end@toc@file 
