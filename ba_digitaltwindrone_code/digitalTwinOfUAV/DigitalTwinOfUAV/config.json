@@ -1,0 +1,32 @@
+{
+  "id": "digitalTwin",
+  "globals": {
+    "steps": 1000,
+    "console": false,
+    "output": "csv",
+    "options": {
+      "delimiter": ";",
+      "format": "en-EN"
+    }
+  },
+  "layers": [
+    {
+      "name": "VirtualEnvironmentLayer",
+      "file": "Resources/virtualEnvironment.csv"
+    }
+  ],
+  "agents": [
+    {
+      "name": "UAV",
+      "count": 1,
+      "outputs": [
+        {
+          "kind": "csv"
+        },
+        {
+          "kind": "trips"
+        }
+      ]
+    }
+  ]
+}
