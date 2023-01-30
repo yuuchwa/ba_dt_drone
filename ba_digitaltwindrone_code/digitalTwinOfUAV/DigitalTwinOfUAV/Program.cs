@@ -1,10 +1,17 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using DigitalTwinOfUAV.Model;
 using DigitalTwinOfUAV.Model.Agent;
 using DigitalTwinOfUAV.Model.Layer;
+using DigitalTwinOfUAV.TelloSDK.Core;
 using Mars.Components.Starter;
 using Mars.Interfaces.Model;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using RyzeTelloSDK.Core;
+using TelloApplication;
+using Microsoft.Extensions.DependencyInjection;
+
 
 namespace DigitalTwinOfUAV;
 
@@ -12,6 +19,8 @@ internal static class Program
 {
     public static void Main(string[] args)
     {
+        testTello();
+        
         // The scenario consists of the model (represented by the model description)
         // and the simulation configuration (see config.json).
             
@@ -37,5 +46,28 @@ internal static class Program
             
         // Feedback to user that simulation run was successful
         Console.WriteLine($"Simulation execution finished after {loopResults.Iterations} steps");
+    }
+
+    private async static void testTello()
+    {
+        CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
+        var serviceCollection = new ServiceCollection();
+        ConfigureServices(serviceCollection);
+        var serviceProvider = serviceCollection.BuildServiceProvider();
+
+        var console = serviceProvider.GetRequiredService<ConsoleWorker>();
+        await console.MainLoop();
+    }
+    
+    private static void ConfigureServices(IServiceCollection services)
+    {
+        services
+            .AddLogging() // configure => configure.AddFile(@"logs\log-{Date}.txt")
+            .AddSingleton<TelloConnectionSettings>()
+            .AddSingleton<TelloClient>()
+            .AddSingleton<TelloStateServer>()
+            .AddSingleton<Core>()
+            .AddSingleton<FFmpeg>()
+            .AddSingleton<ConsoleWorker>();
     }
 }
