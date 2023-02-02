@@ -26,7 +26,7 @@ namespace DigitalTwinOfUAV.TelloSDK.Extensions
         /// Command drone to Take off.
         /// </summary>
         /// <param name="telloClient">Upd server connected to tello</param>
-        /// <returns></returns>
+        /// <returns>The response</returns>
         public static Task<bool> TakeOff(this ITelloClient telloClient)
         {
             return telloClient.SendAction("takeoff");
@@ -36,7 +36,7 @@ namespace DigitalTwinOfUAV.TelloSDK.Extensions
         /// Command drone to land.
         /// </summary>
         /// <param name="telloClient">Upd server connected to tello</param>
-        /// <returns></returns>
+        /// <returns>The response</returns>
         public static Task<bool> Land(this ITelloClient telloClient)
         {
             return telloClient.SendAction("land");
