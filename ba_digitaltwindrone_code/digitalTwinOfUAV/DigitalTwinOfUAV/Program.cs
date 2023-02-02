@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.IO;
+using System.Threading.Tasks;
 using DigitalTwinOfUAV.Model;
 using DigitalTwinOfUAV.Model.Agent;
 using DigitalTwinOfUAV.Model.Layer;
@@ -46,9 +47,10 @@ internal static class Program
             
         // Feedback to user that simulation run was successful
         Console.WriteLine($"Simulation execution finished after {loopResults.Iterations} steps");
+        
     }
 
-    private async static void testTello()
+    private async Task<Task> Main()
     {
         CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
         var serviceCollection = new ServiceCollection();
@@ -70,4 +72,8 @@ internal static class Program
             .AddSingleton<FFmpeg>()
             .AddSingleton<ConsoleWorker>();
     }
+}
+
+internal class Task
+{
 }

@@ -1,7 +1,14 @@
-﻿using System.Net;
+﻿#region usings
+
+using System.Net;
+
+#endregion
 
 namespace DigitalTwinOfUAV.TelloSDK.Core
 {
+    /// <summary>
+    /// Class that contains all configuration adresses and ports.
+    /// </summary>
     public class TelloConnectionSettings
     {
         /// <summary>

@@ -1,6 +1,5 @@
 ﻿using RyzeTelloSDK.Core;
 using System.Threading.Tasks;
-using DigitalTwinOfUAV.TelloSDK.Core;
 
 namespace RyzeTelloSDK.Extensions
 {
@@ -12,12 +11,12 @@ namespace RyzeTelloSDK.Extensions
             return tello.SendAction($"speed {speed}");
         }
 
-        public static Task<bool> RemoteControll(this ITelloClient tello, int leftright, int forwardbackward, int updown, int yaw)
+        public static Task<bool> RC(this ITelloClient tello, int leftright, int forwardbackward, int updown, int yaw)
         {
-            CommandConstraints.CheckRemoteContoll(leftright);
-            CommandConstraints.CheckRemoteContoll(forwardbackward);
-            CommandConstraints.CheckRemoteContoll(updown);
-            CommandConstraints.CheckRemoteContoll(yaw);
+            CommandConstraints.CheckRC(leftright);
+            CommandConstraints.CheckRC(forwardbackward);
+            CommandConstraints.CheckRC(updown);
+            CommandConstraints.CheckRC(yaw);
             return tello.SendAction($"rc {leftright} {forwardbackward} {updown} {yaw}");
         }
 
@@ -26,8 +25,6 @@ namespace RyzeTelloSDK.Extensions
             return tello.SendAction($"wifi {ssid} {pass}");
         }
 
-        // Commands for controlling drone with Mission  pads
-        
         // ToDo: set mon
         // ToDo: set moff
         // ToDo: set mdirection x

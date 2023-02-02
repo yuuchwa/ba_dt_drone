@@ -1,51 +1,47 @@
 ﻿using Microsoft.Extensions.Logging;
 using RyzeTelloSDK.Core;
+using RyzeTelloSDK.Enum;
 using RyzeTelloSDK.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Threading.Tasks;
-using DigitalTwinOfUAV.TelloSDK.Core;
-using DigitalTwinOfUAV.TelloSDK.Enum;
-using DigitalTwinOfUAV.TelloSDK.Extensions;
+using Console = Colorful.Console;
 
-namespace TelloApplication
+namespace TelloTestApp
 {
-    /*
-     * This class 
-     */
     public class ConsoleWorker
     {
         private static readonly Dictionary<ConsoleKey, MoveDirection> MoveMappings = new Dictionary<ConsoleKey, MoveDirection>()
         {
             { ConsoleKey.W, MoveDirection.Forward },
-            { ConsoleKey.S, MoveDirection.Backward },
+            { ConsoleKey.S, MoveDirection.Back },
             { ConsoleKey.A, MoveDirection.Left },
             { ConsoleKey.D, MoveDirection.Right },
             { ConsoleKey.R, MoveDirection.Up },
             { ConsoleKey.F, MoveDirection.Down },
         };
 
-        private readonly ILogger logger;
+        // private readonly ILogger logger;
         private readonly Core core;
         private readonly TelloClient client;
-        //private readonly GamePadController gamePad;
+        private readonly GamePadController gamePad;
 
         private bool gamePadEnabled;
 
-        public ConsoleWorker(Core core, TelloClient client, ILogger<ConsoleWorker> logger)
+        public ConsoleWorker(Core core, TelloClient client, GamePadController gamePad, ILogger<ConsoleWorker> logger)
         {
             this.core = core;
-            this.logger = logger;
+            // this.logger = logger;
             this.client = client;
-            //this.gamePad = gamePad;
+            this.gamePad = gamePad;
 
             gamePadEnabled = false;
         }
 
         public async Task MainLoop()
         {
-            await core.InitializeCommunicationWithDrone();
+            await core.Init();
             RenderConsoleLoop();
             var shouldLoop = true;
             while (shouldLoop)
@@ -53,7 +49,7 @@ namespace TelloApplication
                 try
                 {
                     var key = Console.ReadKey(true);
-                    logger.LogInformation($"{key.Key} pressed");
+                    // logger.LogInformation($"{key.Key} pressed");
                     switch (key.Key)
                     {
                         case ConsoleKey.W:
@@ -63,49 +59,48 @@ namespace TelloApplication
                         case ConsoleKey.R:
                         case ConsoleKey.F:
                             if (gamePadEnabled == true) break;
-                            logger.LogInformation($"FlyDirection({MoveMappings[key.Key]}, 30)");
+                            // logger.LogInformation($"FlyDirection({MoveMappings[key.Key]}, 30)");
                             await client.FlyDirection(MoveMappings[key.Key], 30);
                             break;
 
                         case ConsoleKey.Q:
                         case ConsoleKey.E:
                             if (gamePadEnabled == true) break;
-                            logger.LogInformation($"RotateDirection({(key.Key == ConsoleKey.E ? "cw" : "ccw")}, 20)");
+                            // logger.LogInformation($"RotateDirection({(key.Key == ConsoleKey.E ? "cw" : "ccw")}, 20)");
                             await client.RotateDirection(key.Key == ConsoleKey.E, 20);
                             break;
 
                         case ConsoleKey.T:
-                            logger.LogInformation("TakeOff()");
+                            // logger.LogInformation("TakeOff()");
                             await client.TakeOff();
                             break;
 
                         case ConsoleKey.L:
-                            logger.LogInformation("Land()");
+                            // logger.LogInformation("Land()");
                             await client.Land();
                             break;
 
                         case ConsoleKey.Spacebar:
-                            logger.LogInformation("Emergency()");
+                            // logger.LogInformation("Emergency()");
                             await client.Emergency();
                             break;
 
                         case ConsoleKey.J:
-                            gamePadEnabled = false;
                             if (gamePadEnabled)
                             {
-                                //gamePad.Close();
+                                gamePad.Close();
                                 gamePadEnabled = false;
                             }
                             else
                             {
-                                //gamePadEnabled = gamePad.Listen();
+                                gamePadEnabled = gamePad.Listen();
                             }
 
-                            logger.LogInformation($"Gamepad mode is {(gamePadEnabled ? "ON" : "OFF")}");
+                            // logger.LogInformation($"Gamepad mode is {(gamePadEnabled ? "ON" : "OFF")}");
                             break;
 
                         case ConsoleKey.Escape:
-                            logger.LogInformation("Closing all of the connections");
+                            // logger.LogInformation("Closing all of the connections");
                             core.Close();
                             shouldLoop = false;
                             break;
@@ -113,10 +108,10 @@ namespace TelloApplication
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError(ex, "Exception while proccessing key press");
+                    // logger.LogError(ex, "Exception while proccessing key press");
                 }
             }
-            logger.LogInformation("Exiting loop");
+            // logger.LogInformation("Exiting loop");
         }
 
         private async void RenderConsoleLoop()
@@ -136,7 +131,7 @@ namespace TelloApplication
             {
                 Console.SetWindowSize(90, 9);
                 Console.SetCursorPosition(15, 0);
-                Console.Write("      X      Y      Z                     Low. High. °C     Pitch  Roll  Yaw");
+                Console.Write("      X      Y      Z                    Low. High. °C     Pitch  Roll  Yaw");
                 Console.SetCursorPosition(0, 1);
                 Console.Write("Acceleration:                              Temperature:");
                 Console.SetCursorPosition(0, 2);

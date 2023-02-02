@@ -1,6 +1,5 @@
 ﻿using RyzeTelloSDK.Core;
 using System.Threading.Tasks;
-using DigitalTwinOfUAV.TelloSDK.Core;
 
 namespace RyzeTelloSDK.Extensions
 {

@@ -4,6 +4,8 @@ using RyzeTelloSDK.Extensions;
 using RyzeTelloSDK.Models;
 using System;
 using System.Threading.Tasks;
+using DigitalTwinOfUAV.TelloSDK.Core;
+using DigitalTwinOfUAV.TelloSDK.Extensions;
 
 namespace TelloApplication
 {
@@ -74,7 +76,7 @@ namespace TelloApplication
             _client.Connect();
             _stateServer.Listen();
 
-            await TrySendCommand(_client.Init);
+            await TrySendCommand(_client.EnterSdkMode);
             await TrySendCommand(_client.StreamOn);
             _ffmpeg.Spawn();
         }

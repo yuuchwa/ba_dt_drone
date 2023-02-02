@@ -1,11 +1,11 @@
-﻿namespace RyzeTelloSDK.Enum
+﻿namespace DigitalTwinOfUAV.TelloSDK.Enum
 {
     /// <summary>
     /// Move directions.
     /// </summary>
     public enum MoveDirection
     {
-        Up, Down, Left, Right, Forward, Back
+        Up, Down, Left, Right, Forward, Backward
     }
 
     /// <summary>
@@ -13,6 +13,6 @@
     /// </summary>
     public enum FlipDirection
     {
-        Left, Right, Forward, Back
+        Left, Right, Forward, Backward
     }
 }

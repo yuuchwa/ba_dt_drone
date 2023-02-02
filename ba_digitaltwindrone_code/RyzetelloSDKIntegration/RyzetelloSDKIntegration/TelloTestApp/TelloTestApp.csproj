@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp7.0</TargetFramework>
+    <Authors>Eloncase</Authors>
+    <PackageLicenseFile>license</PackageLicenseFile>
+    <Copyright>Eloncase 2021</Copyright>
+    <Description>Test app for RyzeTelloSDK that shows capabilites of a library</Description>
+    <RepositoryUrl>https://github.com/Eloncase/RyzeTelloSDK</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/Eloncase/RyzeTelloSDK</PackageProjectUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Colorful.Console" Version="1.2.11" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
+    <PackageReference Include="Serilog.Extensions.Logging.File" Version="2.0.0" />
+    <PackageReference Include="SharpDX.DirectInput" Version="4.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RyzeTelloSDK\RyzeTelloSDK.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\license">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+
+</Project>

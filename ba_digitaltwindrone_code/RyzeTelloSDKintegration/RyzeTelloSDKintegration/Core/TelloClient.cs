@@ -1,36 +1,37 @@
-﻿using System;
+﻿using RyzeTelloSDK.Enum;
+using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DigitalTwinOfUAV.TelloSDK.Core
+namespace RyzeTelloSDK.Core
 {
     public class TelloClient : ITelloClient
     {
         private readonly UdpClient udpClient;
-        private readonly TelloConnectionSettings _telloConnectionSettings;
+        private readonly TelloSettings telloSettings;
 
         private IPEndPoint endPoint = new IPEndPoint(IPAddress.Any, 0);
 
         public bool IsConnected() => udpClient.Client != null && udpClient.Client.Connected;
 
-        public TelloClient(TelloConnectionSettings connectionSettings)
+        public TelloClient(TelloSettings settings)
         {
-            _telloConnectionSettings = connectionSettings;
+            telloSettings = settings;
             udpClient = new UdpClient();
             udpClient.Client.ReceiveTimeout = 3000; // ToDo: might wanna lower it / move it to settings
         }
 
-        public TelloClient(TelloConnectionSettings connectionSettings, UdpClient client)
+        public TelloClient(TelloSettings settings, UdpClient client)
         {
-            _telloConnectionSettings = connectionSettings;
+            telloSettings = settings;
             udpClient = client;
         }
 
         public void Connect()
         {
-            udpClient.Connect(new IPEndPoint(_telloConnectionSettings.IpAddress, _telloConnectionSettings.CommandPort));
+            udpClient.Connect(new IPEndPoint(telloSettings.Address, telloSettings.CommandPort));
         }
 
         public void Disconnect()
