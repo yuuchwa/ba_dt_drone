@@ -1,6 +1,6 @@
 \babel@toc {ngerman}{}\relax 
-\contentsline {chapter}{\nonumberline Abbildungsverzeichnis}{vi}{chapter*.3}%
-\contentsline {chapter}{\nonumberline Tabellenverzeichnis}{vii}{chapter*.4}%
+\contentsline {chapter}{\nonumberline Abbildungsverzeichnis}{vii}{chapter*.3}%
+\contentsline {chapter}{\nonumberline Tabellenverzeichnis}{viii}{chapter*.4}%
 \contentsline {chapter}{\numberline {1}Einleitung}{1}{chapter.1}%
 \contentsline {section}{\numberline {1.1}Motivation}{1}{section.1.1}%
 \contentsline {section}{\numberline {1.2}Zielsetzung}{1}{section.1.2}%
@@ -42,6 +42,7 @@
 \contentsline {section}{\numberline {8.1}Zusammenfassung}{15}{section.8.1}%
 \contentsline {section}{\numberline {8.2}Diskussion}{15}{section.8.2}%
 \contentsline {section}{\numberline {8.3}Ausblick}{15}{section.8.3}%
-\contentsline {chapter}{\numberline {A}Anhang}{16}{appendix.A}%
-\contentsline {section}{Selbstständigkeitserklärung}{17}{appendix.A}%
+\contentsline {chapter}{\nonumberline Literaturverzeichnis}{16}{chapter*.15}%
+\contentsline {chapter}{\numberline {A}Anhang}{17}{appendix.A}%
+\contentsline {section}{Selbstständigkeitserklärung}{18}{appendix.A}%
 \providecommand \tocbasic@end@toc@file {}\tocbasic@end@toc@file 

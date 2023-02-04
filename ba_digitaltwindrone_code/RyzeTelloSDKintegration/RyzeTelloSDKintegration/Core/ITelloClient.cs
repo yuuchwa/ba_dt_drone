@@ -15,9 +15,7 @@ namespace RyzeTelloSDK.Core
 
         /// <summary>
         /// Send command to drone
-        /// </summary>
-        /// <param name="command">The command.</param>
-        /// <returns>Drone response message.</returns>
+        /// </summary>tsage.</returns>
         Task<string> SendCommand(string command);
         
         /// <summary>
