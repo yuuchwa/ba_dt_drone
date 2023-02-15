@@ -43,13 +43,14 @@ namespace TelloTestApp
         public async Task MainLoop()
         {
             await core.Init();
-            RenderConsoleLoop();
+            // RenderConsoleLoop();
             var shouldLoop = true;
             while (shouldLoop)
             {
                 try
                 {
                     var key = Console.ReadKey(true);
+                    Console.WriteLine($"{key.Key} pressed");
                     // logger.LogInformation($"{key.Key} pressed");
                     switch (key.Key)
                     {
@@ -59,9 +60,10 @@ namespace TelloTestApp
                         case ConsoleKey.D:
                         case ConsoleKey.R:
                         case ConsoleKey.F:
-                            if (gamePadEnabled == true) break;
                             // logger.LogInformation($"FlyDirection({MoveMappings[key.Key]}, 30)");
+                            Console.WriteLine("instruction send");
                             await client.FlyDirection(MoveMappings[key.Key], 30);
+                            Console.WriteLine("response received");
                             break;
 
                         case ConsoleKey.Q:
@@ -114,11 +116,11 @@ namespace TelloTestApp
 
         private async void RenderConsoleLoop()
         {
-            //RenderConsole(true);
+            RenderConsole(true);
             while (true)
             {
                 await Task.Delay(250); // 0.25s
-                //RenderConsole();
+                RenderConsole();
             }
         }
 
@@ -127,7 +129,7 @@ namespace TelloTestApp
             var state = core.GetState();
             if (firstTime)
             {
-                Console.SetWindowSize(90, 9);
+                // Console.SetWindowSize(90, 9); funktioniert nicht
                 Console.SetCursorPosition(15, 0);
                 Console.Write("      X      Y      Z                    Low. High. °C     Pitch  Roll  Yaw");
                 Console.SetCursorPosition(0, 1);

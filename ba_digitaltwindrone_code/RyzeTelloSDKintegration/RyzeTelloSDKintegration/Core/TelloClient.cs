@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using Console = Colorful.Console;
 
 namespace RyzeTelloSDK.Core
 {
@@ -55,6 +56,7 @@ namespace RyzeTelloSDK.Core
         public async Task<bool> SendAction(string command)
         {
             var response = await SendCommand(command);
+            Console.WriteLine(response);
             switch(response.ToLower())
             {
                 case "ok":

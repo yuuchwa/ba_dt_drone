@@ -29,9 +29,7 @@ namespace TelloTestApp
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
             var console = serviceProvider.GetRequiredService<ConsoleWorker>();
-            Console.WriteLine("bis hier");
             await console.MainLoop();
-            Console.WriteLine("komme vorbei");
         }
     }
 }

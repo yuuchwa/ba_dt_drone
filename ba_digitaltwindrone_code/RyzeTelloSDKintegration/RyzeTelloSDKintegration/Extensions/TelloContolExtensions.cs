@@ -75,7 +75,7 @@ namespace RyzeTelloSDK.Extensions
         /// </summary>
         /// <param name="telloClient">Upd server connected to tello</param>
         /// <returns></returns>
-        public static Task<bool> Stop(this ITelloClient tello)
+        public static Task<bool> StopAction(this ITelloClient tello)
         {
             return tello.SendAction("stop");
         }
