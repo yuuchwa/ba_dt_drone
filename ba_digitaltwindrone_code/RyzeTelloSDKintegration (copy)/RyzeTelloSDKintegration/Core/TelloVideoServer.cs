@@ -6,12 +6,10 @@ using System.Threading.Tasks;
 
 namespace RyzeTelloSDK.Core
 {
-    /// <summary>
-    /// Class for receiving the video data stream form the tello.
-    /// </summary>
     public class TelloVideoServer : ITelloServer
     {
-        private readonly UdpClient _udpServer;
+        private readonly UdpClient udpServer;
+        private readonly TelloSettings telloSettings;
 
         private Task mainLoop;
         private CancellationTokenSource cts;
@@ -19,11 +17,11 @@ namespace RyzeTelloSDK.Core
         public event Action<Exception> OnException;
         public event Action<byte[]> OnData;
 
-        public TelloVideoServer()
+        public TelloVideoServer(TelloSettings settings)
         {
-            IPAddress ipAddress = IPAddress.Parse(TelloSettings.IpAddress);
-            _udpServer = new UdpClient(new IPEndPoint(ipAddress, TelloSettings.VideoStreamPort));
-            _udpServer.Client.ReceiveTimeout = 3000;
+            telloSettings = settings;
+            udpServer = new UdpClient(new IPEndPoint(IPAddress.Any, TelloSettings.VideoStreamPort));
+            udpServer.Client.ReceiveTimeout = 3000;
         }
 
         public void Close()
@@ -43,7 +41,7 @@ namespace RyzeTelloSDK.Core
             {
                 try
                 {
-                    var result = await _udpServer.ReceiveAsync();
+                    var result = await udpServer.ReceiveAsync();
                     OnData?.Invoke(result.Buffer);
                 }
                 catch (Exception ex)
@@ -53,6 +51,6 @@ namespace RyzeTelloSDK.Core
             }
         }
 
-        public void Dispose() => _udpServer.Dispose();
+        public void Dispose() => udpServer.Dispose();
     }
 }

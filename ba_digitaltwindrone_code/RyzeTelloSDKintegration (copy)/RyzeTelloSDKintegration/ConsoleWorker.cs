@@ -43,6 +43,8 @@ namespace TelloTestApp
         public async Task MainLoop()
         {
             await core.Init();
+            // start readkey backgroundworker
+            
             // RenderConsoleLoop();
             var shouldLoop = true;
             while (shouldLoop)
@@ -61,14 +63,11 @@ namespace TelloTestApp
                         case ConsoleKey.R:
                         case ConsoleKey.F:
                             // logger.LogInformation($"FlyDirection({MoveMappings[key.Key]}, 30)");
-                            Console.WriteLine("instruction send");
                             await client.FlyDirection(MoveMappings[key.Key], 30);
-                            Console.WriteLine("response received");
                             break;
 
                         case ConsoleKey.Q:
                         case ConsoleKey.E:
-                            if (gamePadEnabled == true) break;
                             // logger.LogInformation($"RotateDirection({(key.Key == ConsoleKey.E ? "cw" : "ccw")}, 20)");
                             await client.RotateDirection(key.Key == ConsoleKey.E, 20);
                             break;
@@ -87,18 +86,7 @@ namespace TelloTestApp
                             // logger.LogInformation("Emergency()");
                             await client.Emergency();
                             break;
-
-                        case ConsoleKey.J:
-                            if (gamePadEnabled)
-                            {
-                                //gamePad.Close();
-                                gamePadEnabled = false;
-                            }
-                            else
-                            {
-                                // logger.LogInformation($"Gamepad mode is {(gamePadEnabled ? "ON" : "OFF")}");
-                            }
-                            break;
+                        
                         case ConsoleKey.Escape:
                             // logger.LogInformation("Closing all of the connections");
                             core.Close();
@@ -176,5 +164,5 @@ namespace TelloTestApp
             if (temp > 50) return Color.Yellow;
             return Color.Green;
         }
-    }
+    }    
 }

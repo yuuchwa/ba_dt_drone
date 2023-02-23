@@ -11,7 +11,7 @@ namespace TelloTestApp
 
         private Process process;
 
-        public FFmpeg()
+        public FFmpeg(TelloSettings settings)
         {
             processStartInfo = new ProcessStartInfo()
             {

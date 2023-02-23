@@ -17,7 +17,7 @@ namespace RyzeTelloSDK.Extensions
         /// <returns></returns>
         public static Task<bool> Init(this ITelloClient tello)
         {
-            return tello.SendCommandWithResponse("command");
+            return tello.SendAction("command");
         }
         
         /// <summary>
@@ -27,7 +27,7 @@ namespace RyzeTelloSDK.Extensions
         /// <returns>The response</returns>
         public static Task<bool> TakeOff(this ITelloClient tello)
         {
-            return tello.SendCommandWithResponse("takeoff");
+            return tello.SendAction("takeoff");
         }
         
         /// <summary>
@@ -37,7 +37,7 @@ namespace RyzeTelloSDK.Extensions
         /// <returns>The response</returns>
         public static Task<bool> Land(this ITelloClient tello)
         {
-            return tello.SendCommandWithResponse("land");
+            return tello.SendAction("land");
         }
 
         /// <summary>
@@ -47,7 +47,7 @@ namespace RyzeTelloSDK.Extensions
         /// <returns></returns>
         public static Task<bool> StreamOn(this ITelloClient tello)
         {
-            return tello.SendCommandWithResponse("streamon");
+            return tello.SendAction("streamon");
         }
 
         /// <summary>
@@ -57,7 +57,7 @@ namespace RyzeTelloSDK.Extensions
         /// <returns></returns>
         public static Task<bool> StreamOff(this ITelloClient tello)
         {
-            return tello.SendCommandWithResponse("streamoff");
+            return tello.SendAction("streamoff");
         }
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace RyzeTelloSDK.Extensions
         /// <returns></returns>
         public static Task<bool> Emergency(this ITelloClient tello)
         {
-            return tello.SendCommandWithResponse("emergency");
+            return tello.SendAction("emergency");
         }
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace RyzeTelloSDK.Extensions
         /// <returns></returns>
         public static Task<bool> StopAction(this ITelloClient tello)
         {
-            return tello.SendCommandWithResponse("stop");
+            return tello.SendAction("stop");
         }
 
         /// <summary>
@@ -90,7 +90,7 @@ namespace RyzeTelloSDK.Extensions
         public static Task<bool> FlyDirection(this ITelloClient tello, MoveDirection direction, int cm)
         {
             CommandConstraints.CheckDistance(cm);
-            return tello.SendCommandWithResponse($"{direction.ToString().ToLower()} {cm}");
+            return tello.SendAction($"{direction.ToString().ToLower()} {cm}");
         }
 
         /// <summary>
@@ -103,7 +103,7 @@ namespace RyzeTelloSDK.Extensions
         public static Task<bool> RotateDirection(this ITelloClient tello, bool clockwise, int degree)
         {
             CommandConstraints.CheckDegree(degree);
-            return tello.SendCommandWithResponse($"{(clockwise ? "cw" : "ccw")} {degree}");
+            return tello.SendAction($"{(clockwise ? "cw" : "ccw")} {degree}");
         }
 
         /// <summary>
@@ -114,7 +114,7 @@ namespace RyzeTelloSDK.Extensions
         /// <returns></returns>
         public static Task<bool> Flip(this ITelloClient tello, FlipDirection direction)
         {
-            return tello.SendCommandWithResponse($"flip {direction.ToString().ToLower()[0]}");
+            return tello.SendAction($"flip {direction.ToString().ToLower()[0]}");
         }
 
         // ToDo: FlyTo overload "mid"
@@ -133,7 +133,7 @@ namespace RyzeTelloSDK.Extensions
             CommandConstraints.CheckDistance(y);
             CommandConstraints.CheckDistance(z);
             CommandConstraints.CheckSpeed(speed);
-            return tello.SendCommandWithResponse($"go {x} {y} {z} {speed}");
+            return tello.SendAction($"go {x} {y} {z} {speed}");
         }
 
         // ToDo: Curve overload "mid"
@@ -161,7 +161,7 @@ namespace RyzeTelloSDK.Extensions
 
             // ToDo: x/y/z can’t be between -20 20 at the same time.
 
-            return tello.SendCommandWithResponse($"curve {x1} {y1} {z1} {x2} {y2} {z2} {speed}");
+            return tello.SendAction($"curve {x1} {y1} {z1} {x2} {y2} {z2} {speed}");
         }
 
         // ToDo: Jump

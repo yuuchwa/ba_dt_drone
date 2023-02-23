@@ -2,7 +2,10 @@
 using RyzeTelloSDK.Extensions;
 using RyzeTelloSDK.Models;
 using System;
+using System.Net.Sockets;
 using System.Threading.Tasks;
+using RyzeTelloSDKintegration.Core;
+
 // using Microsoft.Extensions.Logging;
 
 namespace TelloTestApp
@@ -10,7 +13,7 @@ namespace TelloTestApp
     /// <summary>
     /// This class handels all communications with the tello drone.
     /// </summary>
-    public class Core
+    public class TelloCore
     {
     	/// <summary>
         /// The logger.
@@ -20,12 +23,12 @@ namespace TelloTestApp
         /// <summary>
         /// The Tello client
         /// </summary>
-        private readonly TelloClient client;
+        private readonly TelloClient _telloClient;
         
         /// <summary>
         /// The state server
         /// </summary>
-        private readonly TelloStateServer stateServer;
+        private readonly TelloStateServer _stateServer;
         
         /// <summary>
         /// The FFmpeg
@@ -35,39 +38,34 @@ namespace TelloTestApp
 	/// <summary>
         /// The state of the drone.
         /// </summary>
-        private TelloState telloState;
+        private TelloState _telloState;
 
         /// <summary>
         /// Instantiates the Core
         /// </summary>
-        /// <param name="logger">The Logger</param>
-        /// <param name="client">The Client</param>
-        /// <param name="stateServer">The state server</param>
-        /// <param name="ffmpeg">The ffmpeg</param>
         // public Core(ILogger<Core> logger , TelloClient client, TelloStateServer stateServer, FFmpeg ffmpeg)
-        public Core(TelloClient client, TelloStateServer stateServer)
+        //public TelloCore(TelloClient telloClient, TelloStateServer stateServer)
+        public TelloCore()
         {
             // this.logger = logger;
-            this.client = client;
-            this.stateServer = stateServer;
+            this._telloClient = new TelloClient();
+            this._stateServer = new TelloStateServer();
             //this.ffmpeg = ffmpeg;
 
-            stateServer.OnState += (s) => telloState = s;
+            _stateServer.OnState += (s) => _telloState = s;
+            // Init();
             //stateServer.OnException += (ex) => logger.LogError(ex, "stateServer.OnException");
         }
 
         /// <summary>
         /// Initialize the communication the Tello drone.
         /// </summary>
-        public async Task Init()
+        public void IntitializeConnectionToTello()
         {
-            client.Connect();
-            Console.WriteLine("connecting");
-            stateServer.Listen();
-            Console.WriteLine("Connection successful");
-
-            await TrySendCommand(client.Init);
-            await TrySendCommand(client.StreamOn);
+            _telloClient.Connect();
+            _stateServer.Listen();
+            TrySendCommand(_telloClient.Init); 
+            TrySendCommand(_telloClient.StreamOn);
             //ffmpeg.Spawn();
         }
 
@@ -76,8 +74,8 @@ namespace TelloTestApp
         /// </summary>
         public void Close()
         {
-            client.Disconnect();
-            stateServer.Close();
+            _telloClient.Disconnect();
+            _stateServer.Close();
             //ffmpeg.Close();
         }
 
@@ -87,8 +85,8 @@ namespace TelloTestApp
         /// <returns>Return the current state.</returns>
         public TelloState GetState()
         {
-            if (telloState == null) return new TelloState();
-            return telloState;
+            if (_telloState == null) return new TelloState();
+            return _telloState;
         }
 
         /// <summary>
@@ -102,6 +100,7 @@ namespace TelloTestApp
             try
             {
                 return await function.Invoke();
+                // logger.LogError(ex, $"Connection to Tello established");
             }
             catch (Exception ex)
             {

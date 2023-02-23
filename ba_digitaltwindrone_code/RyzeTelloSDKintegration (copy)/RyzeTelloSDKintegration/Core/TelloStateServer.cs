@@ -3,6 +3,8 @@ using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace RyzeTelloSDK.Core
 {
@@ -16,7 +18,12 @@ namespace RyzeTelloSDK.Core
         /// </summary>
         private readonly UdpClient udpServer;
         
-	    /// <summary>
+        /// <summary>
+        /// The setting for the tello drone.
+        /// </summary>
+        private readonly TelloSettings telloSettings;
+
+	/// <summary>
         /// The main loop
         /// </summary>
         private Task mainLoop;
@@ -34,10 +41,10 @@ namespace RyzeTelloSDK.Core
         /// Instantiates the TelloStateServer.
         /// </summary>
         /// <param name="connectionSettings">The settings for Tello.</param>
-        public TelloStateServer()
+        public TelloStateServer(TelloSettings settings)
         {
-            IPAddress ipAddress = IPAddress.Parse(TelloSettings.IpAddress);
-            udpServer = new UdpClient(new IPEndPoint(ipAddress, TelloSettings.StateUdpPort));
+            telloSettings = settings;
+            udpServer = new UdpClient(new IPEndPoint(IPAddress.Any, TelloSettings.StateUdpPort));
             udpServer.Client.ReceiveTimeout = 3000;
         }
 
