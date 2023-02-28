@@ -1,10 +1,10 @@
 ﻿using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
-using System.Runtime.InteropServices.JavaScript;
 using System.Text;
 using RyzeTelloSDK.Core;
-using System.Linq;
+using System.Diagnostics;
 
 namespace RyzeTelloSDKintegration.Core
 {
@@ -20,7 +20,7 @@ namespace RyzeTelloSDKintegration.Core
         private readonly Thread _responseListener;
         private readonly ConcurrentQueue<string> _responses;
         private long _lastReceivedCommandTs;
-
+        
 
         public bool IsConnected() => _udpClient.Client.Connected;
 
@@ -29,11 +29,11 @@ namespace RyzeTelloSDKintegration.Core
         /// </summary>
         public TelloClient()
         {
+            Debug.WriteLine("Instantiate the Tello Client");
             _udpClient = new UdpClient();
             _udpClient.Client.ReceiveTimeout = TelloSettings.ResponseTimeOut;
             _ipAddress = IPAddress.Parse(TelloSettings.IpAddress);
             _endPoint = new IPEndPoint(_ipAddress, 0);
-            Connect();
             
             _responses = new ConcurrentQueue<string>();
             _responseListener = new Thread(ResponseListener);
@@ -44,6 +44,7 @@ namespace RyzeTelloSDKintegration.Core
 
         public void Connect()
         {
+            Debug.WriteLine("Socket connected.");
             _udpClient.Connect(new IPEndPoint(_ipAddress, TelloSettings.CommandUdpPort));
         }
 

@@ -1,5 +1,6 @@
 ﻿using RyzeTelloSDK.Models;
 using System;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -19,12 +20,12 @@ namespace RyzeTelloSDK.Core
 	    /// <summary>
         /// The main loop
         /// </summary>
-        private Task mainLoop;
+        private Task _mainLoop;
         
         /// <summary>
         /// Token for canceling a thread.
         /// </summary>
-        private CancellationTokenSource cts;
+        private CancellationTokenSource _cancellationToken;
 
         public event Action<Exception> OnException;
         public event Action<string> OnStateRaw;
@@ -36,9 +37,9 @@ namespace RyzeTelloSDK.Core
         /// <param name="connectionSettings">The settings for Tello.</param>
         public TelloStateServer()
         {
-            IPAddress ipAddress = IPAddress.Parse(TelloSettings.IpAddress);
-            udpServer = new UdpClient(new IPEndPoint(ipAddress, TelloSettings.StateUdpPort));
+            udpServer = new UdpClient(new IPEndPoint(IPAddress.Any, TelloSettings.StateUdpPort));
             udpServer.Client.ReceiveTimeout = 3000;
+            Console.WriteLine("Stateserver Instantiated");
         }
 
         /// <summary>
@@ -46,7 +47,7 @@ namespace RyzeTelloSDK.Core
         /// </summary>
         public void Close()
         {
-            cts.Cancel();
+            _cancellationToken.Cancel();
         }
 
         /// <summary>
@@ -54,8 +55,8 @@ namespace RyzeTelloSDK.Core
         /// </summary>
         public void Listen()
         {
-            cts = new CancellationTokenSource();
-            mainLoop = Task.Run(ListenTask, cts.Token);
+            _cancellationToken = new CancellationTokenSource();
+            _mainLoop = Task.Run(ListenTask, _cancellationToken.Token);
         }
 
         /// <summary>
@@ -63,12 +64,17 @@ namespace RyzeTelloSDK.Core
         /// </summary>
         private async void ListenTask()
         {
+            Console.WriteLine("started");
+
             while (true)
             {
                 try
                 {
+                    Console.WriteLine("warte");
                     var result = await udpServer.ReceiveAsync();
                     var data = Encoding.ASCII.GetString(result.Buffer);
+                    Console.WriteLine("komme rein");
+
                     OnStateRaw?.Invoke(data);
                     OnState?.Invoke(TelloState.FromString(data));
                 }

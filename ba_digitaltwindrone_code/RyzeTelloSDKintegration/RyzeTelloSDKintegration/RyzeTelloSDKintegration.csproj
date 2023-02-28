@@ -9,9 +9,12 @@
 
     <ItemGroup>
       <PackageReference Include="Colorful.Console" Version="1.2.15" />
+      <PackageReference Include="Emgu.CV" Version="4.6.0.5131" />
+      <PackageReference Include="Emgu.CV.runtime.ubuntu-x64" Version="4.6.0.5131" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
       <PackageReference Include="Microsoft.Extensions.Logging" Version="2.0.0" />
       <PackageReference Include="SharpDX.DirectInput" Version="4.2.0" />
+      <PackageReference Include="System.Diagnostics.Debug" Version="4.3.0" />
     </ItemGroup>
 
 </Project>

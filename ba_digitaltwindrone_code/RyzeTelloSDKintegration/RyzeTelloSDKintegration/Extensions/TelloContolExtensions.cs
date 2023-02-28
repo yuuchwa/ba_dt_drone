@@ -10,12 +10,12 @@ namespace RyzeTelloSDK.Extensions
     public static class TelloContolExtensions
     {
     
-   	/// <summary>
+   	    /// <summary>
         /// Set tello to SDK mode.
         /// </summary>
         /// <param name="telloClient">Upd server connected to tello</param>
         /// <returns></returns>
-        public static Task<bool> Init(this ITelloClient tello)
+        public static Task<bool> InitTello(this ITelloClient tello)
         {
             return tello.SendCommandWithResponse("command");
         }

@@ -30,7 +30,7 @@ namespace RyzeTelloSDK.Extensions
             return tello.SendCommand("sdk?");
         }
 
-        public static Task<string> GetSN(this ITelloClient tello)
+        public static Task<string> GetSerialNumber(this ITelloClient tello)
         {
             return tello.SendCommand("sn?");
         }

@@ -6,6 +6,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using RyzeTelloSDKintegration;
 using RyzeTelloSDKintegration.Core;
 
 namespace TelloTestApp

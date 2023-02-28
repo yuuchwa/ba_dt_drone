@@ -52,8 +52,14 @@ namespace TelloTestApp
             this._stateServer = stateServer;
             //this.ffmpeg = ffmpeg;
 
-            stateServer.OnState += (s) => _telloState = s;
+            stateServer.OnState += ReceiveState; // (s) => _telloState = s;
             //stateServer.OnException += (ex) => logger.LogError(ex, "stateServer.OnException");
+        }
+
+        public void ReceiveState(TelloState state)
+        {
+            Console.WriteLine("write new State");
+            _telloState = state;
         }
 
         /// <summary>
@@ -63,7 +69,7 @@ namespace TelloTestApp
         {
             _telloClient.Connect();
             Console.WriteLine("connecting");
-            _stateServer.Listen();
+            _stateServer.Listen(); // Startet den Thread zum Abhören
             Console.WriteLine("Connection successful");
 
             await TrySendCommand(_telloClient.Init);

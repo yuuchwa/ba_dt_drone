@@ -6,8 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Threading.Tasks;
+using RyzeTelloSDKintegration;
 using RyzeTelloSDKintegration.Core;
-using Console = Colorful.Console;
 
 namespace TelloTestApp
 {

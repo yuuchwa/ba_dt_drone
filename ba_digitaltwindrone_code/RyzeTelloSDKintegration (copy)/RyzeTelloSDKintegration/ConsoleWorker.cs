@@ -45,7 +45,7 @@ namespace TelloTestApp
             await core.Init();
             // start readkey backgroundworker
             
-            // RenderConsoleLoop();
+            RenderConsoleLoop();
             var shouldLoop = true;
             while (shouldLoop)
             {
@@ -104,11 +104,11 @@ namespace TelloTestApp
 
         private async void RenderConsoleLoop()
         {
-            RenderConsole(true);
+            RenderConsole();
             while (true)
             {
                 await Task.Delay(250); // 0.25s
-                RenderConsole();
+                RenderConsole(false);
             }
         }
 
