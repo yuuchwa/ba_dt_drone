@@ -10,7 +10,7 @@ public class ConsoleDisplay
     public ConsoleDisplay(TelloStateServer stateServer)
     {
         RenderConsole(new TelloState());
-        stateServer.OnState += (s) => RenderConsole(s, false);
+        //stateServer.OnState += (s) => RenderConsole(s, false);
     }
 
     private void RenderConsole(TelloState state, bool firstTime = true)

@@ -64,16 +64,14 @@ namespace RyzeTelloSDK.Core
         /// </summary>
         private async void ListenTask()
         {
-            Console.WriteLine("started");
 
             while (true)
             {
                 try
                 {
-                    Console.WriteLine("warte");
                     var result = await udpServer.ReceiveAsync();
+
                     var data = Encoding.ASCII.GetString(result.Buffer);
-                    Console.WriteLine("komme rein");
 
                     OnStateRaw?.Invoke(data);
                     OnState?.Invoke(TelloState.FromString(data));

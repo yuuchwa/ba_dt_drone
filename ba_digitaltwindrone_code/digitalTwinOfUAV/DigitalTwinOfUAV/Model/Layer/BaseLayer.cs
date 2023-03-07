@@ -9,12 +9,12 @@ using Mars.Interfaces.Layers;
 
 namespace DigitalTwinOfUAV.Model.Layer;
 
-public class VirtuelEnvironmentLayer : VectorLayer
+public class BaseLayer : VectorLayer
 {
     /// <summary>
     ///     A list of agent instances that live on the layer.
     /// </summary>
-    public List<UAV> UAVs { get; set; }
+    public List<TelloAgent> UAVs { get; set; }
     public IAgentManager AgentManager { get; private set; }
     
     
@@ -26,7 +26,7 @@ public class VirtuelEnvironmentLayer : VectorLayer
         var initiated = base.InitLayer(layerInitData, registerAgentHandle, unregisterAgentHandle);
 
         AgentManager = layerInitData.Container.Resolve<IAgentManager>();
-        var hiders = AgentManager.Spawn<UAV, VirtuelEnvironmentLayer>().ToList();
+        var hiders = AgentManager.Spawn<TelloAgent, BaseLayer>().ToList();
         //var seekers = AgentManager.Spawn<GastSeeker, ArenaLayer>().ToList();
         
         return initiated;

@@ -3,6 +3,7 @@ using RyzeTelloSDK.Extensions;
 using RyzeTelloSDK.Models;
 using RyzeTelloSDKintegration.Core;
 using RyzeTelloSDKintegration.FlightManagementSystem;
+using Microsoft.Extensions.DependencyInjection;
 
 // using Microsoft.Extensions.Logging;
 
@@ -45,11 +46,11 @@ namespace RyzeTelloSDKintegration
         /// </summary>
         // public Core(ILogger<Core> logger , TelloClient client, TelloStateServer stateServer, FFmpeg ffmpeg)
         //public TelloCore(TelloClient telloClient, TelloStateServer stateServer)
-        public TelloCore()
+        public TelloCore(TelloClient telloClient, TelloStateServer stateServer)
         {
             // this.logger = logger;
-            _telloClient = new TelloClient();
-            _stateServer = new TelloStateServer();
+            _telloClient = telloClient;
+            _stateServer = stateServer;
             _consoleOutput = new ConsoleDisplay(_stateServer);
             _stateServer.OnState += (s) => _telloState = s;
             IntitializeConnectionToTello();
@@ -71,6 +72,7 @@ namespace RyzeTelloSDKintegration
             //TrySendCommand(_telloClient.Init); 
             // TrySendCommand(_telloClient.StreamOn);
             //ffmpeg.Spawn();
+            _telloClient.GetBattery();
         }
 
         /// <summary>

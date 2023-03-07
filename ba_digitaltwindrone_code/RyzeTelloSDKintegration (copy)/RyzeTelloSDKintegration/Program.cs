@@ -15,7 +15,7 @@ namespace TelloTestApp
                 .AddSingleton<TelloSettings>()
                 .AddSingleton<TelloClient>()
                 .AddSingleton<TelloStateServer>()
-                .AddSingleton<Core>()
+                // .AddSingleton<Core>()
                 //.AddSingleton<FFmpeg>()
                 //.AddSingleton<GamePadController>()
                 .AddSingleton<ConsoleWorker>();

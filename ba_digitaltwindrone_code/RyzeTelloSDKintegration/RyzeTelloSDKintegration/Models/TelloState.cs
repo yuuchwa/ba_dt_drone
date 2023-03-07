@@ -63,7 +63,7 @@ namespace RyzeTelloSDK.Models
         public static TelloState FromString(string data)
         {
             var state = new TelloState();
-
+            Console.WriteLine(data);
             var matches = regex.Matches(data);
 
             var results = new Dictionary<string, string>();
