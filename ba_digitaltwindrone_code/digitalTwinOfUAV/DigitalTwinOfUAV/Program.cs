@@ -54,9 +54,9 @@ internal static class Program
         //TelloClient client = new TelloClient();
         //TelloStateServer server = new TelloStateServer();
         TelloCore core = new TelloCore();
-
-        DroneCommand command = new DroneCommand(TelloAction.Battery, 0);
-        
+        Thread.Sleep(2000);
+        DroneCommand command = new DroneCommand(TelloAction.Time, 0);
+        Console.WriteLine("send");
         while (true)
         {
             core.QueryCommand(command);
