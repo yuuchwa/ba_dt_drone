@@ -55,6 +55,7 @@ internal static class Program
         //TelloStateServer server = new TelloStateServer();
         TelloCore core = new TelloCore();
         Thread.Sleep(2000);
+        /*
         DroneCommand command = new DroneCommand(TelloAction.Time, 0);
         Console.WriteLine("send");
         while (true)
@@ -62,5 +63,14 @@ internal static class Program
             core.QueryCommand(command);
             Thread.Sleep(500);
         }
+        */
+        char key = ' ';
+        while (key != 'y')
+        {
+            var keyInfo = Console.ReadKey();
+            key = keyInfo.KeyChar;
+        }
+
+        core.Close();
     }
 }
