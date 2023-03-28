@@ -35,7 +35,7 @@ public class TelloCore : ICore
     /// </summary>
     private readonly TelloStateServer _stateServer;
     
-    private readonly ConsoleDisplay _consoleOutput;
+    //private readonly ConsoleDisplay _consoleOutput;
 
     private bool _stopThread;
 
@@ -74,7 +74,7 @@ public class TelloCore : ICore
         
         _telloClient = new TelloClient();
         _stateServer = new TelloStateServer();
-        _consoleOutput = new ConsoleDisplay(_stateServer);
+        //_consoleOutput = new ConsoleDisplay(_stateServer);
         
         _stateServer.OnState += (s) => _telloState = s;
         
@@ -95,9 +95,7 @@ public class TelloCore : ICore
         _telloClient.Connect();
         _stateServer.Listen();
         await _telloClient.InitTello();
-        //TrySendCommand(_telloClient.Init); 
-        // TrySendCommand(_telloClient.StreamOn);
-        //ffmpeg.Spawn();
+        Console.WriteLine("Inizialization successful");
     }
 
     /// <summary>
@@ -123,8 +121,7 @@ public class TelloCore : ICore
     /// <returns>Return the current state.</returns>
     public TelloState GetState()
     {
-        if (_telloState == null) return new TelloState();
-        return _telloState;
+        return _telloState ?? new TelloState();
     }
     
     public void QueryCommand(DroneCommand command)

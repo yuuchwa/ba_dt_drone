@@ -1,7 +1,7 @@
 {
   "id": "digitalTwin",
   "globals": {
-    "steps": 1000,
+    "steps": 100000000000,
     "console": false,
     "output": "csv",
     "options": {
@@ -11,20 +11,18 @@
   },
   "layers": [
     {
-      "name": "VirtualEnvironmentLayer",
-      "file": "Resources/virtualEnvironment.csv"
+      "name": "LandScapeLayer",
+      "file": "Resources/landScapeEnvironment.csv"
     }
   ],
   "agents": [
     {
-      "name": "UAV",
+      "name": "TelloAgent",
       "count": 1,
+      "file": "Resources/telloAgent.csv",
       "outputs": [
         {
           "kind": "csv"
-        },
-        {
-          "kind": "trips"
         }
       ]
     }

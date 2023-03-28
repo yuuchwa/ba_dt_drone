@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using DigitalTwinOfUAV.Model.Agent;
+using Mars.Components.Environments;
 using Mars.Components.Layers;
 using Mars.Components.Services;
 using Mars.Core.Data;
@@ -9,15 +10,12 @@ using Mars.Interfaces.Layers;
 
 namespace DigitalTwinOfUAV.Model.Layer;
 
-public class BaseLayer : VectorLayer
+public class LandScapeLayer : RasterLayer
 {
-    /// <summary>
-    ///     A list of agent instances that live on the layer.
-    /// </summary>
-    public List<TelloAgent> UAVs { get; set; }
     public IAgentManager AgentManager { get; private set; }
-    
-    
+
+    public SpatialHashEnvironment<TelloAgent> telloEnvironment;
+
     public override bool InitLayer(
         LayerInitData layerInitData,
         RegisterAgent registerAgentHandle,
@@ -25,9 +23,11 @@ public class BaseLayer : VectorLayer
     {
         var initiated = base.InitLayer(layerInitData, registerAgentHandle, unregisterAgentHandle);
 
+        telloEnvironment = new SpatialHashEnvironment<TelloAgent>(Width, Height);
+        
         AgentManager = layerInitData.Container.Resolve<IAgentManager>();
-        var hiders = AgentManager.Spawn<TelloAgent, BaseLayer>().ToList();
-        //var seekers = AgentManager.Spawn<GastSeeker, ArenaLayer>().ToList();
+        
+        var telloAgent = AgentManager.Spawn<TelloAgent, LandScapeLayer>().ToList();
         
         return initiated;
     }

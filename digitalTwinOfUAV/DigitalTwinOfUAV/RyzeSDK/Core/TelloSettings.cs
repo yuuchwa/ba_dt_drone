@@ -31,7 +31,7 @@ namespace RyzeTelloSDK.Core
         /// <summary>
         /// Time until thread abort waiting for a reponse.
         /// </summary>
-        public const int ResponseTimeOut = 7000; // Milliseconds
+        public const int ResponseTimeOut = 0; // Milliseconds
         
         /// <summary>
         /// Time between next command.
