@@ -1,7 +1,7 @@
 {
   "id": "digitalTwin",
   "globals": {
-    "steps": 100000000000,
+    "steps": 1, // 100000000000,
     "console": false,
     "output": "csv",
     "options": {

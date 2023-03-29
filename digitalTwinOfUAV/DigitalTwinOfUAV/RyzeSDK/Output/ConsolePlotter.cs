@@ -9,11 +9,11 @@ public class ConsoleDisplay
 {
     public ConsoleDisplay(TelloStateServer stateServer)
     {
-        RenderConsole(new TelloState());
+        RenderConsole(new TelloStateParameter());
         stateServer.OnState += (s) => RenderConsole(s, false);
     }
 
-    private void RenderConsole(TelloState state, bool firstTime = true)
+    private void RenderConsole(TelloStateParameter stateParameter, bool firstTime = true)
     {
         if (firstTime)
         {
@@ -33,18 +33,18 @@ public class ConsoleDisplay
         }
         // ersetze nur die Werte anstatt das Interface komplett neu zu erstellen. 
         Console.SetCursorPosition(16, 1);
-        Console.Write($"{state.AccelerationX,6:0} {state.AccelerationY,6:0} {state.AccelerationZ,6:0}");
+        Console.Write($"{stateParameter.AccelerationX,6:0} {stateParameter.AccelerationY,6:0} {stateParameter.AccelerationZ,6:0}");
         Console.SetCursorPosition(16, 2);
-        Console.Write($"{state.VelocityX,6:0} {state.VelocityY,6:0} {state.VelocityZ,6:0}");
+        Console.Write($"{stateParameter.VelocityX,6:0} {stateParameter.VelocityY,6:0} {stateParameter.VelocityZ,6:0}");
         Console.SetCursorPosition(57, 1);
-        Console.Write($"   {state.TempLowest,3}", GetTempColor(state.TempLowest));
-        Console.Write($"   {state.TempHighest,3}", GetTempColor(state.TempHighest));
+        Console.Write($"   {stateParameter.TempLowest,3}", GetTempColor(stateParameter.TempLowest));
+        Console.Write($"   {stateParameter.TempHighest,3}", GetTempColor(stateParameter.TempHighest));
         Console.SetCursorPosition(74, 1);
-        Console.Write($"{state.Pitch,5}  {state.Roll,4}  {state.Yaw,3}");
+        Console.Write($"{stateParameter.Pitch,5}  {stateParameter.Roll,4}  {stateParameter.Yaw,3}");
         Console.SetCursorPosition(44, 3);
-        Console.Write($"{state.TOF,3}  {state.Height,4}cm  {state.Battery,6}%  {state.Barometer,9:0.000}");
+        Console.Write($"{stateParameter.TOF,3}  {stateParameter.Height,4}cm  {stateParameter.Battery,6}%  {stateParameter.Barometer,9:0.000}");
         Console.SetCursorPosition(6, 3);
-        Console.Write($"{state.Time}s");
+        Console.Write($"{stateParameter.Time}s");
         Console.SetCursorPosition(9, 4);
 
         Console.SetCursorPosition(2, 8);

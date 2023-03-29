@@ -34,9 +34,15 @@ public class TelloCore : ICore
     /// The state server
     /// </summary>
     private readonly TelloStateServer _stateServer;
-    
-    //private readonly ConsoleDisplay _consoleOutput;
 
+    /// <summary>
+    /// The Status where the core is connected to the drone or not.
+    /// </summary>
+    private bool _connectionStatus;
+    
+    /// <summary>
+    /// Flag that indicates where the process should be stopped.
+    /// </summary>
     private bool _stopThread;
 
     /// <summary>
@@ -57,7 +63,7 @@ public class TelloCore : ICore
 /// <summary>
     /// The state of the drone.
     /// </summary>
-    private TelloState _telloState;
+    private TelloStateParameter _telloStateParameter;
 
     /// <summary>
     /// Instantiates the Core
@@ -76,7 +82,7 @@ public class TelloCore : ICore
         _stateServer = new TelloStateServer();
         //_consoleOutput = new ConsoleDisplay(_stateServer);
         
-        _stateServer.OnState += (s) => _telloState = s;
+        _stateServer.OnState += (s) => _telloStateParameter = s;
         
         IntitializeConnectionToTello();
         
@@ -119,9 +125,9 @@ public class TelloCore : ICore
     /// Request the state of the drone.
     /// </summary>
     /// <returns>Return the current state.</returns>
-    public TelloState GetState()
+    public TelloStateParameter GetStateParameter()
     {
-        return _telloState ?? new TelloState();
+        return _telloStateParameter ?? new TelloStateParameter();
     }
     
     public void QueryCommand(DroneCommand command)
@@ -138,28 +144,70 @@ public class TelloCore : ICore
             {
                 TelloAction action = command._action;
                 string res;
-                switch (action)
+                try
                 {
-                    // Antwort wird ignoriert.
-                    case TelloAction.MoveForward: await _telloClient.FlyDirection(MoveDirection.Forward, 30); break;
-                    case TelloAction.MoveBackward: await _telloClient.FlyDirection(MoveDirection.Back, 30); break; 
-                    case TelloAction.MoveLeft: await _telloClient.FlyDirection(MoveDirection.Left, 30); break;
-                    case TelloAction.MoveRight: await _telloClient.FlyDirection(MoveDirection.Right, 30); break;
-                    case TelloAction.Rise: await _telloClient.FlyDirection(MoveDirection.Up, 30); break;
-                    case TelloAction.Sink: await _telloClient.FlyDirection(MoveDirection.Down, 30); break;
-                    case TelloAction.RotateLeft: await _telloClient.RotateDirection(RotationDirection.Clockwise, 20); break;
-                    case TelloAction.RotateRight: await _telloClient.RotateDirection(RotationDirection.CounterClockwise, 20); break;
-                    case TelloAction.TakeOff: await _telloClient.TakeOff(); break;
-                    case TelloAction.Land: await _telloClient.Land(); break;
-                    case TelloAction.Emergency: await _telloClient.Emergency(); break;
-                    case TelloAction.Speed: await _telloClient.GetSpeed(); break;
-                    case TelloAction.Battery: res = await _telloClient.GetBattery(); Console.WriteLine(res); break;
-                    case TelloAction.Time: await _telloClient.GetTime(); break;
-
-                    default: break;
+                    switch (action)
+                    {
+                        // Antwort wird ignoriert.
+                        case TelloAction.MoveForward:
+                            await _telloClient.FlyDirection(MoveDirection.Forward, 30);
+                            break;
+                        case TelloAction.MoveBackward:
+                            await _telloClient.FlyDirection(MoveDirection.Back, 30);
+                            break;
+                        case TelloAction.MoveLeft:
+                            await _telloClient.FlyDirection(MoveDirection.Left, 30);
+                            break;
+                        case TelloAction.MoveRight:
+                            await _telloClient.FlyDirection(MoveDirection.Right, 30);
+                            break;
+                        case TelloAction.Rise:
+                            await _telloClient.FlyDirection(MoveDirection.Up, 30);
+                            break;
+                        case TelloAction.Sink:
+                            await _telloClient.FlyDirection(MoveDirection.Down, 30);
+                            break;
+                        case TelloAction.RotateLeft:
+                            await _telloClient.RotateDirection(RotationDirection.Clockwise, 20);
+                            break;
+                        case TelloAction.RotateRight:
+                            await _telloClient.RotateDirection(RotationDirection.CounterClockwise, 20);
+                            break;
+                        case TelloAction.TakeOff:
+                            await _telloClient.TakeOff();
+                            break;
+                        case TelloAction.Land:
+                            await _telloClient.Land();
+                            break;
+                        case TelloAction.Emergency:
+                            await _telloClient.Emergency();
+                            break;
+                        case TelloAction.Speed:
+                            await _telloClient.GetSpeed();
+                            break;
+                        case TelloAction.Battery:
+                            res = await _telloClient.GetBattery();
+                            Console.WriteLine(res);
+                            break;
+                        case TelloAction.Time:
+                            await _telloClient.GetTime();
+                            break;
+                        
+                        default: break;
+                    }
                 }
+                catch (Exception e)
+                {
+                    _connectionStatus = false;
+                    continue;
+                }
+                finally
+                {
+                    _connectionStatus = true;
+                    command = null;
+                }
+
                 // rufe extend action auf.
-                command = null;
             }
             else
             {

@@ -14,7 +14,7 @@ public class LandScapeLayer : RasterLayer
 {
     public IAgentManager AgentManager { get; private set; }
 
-    public SpatialHashEnvironment<TelloAgent> telloEnvironment;
+    public SpatialHashEnvironment<TelloAgent> _landScapeEnvironment;
 
     public override bool InitLayer(
         LayerInitData layerInitData,
@@ -23,7 +23,7 @@ public class LandScapeLayer : RasterLayer
     {
         var initiated = base.InitLayer(layerInitData, registerAgentHandle, unregisterAgentHandle);
 
-        telloEnvironment = new SpatialHashEnvironment<TelloAgent>(Width, Height);
+        _landScapeEnvironment = new SpatialHashEnvironment<TelloAgent>(Width, Height);
         
         AgentManager = layerInitData.Container.Resolve<IAgentManager>();
         

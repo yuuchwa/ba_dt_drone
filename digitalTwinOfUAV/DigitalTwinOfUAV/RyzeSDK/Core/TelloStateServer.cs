@@ -31,7 +31,7 @@ namespace RyzeTelloSDK.Core
 
         public event Action<Exception> OnException;
         public event Action<string> OnStateRaw;
-        public event Action<TelloState> OnState;
+        public event Action<TelloStateParameter> OnState;
         
         /// <summary>
         /// Instantiates the TelloStateServer.
@@ -76,7 +76,7 @@ namespace RyzeTelloSDK.Core
                     var data = Encoding.ASCII.GetString(result.Buffer);
 
                     OnStateRaw?.Invoke(data);
-                    OnState?.Invoke(TelloState.FromString(data));
+                    OnState?.Invoke(TelloStateParameter.FromString(data));
                 }
                 catch (Exception ex)
                 {

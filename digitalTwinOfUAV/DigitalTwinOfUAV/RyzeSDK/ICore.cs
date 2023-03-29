@@ -15,5 +15,5 @@ public interface ICore
     /// Get the state of the drone.
     /// </summary>
     /// <returns>The state of the drone</returns>
-    public TelloState GetState();
+    public TelloStateParameter GetStateParameter();
 }

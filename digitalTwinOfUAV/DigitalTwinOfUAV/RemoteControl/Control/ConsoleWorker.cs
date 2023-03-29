@@ -116,7 +116,7 @@ namespace TelloTestApp
 
         private void RenderConsole(bool firstTime = true)
         {
-            var state = _telloCore.GetState();
+            var state = _telloCore.GetStateParameter();
             if (firstTime)
             {
                 // Console.SetWindowSize(90, 9); funktioniert nicht

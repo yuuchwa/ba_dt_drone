@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace RyzeTelloSDK.Models
 {
-    public class TelloState
+    public class TelloStateParameter
     {
         private class NameAttribute : Attribute
         {
@@ -56,13 +56,13 @@ namespace RyzeTelloSDK.Models
         public float AccelerationZ { get; private set; }
 
         private static readonly Regex regex = new Regex(@"(\w+):([\d.-]+)");
-        private static readonly PropertyInfo[] props = typeof(TelloState).GetProperties();
+        private static readonly PropertyInfo[] props = typeof(TelloStateParameter).GetProperties();
         private static readonly Type intType = typeof(int);
         private static readonly Type floatType = typeof(float);
 
-        public static TelloState FromString(string data)
+        public static TelloStateParameter FromString(string data)
         {
-            var state = new TelloState();
+            var state = new TelloStateParameter();
 
             var matches = regex.Matches(data);
 
