@@ -11,6 +11,7 @@ public enum TelloAction
     MoveRight,
     RotateLeft,
     RotateRight,
+    Stop,
     TakeOff,
     Land,
     Rise,

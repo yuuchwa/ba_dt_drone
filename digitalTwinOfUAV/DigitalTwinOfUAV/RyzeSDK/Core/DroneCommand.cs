@@ -10,10 +10,8 @@ public class DroneCommand
     {
         if (action != null)
         {
-            
+            _action = action;
+            _value = value;
         }
-
-        _action = action;
-        _value = value;
     }
 }

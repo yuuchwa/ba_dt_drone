@@ -63,7 +63,7 @@ namespace TelloTestApp
                     lastRcInput = newRcInput;
                     // logger.LogInformation($"RC({newRcInput.RightLeft} {newRcInput.ForwardBack} {newRcInput.UpDown} {newRcInput.Yaw})");
                     // do not wait for response
-                    _ = client.RemoteControl(newRcInput.RightLeft, newRcInput.ForwardBack, newRcInput.UpDown, newRcInput.Yaw);
+                    //_ = client.RemoteControl(newRcInput.RightLeft, newRcInput.ForwardBack, newRcInput.UpDown, newRcInput.Yaw);
                 }
                 catch (Exception ex)
                 {

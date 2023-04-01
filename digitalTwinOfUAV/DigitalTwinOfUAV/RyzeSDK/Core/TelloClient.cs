@@ -90,20 +90,10 @@ namespace RyzeTelloSDKintegration.Core
             byte[] datagram = Encoding.ASCII.GetBytes(command);
             await _udpClient.SendAsync(datagram, datagram.Length); // wartet nur drauf, bis die Nachricht tatsächlich abgeschickt wurde.
             
-            if (command.StartsWith("rc")) return "ok"; // ignore response so there's no delay in rc commands; ToDo: find a better way to handle this
-            
             string response = null;
             var ans = _udpClient.Receive(ref _endPoint);
             response = Encoding.ASCII.GetString(ans);
             
-            /*
-             Für den Client ist ein zusätzlicher Thread erstmal nicht notwendig.
-            while (!_responses.TryDequeue(out response))
-            {
-                // _responses.TryDequeue(out response);
-            }
-            */
-
             return response;
         }
 
@@ -129,6 +119,12 @@ namespace RyzeTelloSDKintegration.Core
             }
             
             return false;
+        }
+
+        public void SendCommandWithoutResponse(string command)
+        {
+            byte[] datagram = Encoding.ASCII.GetBytes(command);
+            _udpClient.SendAsync(datagram, datagram.Length); // wartet nur drauf, bis die Nachricht tatsächlich abgeschickt wurde.
         }
 
         private void ResponseListener()
@@ -218,9 +214,9 @@ namespace RyzeTelloSDKintegration.Core
         {
             return SendCommandWithResponse("stop");
         }
-
+        
         /// <summary>
-        /// Command drone to hover.
+        /// Command drone to fly in a specific direciton.
         /// </summary>
         /// <param name="telloClient">Upd server connected to tello.</param>
         /// <param name="direction">the direction in which the drone should fly.</param>
@@ -318,7 +314,7 @@ namespace RyzeTelloSDKintegration.Core
             CommandConstraints.CheckSpeed(speed);
             return SendCommandWithResponse($"speed {speed}");
         }
-
+        
         /// <summary>
         /// Configurate the remote control.
         /// </summary>
@@ -328,13 +324,13 @@ namespace RyzeTelloSDKintegration.Core
         /// <param name="updown"></param>
         /// <param name="yaw"></param>
         /// <returns></returns>
-        public Task<bool> RemoteControl( int leftright, int forwardbackward, int updown, int yaw)
+        public void RemoteControl(int leftright, int forwardbackward, int updown, int yaw)
         {
             CommandConstraints.CheckRC(leftright);
             CommandConstraints.CheckRC(forwardbackward);
             CommandConstraints.CheckRC(updown);
             CommandConstraints.CheckRC(yaw);
-            return SendCommandWithResponse($"rc {leftright} {forwardbackward} {updown} {yaw}");
+            SendCommandWithoutResponse($"rc {leftright} {forwardbackward} {updown} {yaw}");
         }
 
         /// <summary>

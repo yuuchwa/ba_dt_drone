@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using DigitalTwinOfUAV.Model.Attributes;
 using DigitalTwinOfUAV.Model.Layer;
 using DigitalTwinOfUAV.Model.Services;
@@ -63,6 +62,7 @@ public class TelloAgent : IAgent<LandScapeLayer>, IPositionable
     
     public void Init(LandScapeLayer layer)
     {
+        _speed = 30;
         _layer = layer;
         Position = new Position(StartX, StartY);
 
@@ -80,36 +80,51 @@ public class TelloAgent : IAgent<LandScapeLayer>, IPositionable
     {
         _currentParameter = _core.GetStateParameter();
         _stateDeterminer.DetermineState(_currentParameter);
+        _lastStateUpdateTimeStamp = DateTime.Now;
 
-        DroneCommand command = new DroneCommand(TelloAction.TakeOff, 0);
-        _core.QueryCommand(command);
-
-        command = new DroneCommand(TelloAction.Land, 0);
-        _core.QueryCommand(command);
-
-        /*
-
-        DroneCommand command = new DroneCommand(TelloAction.TakeOff, 0 );
-        _core.QueryCommand(command);
-        command = new DroneCommand(TelloAction.MoveForward, 0 );
-        _core.QueryCommand(command);
-        command = new DroneCommand(TelloAction.MoveBackward, 0 );
-        _core.QueryCommand(command);
-        command = new DroneCommand(TelloAction.Land, 0 );
-        */
-
-        
-        // Drohnenzustand auf Simulation übertragen
-        
-        // Situation ermitteln und Einordnen
-        
-        // Action ausführen.
+        readKeyboard();
         
         _tickCount++;
     }
 
     #endregion
     
+    #region Private Methods
+
+    private void readKeyboard()
+    {
+        DroneCommand command = null;
+        var key = Console.ReadKey(true);
+        Console.WriteLine($"{key.Key} pressed");
+
+        switch (key.Key)
+        {
+            case ConsoleKey.W: command = new DroneCommand(TelloAction.MoveForward, _speed); break;
+            case ConsoleKey.S: command = new DroneCommand(TelloAction.MoveBackward, _speed); break;
+            case ConsoleKey.A: command = new DroneCommand(TelloAction.MoveLeft, _speed); break;
+            case ConsoleKey.D: command = new DroneCommand(TelloAction.MoveRight, _speed); break;
+            case ConsoleKey.R: command = new DroneCommand(TelloAction.Rise, _speed); break;
+            case ConsoleKey.F: command = new DroneCommand(TelloAction.Sink, _speed); break;
+            case ConsoleKey.Q: command = new DroneCommand(TelloAction.RotateLeft, _speed); break;
+            case ConsoleKey.E: command = new DroneCommand(TelloAction.RotateRight, _speed); break;
+            case ConsoleKey.Spacebar: command = new DroneCommand(TelloAction.Stop, 0); break;
+            
+            case ConsoleKey.T: command = new DroneCommand(TelloAction.TakeOff, 0); break;
+            case ConsoleKey.L: command = new DroneCommand(TelloAction.Land, 0); break;
+            case ConsoleKey.P: command = new DroneCommand(TelloAction.Emergency, 0); break;
+            
+            case ConsoleKey.B: command = new DroneCommand(TelloAction.Battery, 0); break;
+            default: break;
+        }
+
+        if (command._action != null)
+        {
+            _core.QueryCommand(command);
+        }
+    }
+    
+    #endregion
+
     public SpatialModalityType ModalityType { get; }
     public bool IsCollidingEntity { get; }
 }

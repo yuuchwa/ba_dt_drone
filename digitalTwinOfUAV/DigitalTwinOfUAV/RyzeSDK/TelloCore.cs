@@ -137,41 +137,46 @@ public class TelloCore : ICore
 
     private async void ProcessCommandTask()
     {
-        DroneCommand command = null;
         while (!_stopThread)
         {
+            DroneCommand command = null;
             if (_commandQueue.TryDequeue(out command))
             {
                 TelloAction action = command._action;
-                string res;
+                
                 try
                 {
+                    string response = "";
+
                     switch (action)
                     {
                         // Antwort wird ignoriert.
                         case TelloAction.MoveForward:
-                            await _telloClient.FlyDirection(MoveDirection.Forward, 30);
+                            _telloClient.RemoteControl(0, command._value, 0, 0);
                             break;
                         case TelloAction.MoveBackward:
-                            await _telloClient.FlyDirection(MoveDirection.Back, 30);
+                            _telloClient.RemoteControl(0, -command._value, 0, 0);
                             break;
                         case TelloAction.MoveLeft:
-                            await _telloClient.FlyDirection(MoveDirection.Left, 30);
+                            _telloClient.RemoteControl(-command._value, 0, 0, 0);
                             break;
                         case TelloAction.MoveRight:
-                            await _telloClient.FlyDirection(MoveDirection.Right, 30);
+                            _telloClient.RemoteControl(command._value, 0, 0, 0);
                             break;
                         case TelloAction.Rise:
-                            await _telloClient.FlyDirection(MoveDirection.Up, 30);
+                            _telloClient.RemoteControl(0, 0, command._value, 0);
                             break;
                         case TelloAction.Sink:
-                            await _telloClient.FlyDirection(MoveDirection.Down, 30);
+                            _telloClient.RemoteControl(0, 0, -command._value, 0);
                             break;
                         case TelloAction.RotateLeft:
-                            await _telloClient.RotateDirection(RotationDirection.Clockwise, 20);
+                            _telloClient.RemoteControl(0, 0, 0, -command._value);
                             break;
                         case TelloAction.RotateRight:
-                            await _telloClient.RotateDirection(RotationDirection.CounterClockwise, 20);
+                            _telloClient.RemoteControl(0, 0, 0, command._value);
+                            break;
+                        case TelloAction.Stop:
+                            _telloClient.RemoteControl(0, 0, 0, 0);
                             break;
                         case TelloAction.TakeOff:
                             await _telloClient.TakeOff();
@@ -183,17 +188,20 @@ public class TelloCore : ICore
                             await _telloClient.Emergency();
                             break;
                         case TelloAction.Speed:
-                            await _telloClient.GetSpeed();
+                            response = await _telloClient.GetSpeed();
                             break;
                         case TelloAction.Battery:
-                            res = await _telloClient.GetBattery();
-                            Console.WriteLine(res);
+                            response = await _telloClient.GetBattery();
                             break;
                         case TelloAction.Time:
-                            await _telloClient.GetTime();
+                            response = await _telloClient.GetTime();
                             break;
-                        default: break;
+                        default: 
+                            _telloClient.Emergency(); 
+                            break;
                     }
+                    
+                    Console.WriteLine(response);
                 }
                 catch (Exception e)
                 {

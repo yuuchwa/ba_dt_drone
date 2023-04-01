@@ -18,8 +18,8 @@ internal static class Program
 {
     public static void Main(string[] args)
     {
-        //runSimulation();
-        runPlayground();
+        runSimulation();
+        //runPlayground();
     }
 
     public static void runSimulation()
