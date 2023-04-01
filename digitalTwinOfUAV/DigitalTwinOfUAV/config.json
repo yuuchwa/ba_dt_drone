@@ -12,7 +12,7 @@
   "layers": [
     {
       "name": "LandScapeLayer",
-      "file": "Resources/landScapeEnvironment.csv"
+      "file": "Resources/MyRoom.geojson"
     }
   ],
   "agents": [

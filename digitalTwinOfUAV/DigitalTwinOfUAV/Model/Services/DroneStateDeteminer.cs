@@ -35,7 +35,7 @@ public class StateDeterminer
         return droneState;
     }
 
-    public static StateDeterminer getStateDeterminerinstance() => _stateDeterminer ?? new StateDeterminer();
+    public static StateDeterminer getStateDeterminerInstance() => _stateDeterminer ?? new StateDeterminer();
 
     /// <summary>
     /// Instantiate the State determiner.

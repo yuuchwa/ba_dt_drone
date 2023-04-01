@@ -44,18 +44,6 @@ internal static class Program
 
     public static async void runPlayground()
     {
-        TelloClient client = new TelloClient();
-        client.Connect();
-        Thread.Sleep(2000);
-        client.SendCommandWithResponse("takeoff");
-        Thread.Sleep(2000);
-
-        client.SendCommandWithResponse("rc 0 10 0 0");
-        Thread.Sleep(2000);
-
-        client.SendCommandWithResponse("rc 0 -10 0 0");
-        Thread.Sleep(2000);
-
-        client.Land();
+        
     }
 }
