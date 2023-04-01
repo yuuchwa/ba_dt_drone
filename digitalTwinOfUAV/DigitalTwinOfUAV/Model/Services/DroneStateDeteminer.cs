@@ -44,18 +44,25 @@ public class StateDeterminer
     {
         _functions = new()
         {
-            IsStandby,
-            IsHovering,
-            IsTakingOff,
-            IsLanding,
-            IsMoving
+            InStandby,
+            Hovering,
+            TakingOff,
+            Landing,
+            MovingForward,
+            MovingBackward,
+            MovingLeft,
+            MovingRight,
+            Rising,
+            Sinking,
+            RotatingClockwise,
+            RotatingCounterClockwise
         };
 
         _stateParameter = null;
         _prevState = DroneState.Unknown;
     }
     
-    private DroneState IsStandby()
+    private DroneState InStandby()
     {
         if (_prevState == DroneState.Standby || _prevState == DroneState.Landing)
         {
@@ -65,7 +72,7 @@ public class StateDeterminer
         return DroneState.Unknown;
     }
     
-    private DroneState IsTakingOff()
+    private DroneState TakingOff()
     {
         if (_prevState == DroneState.Standby || _prevState == DroneState.TakingOff)
         {
@@ -75,13 +82,13 @@ public class StateDeterminer
         return DroneState.Unknown;
     }
 
-    private DroneState IsLanding()
+    private DroneState Landing()
     {
         return DroneState.Unknown;
 
     }
     
-    private DroneState IsHovering()
+    private DroneState Hovering()
     {
         return (1 <= _stateParameter.TOF) &&
                (_stateParameter.VelocityX == 0 &&
@@ -91,8 +98,42 @@ public class StateDeterminer
             : DroneState.Unknown;
     }
 
-
-    private DroneState IsMoving()
+    private DroneState MovingForward()
+    {
+        return DroneState.Unknown;
+    }
+    
+    private DroneState MovingBackward()
+    {
+        return DroneState.Unknown;
+    }
+    
+    private DroneState MovingLeft()
+    {
+        return DroneState.Unknown;
+    }
+    
+    private DroneState MovingRight()
+    {
+        return DroneState.Unknown;
+    }
+    
+    private DroneState RotatingClockwise()
+    {
+        return DroneState.Unknown;
+    }
+    
+    private DroneState RotatingCounterClockwise()
+    {
+        return DroneState.Unknown;
+    }
+    
+    private DroneState Rising()
+    {
+        return DroneState.Unknown;
+    }
+    
+    private DroneState Sinking()
     {
         return DroneState.Unknown;
     }
