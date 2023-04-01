@@ -192,7 +192,6 @@ public class TelloCore : ICore
                         case TelloAction.Time:
                             await _telloClient.GetTime();
                             break;
-                        
                         default: break;
                     }
                 }

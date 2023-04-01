@@ -1,5 +1,8 @@
 namespace RyzeTelloSDK.Enum;
 
+/// <summary>
+/// The actions of the Tello drone.
+/// </summary>
 public enum TelloAction
 {
     MoveForward,

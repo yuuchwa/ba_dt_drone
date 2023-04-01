@@ -40,7 +40,6 @@ namespace RyzeTelloSDKintegration.Core
             _responses = new ConcurrentQueue<string>();
             _responseListener = new Thread(ResponseListener);
             //_responseListener.Start();
-
             _lastReceivedCommandTs = DateTimeOffset.Now.ToUnixTimeMilliseconds();
         }
 
