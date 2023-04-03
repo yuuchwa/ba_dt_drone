@@ -1,12 +1,15 @@
 using System;
 using DigitalTwinOfUAV.Model.Layer;
 using Mars.Components.Environments.Cartesian;
+using NetTopologySuite.Geometries;
 
 namespace DigitalTwinOfUAV.Model.Entities;
 
 public abstract class Block : IObstacle
 {
     protected LandScapeLayer Battleground { get; }
+    
+    public Geometry Geometry { get; set; }
     
     public Block(LandScapeLayer layer)
     {
@@ -19,12 +22,12 @@ public abstract class Block : IObstacle
         return false;
     }
 
-    public CollisionKind? HandleCollision(ICharacter character)
+    public virtual CollisionKind? HandleCollision(ICharacter character)
     {
         return CollisionKind.Block;
     }
 
-    public VisibilityKind? HandleExploration(ICharacter explorer)
+    public virtual VisibilityKind? HandleExploration(ICharacter explorer)
     {
         return VisibilityKind.Opaque;
     }

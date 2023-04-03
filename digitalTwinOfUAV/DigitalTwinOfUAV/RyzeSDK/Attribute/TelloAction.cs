@@ -20,4 +20,6 @@ public enum TelloAction
     Battery,
     Speed,
     Time,
+    Connect,
+    Unknown,
 }

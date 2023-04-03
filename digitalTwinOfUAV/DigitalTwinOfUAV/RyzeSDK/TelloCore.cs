@@ -100,7 +100,6 @@ public class TelloCore : ICore
     {
         _telloClient.Connect();
         _stateServer.Listen();
-        await _telloClient.InitTello();
         Console.WriteLine("Inizialization successful");
     }
 
@@ -127,7 +126,7 @@ public class TelloCore : ICore
     /// <returns>Return the current state.</returns>
     public TelloStateParameter GetStateParameter()
     {
-        return _telloStateParameter ?? new TelloStateParameter();
+        return _telloStateParameter;
     }
     
     public void QueryCommand(DroneCommand command)
@@ -146,7 +145,7 @@ public class TelloCore : ICore
                 
                 try
                 {
-                    string response = "";
+                    bool response = true;
 
                     switch (action)
                     {
@@ -179,22 +178,33 @@ public class TelloCore : ICore
                             _telloClient.RemoteControl(0, 0, 0, 0);
                             break;
                         case TelloAction.TakeOff:
-                            await _telloClient.TakeOff();
+                            response = await _telloClient.TakeOff();
                             break;
                         case TelloAction.Land:
-                            await _telloClient.Land();
+                            response = await _telloClient.Land();
                             break;
                         case TelloAction.Emergency:
                             await _telloClient.Emergency();
                             break;
                         case TelloAction.Speed:
-                            response = await _telloClient.GetSpeed();
+                            await _telloClient.GetSpeed();
                             break;
                         case TelloAction.Battery:
-                            response = await _telloClient.GetBattery();
+                            await _telloClient.GetBattery();
                             break;
                         case TelloAction.Time:
-                            response = await _telloClient.GetTime();
+                            await _telloClient.GetTime();
+                            break;
+                        case TelloAction.Connect: 
+                            response = await _telloClient.InitTello();
+                            if (response)
+                            {
+                                Console.WriteLine("Tello successfully connected");
+                            }
+                            else
+                            {
+                                Console.WriteLine("Tello connection failed");
+                            }
                             break;
                         default: 
                             _telloClient.Emergency(); 

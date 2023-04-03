@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -55,6 +56,8 @@ namespace RyzeTelloSDK.Models
         [Name("agz")]
         public float AccelerationZ { get; private set; }
 
+        public DateTime UpdateTime { get; set; }
+
         private static readonly Regex regex = new Regex(@"(\w+):([\d.-]+)");
         private static readonly PropertyInfo[] props = typeof(TelloStateParameter).GetProperties();
         private static readonly Type intType = typeof(int);
@@ -63,6 +66,8 @@ namespace RyzeTelloSDK.Models
         public static TelloStateParameter FromString(string data)
         {
             var state = new TelloStateParameter();
+
+            state.UpdateTime = DateTime.Now;
 
             var matches = regex.Matches(data);
 
@@ -87,7 +92,7 @@ namespace RyzeTelloSDK.Models
                     prop.SetValue(state, float.Parse(results[attr.Name], CultureInfo.InvariantCulture.NumberFormat));
                 }
             }
-
+            
             return state;
         }
     }

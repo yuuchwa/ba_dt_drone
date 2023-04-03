@@ -22,46 +22,50 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter
     private TelloCore _core;
     private StateDeterminer _stateDeterminer;
 
-    private DateTime _lastStateUpdateTimeStamp;
-    private TelloStateParameter _currentParameter;
     private TelloStateParameter _prevParameters;
     
     private DroneState _currentDroneState;
     private DroneState _prevDroneState;
-    
-    private List<Position> _directions;
-    private double _bearing;
-    private byte _speed;
 
     private int _tickCount = 0;
     private Random _random = new();
     
+    // --------- digital Entity information
     
     /// <summary>
     /// The unique identifier of the agent.
     /// </summary>
     public Guid ID { get; set; }
 
+    public Position Position { get; set; }
+    
+    public Position Target { get; set; }
+    
+    private List<Position> _directions;
+    private double _bearing;
+    private byte _speed;
+
+    /// <summary>
+    /// the height measured from the starting Point
+    /// </summary>
+    private int _height;
+
+    #endregion
+
+    #region Initialization Values
+
     [PropertyDescription (Name ="StartX")]
     public int StartX { get; set; }
     
     [PropertyDescription (Name = "StartY")]
     public int StartY { get; set; }
-    
-    /// <summary>
-    /// The Distance a UAV should move.
-    /// </summary>
-    public double Distance { get; set; }
 
-    public Position Position { get; set; }
-    
-    public Position Target { get; set; }
-    
     #endregion
 
     #region Constants
     
-    private const int DefaultSpeed = 30; 
+    private const int DefaultSpeed = 30;
+    private const int DefaultBearing = 0;
 
     #endregion
 
@@ -77,8 +81,7 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter
         _core = new TelloCore();
         _stateDeterminer = StateDeterminer.getStateDeterminerInstance();
         _speed = DefaultSpeed;
-
-        _lastStateUpdateTimeStamp = DateTime.Now;
+        _bearing = DefaultBearing;
     }
 
     #endregion
@@ -87,12 +90,39 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter
 
     public void Tick()
     {
-        _currentParameter = _core.GetStateParameter();
-        _stateDeterminer.DetermineState(_currentParameter);
-        _lastStateUpdateTimeStamp = DateTime.Now;
+        // Lese Zustandsparameter aus
+        var parameters = _core.GetStateParameter();
 
-        readKeyboard();
+        // Bestimme den Zustand der Tello Drohne
+        if (parameters != null)
+        {
+            DroneState state = _stateDeterminer.DetermineState(parameters);
+            Console.WriteLine($"Current Drone state is: {state.ToString()}");
+            
+            // Zustand in die Simulation überführen
+            //MapParameters(state, parameters);
+        }
         
+        // Neuen Befehl einlesen
+        TelloAction selectedAction = readKeyboard();
+        if (selectedAction != TelloAction.Unknown)
+        {
+            DroneCommand command = new DroneCommand(selectedAction, _speed);
+        
+            if (IsMovementAction(selectedAction))
+            {
+                if (!CheckObstacleCollision())
+                {
+                    _core.QueryCommand(command);
+                }
+            }
+            else
+            {
+                _core.QueryCommand(command);
+            }
+        }
+        
+        _prevParameters = parameters;
         _tickCount++;
     }
 
@@ -100,40 +130,88 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter
     
     #region Private Methods
 
-    private void readKeyboard()
+    private void MapParameters(DroneState droneState, TelloStateParameter parameters)
     {
-        DroneCommand command = null;
+        if (_prevParameters == null)
+        {
+            return;
+        }
+        
+        if (droneState == DroneState.RotatingClockwise || droneState == DroneState.RotatingClockwise)
+        {
+            _bearing = CalculateBearing();
+        }
+        else if (droneState == DroneState.MovingBackwards)
+        {
+            double timeDifferenceSinceLastUpdate = parameters.UpdateTime.Second - _prevParameters.UpdateTime.Second;
+            double travelledDistance = _speed * timeDifferenceSinceLastUpdate / 1000;
+            Position = _layer._landScapeEnvironment.Move(this, _bearing, travelledDistance); // nicht geprüft
+            Console.WriteLine($"Agent moved to {Position}");
+
+        }
+
+        _height = _height;
+    }
+
+    private double CalculateBearing()
+    {
+        return 0;
+    }
+
+    /// <summary>
+    /// Check if the selected action is a movement.
+    /// </summary>
+    /// <param name="action"></param>
+    /// <returns></returns>
+    private bool IsMovementAction(TelloAction action)
+    {
+        // TODO: In eine static Methode auslagern.
+        return
+            action == TelloAction.MoveForward ||
+            action == TelloAction.MoveBackward ||
+            action == TelloAction.MoveLeft ||
+            action == TelloAction.MoveRight ||
+            action == TelloAction.Rise ||
+            action == TelloAction.Sink;
+    }
+
+    private bool CheckObstacleCollision()
+    {
+        return true;
+    }
+
+    private TelloAction readKeyboard()
+    {
+        TelloAction action = TelloAction.Unknown;
         var key = Console.ReadKey(true);
 
         if (key != null)
         {
-            Console.WriteLine($"{key.Key} pressed");
+            // Console.WriteLine($"{key.Key} pressed");
 
             switch (key.Key)
             {
-                case ConsoleKey.W: command = new DroneCommand(TelloAction.MoveForward, _speed); break;
-                case ConsoleKey.S: command = new DroneCommand(TelloAction.MoveBackward, _speed); break;
-                case ConsoleKey.A: command = new DroneCommand(TelloAction.MoveLeft, _speed); break;
-                case ConsoleKey.D: command = new DroneCommand(TelloAction.MoveRight, _speed); break;
-                case ConsoleKey.R: command = new DroneCommand(TelloAction.Rise, _speed); break;
-                case ConsoleKey.F: command = new DroneCommand(TelloAction.Sink, _speed); break;
-                case ConsoleKey.Q: command = new DroneCommand(TelloAction.RotateLeft, _speed); break;
-                case ConsoleKey.E: command = new DroneCommand(TelloAction.RotateRight, _speed); break;
-                case ConsoleKey.Spacebar: command = new DroneCommand(TelloAction.Stop, 0); break;
+                case ConsoleKey.W: action = TelloAction.MoveForward; break;
+                case ConsoleKey.S: action = TelloAction.MoveBackward; break;
+                case ConsoleKey.A: action = TelloAction.MoveLeft; break;
+                case ConsoleKey.D: action = TelloAction.MoveRight; break;
+                case ConsoleKey.R: action = TelloAction.Rise; break;
+                case ConsoleKey.F: action = TelloAction.Sink; break;
+                case ConsoleKey.Q: action = TelloAction.RotateLeft; break;
+                case ConsoleKey.E: action = TelloAction.RotateRight; break;
+                case ConsoleKey.Spacebar: action = TelloAction.Stop; break;
             
-                case ConsoleKey.T: command = new DroneCommand(TelloAction.TakeOff, 0); break;
-                case ConsoleKey.L: command = new DroneCommand(TelloAction.Land, 0); break;
-                case ConsoleKey.P: command = new DroneCommand(TelloAction.Emergency, 0); break;
+                case ConsoleKey.T: action = TelloAction.TakeOff; break;
+                case ConsoleKey.L: action = TelloAction.Land; break;
+                case ConsoleKey.P: action = TelloAction.Emergency; break;
             
-                case ConsoleKey.B: command = new DroneCommand(TelloAction.Battery, 0); break;
+                case ConsoleKey.B: action = TelloAction.Battery; break;
+                case ConsoleKey.C: action = TelloAction.Connect; break;
                 default: break;
             }
-
-            if (command._action != null)
-            {
-                _core.QueryCommand(command);
-            }
         }
+        return action;
+
     }
     
     #endregion

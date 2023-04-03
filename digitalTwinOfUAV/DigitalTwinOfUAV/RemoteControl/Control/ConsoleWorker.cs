@@ -166,5 +166,46 @@ namespace TelloTestApp
             if (temp > 50) return Color.Yellow;
             return Color.Green;
         }
+        
+        /// <summary>
+        /// Wurde aus dem Agenten kopiert, da die methode durch eine Signatur mit einem Action return wert ersetzt werden musste.
+        /// Diese Methode eigenet sich aber für die richtige Consolensteuerun.
+        /// </summary>
+        private void readKeyboard()
+        {
+            DroneCommand command = null;
+            var key = Console.ReadKey(true);
+            int _speed = 30;
+
+            if (key != null)
+            {
+                Console.WriteLine($"{key.Key} pressed");
+
+                switch (key.Key)
+                {
+                    case ConsoleKey.W: command = new DroneCommand(TelloAction.MoveForward, _speed); break;
+                    case ConsoleKey.S: command = new DroneCommand(TelloAction.MoveBackward, _speed); break;
+                    case ConsoleKey.A: command = new DroneCommand(TelloAction.MoveLeft, _speed); break;
+                    case ConsoleKey.D: command = new DroneCommand(TelloAction.MoveRight, _speed); break;
+                    case ConsoleKey.R: command = new DroneCommand(TelloAction.Rise, _speed); break;
+                    case ConsoleKey.F: command = new DroneCommand(TelloAction.Sink, _speed); break;
+                    case ConsoleKey.Q: command = new DroneCommand(TelloAction.RotateLeft, _speed); break;
+                    case ConsoleKey.E: command = new DroneCommand(TelloAction.RotateRight, _speed); break;
+                    case ConsoleKey.Spacebar: command = new DroneCommand(TelloAction.Stop, 0); break;
+            
+                    case ConsoleKey.T: command = new DroneCommand(TelloAction.TakeOff, 0); break;
+                    case ConsoleKey.L: command = new DroneCommand(TelloAction.Land, 0); break;
+                    case ConsoleKey.P: command = new DroneCommand(TelloAction.Emergency, 0); break;
+            
+                    case ConsoleKey.B: command = new DroneCommand(TelloAction.Battery, 0); break;
+                    default: break;
+                }
+
+                if (command._action != null)
+                {
+                    _telloCore.QueryCommand(command);
+                }
+            }
+        }
     }    
 }

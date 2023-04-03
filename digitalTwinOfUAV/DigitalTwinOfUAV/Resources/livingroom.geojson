@@ -1,0 +1,35 @@
+{
+	"type": "FeatureCollection",
+	"features": 
+	[
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "LineString",
+                "coordinates": [
+                        [0, 0],
+                        [50, 30],
+                ]
+            },
+            "properties": {
+                "polygon_type": "boundingbox",
+            },
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "LineString",
+                "coordinates": [
+                        [0, 0],
+                        [0, 30],
+                        [50, 30],
+                        [50, 0],
+                        [0, 0]
+                ]
+            },
+            "properties": {
+                "polygon_type": "wall",
+            },
+        },
+	]
+}

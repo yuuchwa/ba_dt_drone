@@ -41,7 +41,6 @@ namespace RyzeTelloSDK.Core
         {
             udpServer = new UdpClient(new IPEndPoint(IPAddress.Any, TelloSettings.StateUdpPort));
             udpServer.Client.ReceiveTimeout = 3000;
-            Console.WriteLine("Stateserver Instantiated");
         }
 
         /// <summary>
@@ -66,8 +65,6 @@ namespace RyzeTelloSDK.Core
         /// </summary>
         private async void ListenTask()
         {
-            Console.WriteLine("started");
-
             while (true)
             {
                 try
