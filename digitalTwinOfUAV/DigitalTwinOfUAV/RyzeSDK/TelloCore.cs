@@ -20,6 +20,8 @@ namespace DigitalTwinOfUAV.RyzeSDK;
 /// </summary>
 public class TelloCore : ICore
 {
+    private static TelloCore _telloCoreInstance;
+    
     /// <summary>
     /// The logger.
     /// </summary>
@@ -65,12 +67,17 @@ public class TelloCore : ICore
     /// </summary>
     private TelloStateParameter _telloStateParameter;
 
+    public static TelloCore GetTelloCoreInstance()
+    {
+        return _telloCoreInstance ?? (_telloCoreInstance = new TelloCore());
+    }
+
     /// <summary>
     /// Instantiates the Core
     /// </summary>
     // public Core(ILogger<Core> logger , TelloClient client, TelloStateServer stateServer, FFmpeg ffmpeg)
     //public TelloCore(TelloClient telloClient, TelloStateServer stateServer)
-    public TelloCore()
+    private TelloCore()
     {
         _stopThread = false;
 
@@ -151,6 +158,7 @@ public class TelloCore : ICore
                     {
                         // Antwort wird ignoriert.
                         case TelloAction.MoveForward:
+                            Console.WriteLine("Aufgerufen");
                             _telloClient.RemoteControl(0, command._value, 0, 0);
                             break;
                         case TelloAction.MoveBackward:

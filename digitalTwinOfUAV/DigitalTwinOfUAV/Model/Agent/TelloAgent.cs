@@ -19,7 +19,7 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter
 
     private LandScapeLayer _layer;
 
-    private TelloCore _core;
+    private ICore _core;
     private StateDeterminer _stateDeterminer;
 
     private TelloStateParameter _prevParameters;
@@ -70,15 +70,15 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter
     #endregion
 
     #region Initialization
-    
+
     public void Init(LandScapeLayer layer)
     {
         _layer = layer;
-
+        _core = TelloCore.GetTelloCoreInstance();
+        
         Position = Position.CreatePosition(StartX, StartY);
         _layer._landScapeEnvironment.Insert(this, Position);
             
-        _core = new TelloCore();
         _stateDeterminer = StateDeterminer.getStateDeterminerInstance();
         _speed = DefaultSpeed;
         _bearing = DefaultBearing;
@@ -96,8 +96,8 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter
         // Bestimme den Zustand der Tello Drohne
         if (parameters != null)
         {
-            DroneState state = _stateDeterminer.DetermineState(parameters);
-            Console.WriteLine($"Current Drone state is: {state.ToString()}");
+            //DroneState state = _stateDeterminer.DetermineState(parameters);
+            //Console.WriteLine($"Current Drone state is: {state.ToString()}");
             
             // Zustand in die Simulation überführen
             //MapParameters(state, parameters);
@@ -177,7 +177,7 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter
 
     private bool CheckObstacleCollision()
     {
-        return true;
+        return false;
     }
 
     private TelloAction readKeyboard()
@@ -187,7 +187,7 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter
 
         if (key != null)
         {
-            // Console.WriteLine($"{key.Key} pressed");
+            Console.WriteLine($"{key.Key} pressed");
 
             switch (key.Key)
             {
