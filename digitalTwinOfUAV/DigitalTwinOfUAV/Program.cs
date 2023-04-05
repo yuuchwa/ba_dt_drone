@@ -1,16 +1,14 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 using DigitalTwinOfUAV.Model.Agent;
 using DigitalTwinOfUAV.Model.Layer;
 using DigitalTwinOfUAV.RyzeSDK;
 using Mars.Components.Starter;
 using Mars.Interfaces.Model;
-using MQTTnet.Client.ExtendedAuthenticationExchange;
-using NetTopologySuite.Operation.Valid;
-using RyzeTelloSDKintegration.Core;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using TelloTestApp;
 
 namespace DigitalTwinOfUAV;
 
@@ -18,11 +16,19 @@ internal static class Program
 {
     public static void Main(string[] args)
     {
+        ConsoleWorker consoleWorker = new ConsoleWorker();
+        consoleWorker.Listen();
+
         runSimulation();
         //runPlayground();
+
+        while (true)
+        {
+            
+        }        
     }
 
-    public static void runSimulation()
+    private static void runSimulation()
     {
         // The scenario consists of the model (represented by the model description)
         // and the simulation configuration (see config.json).

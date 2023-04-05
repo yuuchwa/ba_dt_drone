@@ -3,179 +3,92 @@ using RyzeTelloSDK.Core;
 using RyzeTelloSDK.Enum;
 using RyzeTelloSDK.Extensions;
 using System;
-using System.Collections.Generic;
-using System.Drawing;
+using System.Threading;
 using System.Threading.Tasks;
 using DigitalTwinOfUAV.RyzeSDK;
-using RyzeTelloSDKintegration;
-using RyzeTelloSDKintegration.Core;
 
 namespace TelloTestApp
 {
     public class ConsoleWorker
     {
-        private static readonly Dictionary<ConsoleKey, MoveDirection> MoveMappings = new Dictionary<ConsoleKey, MoveDirection>()
-        {
-            { ConsoleKey.W, MoveDirection.Forward },
-            { ConsoleKey.S, MoveDirection.Back },
-            { ConsoleKey.A, MoveDirection.Left },
-            { ConsoleKey.D, MoveDirection.Right },
-            { ConsoleKey.R, MoveDirection.Up },
-            { ConsoleKey.F, MoveDirection.Down },
-        };
-
         // private readonly ILogger logger;
-        private readonly TelloCore _telloCore;
-        private readonly TelloClient client;
-        // private readonly GamePadController gamePad;
+        
+        /// <summary>
+        /// Core Service
+        /// </summary>
+        private readonly ICore _telloCore = TelloCore.GetTelloCoreInstance();
 
-        private bool gamePadEnabled;
+        private Task _mainloop;
 
-        // public ConsoleWorker(Core core, TelloClient client, GamePadController gamePad, ILogger<ConsoleWorker> logger)
-        public ConsoleWorker(TelloCore telloCore, TelloClient client)
+        private int _speed = 30;
+        private int _rotationSpeed = 60;
+
+        /// <summary>
+        /// Token for canceling a thread.
+        /// </summary>
+        private CancellationTokenSource _cancellationToken;
+        
+        public ConsoleWorker()
         {
-            this._telloCore = telloCore;
-            // this.logger = logger;
-            this.client = client;
-            // this.gamePad = gamePad;
 
-            gamePadEnabled = false;
         }
 
-        public async Task MainLoop()
+        public void Close()
         {
-            //await _telloCore.Init();
-            // start readkey backgroundworker
-            
-            // RenderConsoleLoop();
-            var shouldLoop = true;
-            while (shouldLoop)
-            {
-                try
-                {
-                    var key = Console.ReadKey(true);
-                    Console.WriteLine($"{key.Key} pressed");
-                    // logger.LogInformation($"{key.Key} pressed");
-                    switch (key.Key)
-                    {
-                        case ConsoleKey.W:
-                        case ConsoleKey.S:
-                        case ConsoleKey.A:
-                        case ConsoleKey.D:
-                        case ConsoleKey.R:
-                        case ConsoleKey.F:
-                            // logger.LogInformation($"FlyDirection({MoveMappings[key.Key]}, 30)");
-                            await client.FlyDirection(MoveMappings[key.Key], 30);
-                            break;
-
-                        case ConsoleKey.Q:
-                        case ConsoleKey.E:
-                            // logger.LogInformation($"RotateDirection({(key.Key == ConsoleKey.E ? "cw" : "ccw")}, 20)");
-                            await client.RotateDirection(key.Key == ConsoleKey.E, 20);
-                            break;
-
-                        case ConsoleKey.T:
-                            // logger.LogInformation("TakeOff()");
-                            await client.TakeOff();
-                            break;
-
-                        case ConsoleKey.L:
-                            // logger.LogInformation("Land()");
-                            await client.Land();
-                            break;
-
-                        case ConsoleKey.Spacebar:
-                            // logger.LogInformation("Emergency()");
-                            await client.Emergency();
-                            break;
-                        
-                        case ConsoleKey.Escape:
-                            // logger.LogInformation("Closing all of the connections");
-                            //_telloCore.Close();
-                            shouldLoop = false;
-                            break;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    // logger.LogError(ex, "Exception while proccessing key press");
-                }
-            }
-            // logger.LogInformation("Exiting loop");
+            _cancellationToken.Cancel();
+            Console.WriteLine("ConsoleWorker terminated");
         }
 
-        private async void RenderConsoleLoop()
+        public void Listen()
         {
-            RenderConsole(true);
+            _cancellationToken = new CancellationTokenSource();
+            _mainloop = Task.Run(StartConsoleWorker, _cancellationToken.Token);
+        }
+
+        private async void StartConsoleWorker()
+        {
+            DroneCommand command;
             while (true)
             {
-                await Task.Delay(250); // 0.25s
-                RenderConsole();
+                TelloAction selectedAction = ReadKeyboard();
+
+                if (selectedAction == TelloAction.Unknown)
+                {
+                    command = new DroneCommand(selectedAction, _speed); 
+                
+                    // Check Command validity
+                    /*
+                    if (selectedAction != TelloAction.Unknown)
+                    {
+                        DroneCommand command = new DroneCommand(selectedAction, _speed);
+            
+                        if (IsMovementAction(selectedAction))
+                        {
+                            if (!CheckObstacleCollision())
+                            {
+                                _core.QueryCommand(command);
+                            }
+                        }
+                        else
+                        {
+                            _core.QueryCommand(command);
+                        }
+                    }*/
+                
+                    _telloCore.QueryCommand(command);
+                }
+
             }
         }
 
-        private void RenderConsole(bool firstTime = true)
-        {
-            var state = _telloCore.GetStateParameter();
-            if (firstTime)
-            {
-                // Console.SetWindowSize(90, 9); funktioniert nicht
-                Console.SetCursorPosition(15, 0);
-                Console.Write("      X      Y      Z                    Low. High. °C     Pitch  Roll  Yaw");
-                Console.SetCursorPosition(0, 1);
-                Console.Write("Acceleration:                              Temperature:");
-                Console.SetCursorPosition(0, 2);
-                Console.Write("Velocity:                                   TOF  Height  Battery  Barometer");
-                Console.SetCursorPosition(0, 3);
-                Console.Write("Time:");
-                Console.SetCursorPosition(0, 4);
-                Console.Write("Gamepad:");
-                Console.SetCursorPosition(0, 8);
-                Console.Write(">");
-            }
-            Console.SetCursorPosition(16, 1);
-            Console.Write($"{state.AccelerationX,6:0} {state.AccelerationY,6:0} {state.AccelerationZ,6:0}");
-            Console.SetCursorPosition(16, 2);
-            Console.Write($"{state.VelocityX,6:0} {state.VelocityY,6:0} {state.VelocityZ,6:0}");
-            Console.SetCursorPosition(57, 1);
-            Console.Write($"{state.TempLowest,3}", GetTempColor(state.TempLowest));
-            Console.Write($"   {state.TempHighest,3}", GetTempColor(state.TempHighest));
-            Console.SetCursorPosition(74, 1);
-            Console.Write($"{state.Pitch,5}  {state.Roll,4}  {state.Yaw,3}");
-            Console.SetCursorPosition(44, 3);
-            Console.Write($"{state.TOF,3}  {state.Height,4}cm  {state.Battery,6}%  {state.Barometer,9:0.000}");
-            Console.SetCursorPosition(6, 3);
-            Console.Write($"{state.Time}s");
-            Console.SetCursorPosition(9, 4);
-            if (gamePadEnabled)
-            {
-                Console.Write("ON ", Color.Green);
-            }
-            else
-            {
-                Console.Write("OFF", Color.Red);
-            }
-
-            Console.SetCursorPosition(2, 8);
-        }
-
-        private Color GetTempColor(int temp)
-        {
-            if (temp > 80) return Color.Red;
-            if (temp > 60) return Color.Orange;
-            if (temp > 50) return Color.Yellow;
-            return Color.Green;
-        }
-        
         /// <summary>
         /// Wurde aus dem Agenten kopiert, da die methode durch eine Signatur mit einem Action return wert ersetzt werden musste.
         /// Diese Methode eigenet sich aber für die richtige Consolensteuerun.
         /// </summary>
-        private void readKeyboard()
+        private TelloAction ReadKeyboard()
         {
-            DroneCommand command = null;
+            TelloAction action = TelloAction.Unknown;
             var key = Console.ReadKey(true);
-            int _speed = 30;
 
             if (key != null)
             {
@@ -183,29 +96,49 @@ namespace TelloTestApp
 
                 switch (key.Key)
                 {
-                    case ConsoleKey.W: command = new DroneCommand(TelloAction.MoveForward, _speed); break;
-                    case ConsoleKey.S: command = new DroneCommand(TelloAction.MoveBackward, _speed); break;
-                    case ConsoleKey.A: command = new DroneCommand(TelloAction.MoveLeft, _speed); break;
-                    case ConsoleKey.D: command = new DroneCommand(TelloAction.MoveRight, _speed); break;
-                    case ConsoleKey.R: command = new DroneCommand(TelloAction.Rise, _speed); break;
-                    case ConsoleKey.F: command = new DroneCommand(TelloAction.Sink, _speed); break;
-                    case ConsoleKey.Q: command = new DroneCommand(TelloAction.RotateLeft, _speed); break;
-                    case ConsoleKey.E: command = new DroneCommand(TelloAction.RotateRight, _speed); break;
-                    case ConsoleKey.Spacebar: command = new DroneCommand(TelloAction.Stop, 0); break;
+                    case ConsoleKey.W: action = TelloAction.MoveForward; break;
+                    case ConsoleKey.S: action = TelloAction.MoveBackward; break;
+                    case ConsoleKey.A: action = TelloAction.MoveLeft; break;
+                    case ConsoleKey.D: action = TelloAction.MoveRight; break;
+                    case ConsoleKey.R: action = TelloAction.Rise; break;
+                    case ConsoleKey.F: action = TelloAction.Sink; break;
+                    case ConsoleKey.Q: action = TelloAction.RotateLeft; break;
+                    case ConsoleKey.E: action = TelloAction.RotateRight; break;
+                    case ConsoleKey.Spacebar: action = TelloAction.Stop; break;
             
-                    case ConsoleKey.T: command = new DroneCommand(TelloAction.TakeOff, 0); break;
-                    case ConsoleKey.L: command = new DroneCommand(TelloAction.Land, 0); break;
-                    case ConsoleKey.P: command = new DroneCommand(TelloAction.Emergency, 0); break;
+                    case ConsoleKey.T: action = TelloAction.TakeOff; break;
+                    case ConsoleKey.L: action = TelloAction.Land; break;
+                    case ConsoleKey.P: action = TelloAction.Emergency; break;
             
-                    case ConsoleKey.B: command = new DroneCommand(TelloAction.Battery, 0); break;
+                    case ConsoleKey.B: action = TelloAction.Battery; break;
+                    case ConsoleKey.C: action = TelloAction.Connect; break;
+                    case ConsoleKey.O: Close(); break;
                     default: break;
                 }
-
-                if (command._action != null)
-                {
-                    _telloCore.QueryCommand(command);
-                }
             }
+            return action;
+        }
+        
+        /// <summary>
+        /// Check if the selected action is a movement.
+        /// </summary>
+        /// <param name="action"></param>
+        /// <returns></returns>
+        private bool IsMovementAction(TelloAction action)
+        {
+            // TODO: In eine static Methode auslagern.
+            return
+                action == TelloAction.MoveForward ||
+                action == TelloAction.MoveBackward ||
+                action == TelloAction.MoveLeft ||
+                action == TelloAction.MoveRight ||
+                action == TelloAction.Rise ||
+                action == TelloAction.Sink;
+        }
+
+        private bool CheckObstacleCollision()
+        {
+            return false;
         }
     }    
 }

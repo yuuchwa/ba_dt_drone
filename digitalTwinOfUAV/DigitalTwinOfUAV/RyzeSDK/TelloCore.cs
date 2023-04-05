@@ -37,6 +37,8 @@ public class TelloCore : ICore
     /// </summary>
     private readonly TelloStateServer _stateServer;
 
+    private readonly ConsoleDisplay _consoleOutput;
+
     /// <summary>
     /// The Status where the core is connected to the drone or not.
     /// </summary>
@@ -87,7 +89,7 @@ public class TelloCore : ICore
         
         _telloClient = new TelloClient();
         _stateServer = new TelloStateServer();
-        //_consoleOutput = new ConsoleDisplay(_stateServer);
+        _consoleOutput = new ConsoleDisplay(_stateServer);
         
         _stateServer.OnState += (s) => _telloStateParameter = s;
         
@@ -107,7 +109,7 @@ public class TelloCore : ICore
     {
         _telloClient.Connect();
         _stateServer.Listen();
-        Console.WriteLine("Inizialization successful");
+        Console.WriteLine("TelloCore instanciated");
     }
 
     /// <summary>
@@ -158,7 +160,6 @@ public class TelloCore : ICore
                     {
                         // Antwort wird ignoriert.
                         case TelloAction.MoveForward:
-                            Console.WriteLine("Aufgerufen");
                             _telloClient.RemoteControl(0, command._value, 0, 0);
                             break;
                         case TelloAction.MoveBackward:
@@ -204,6 +205,7 @@ public class TelloCore : ICore
                             await _telloClient.GetTime();
                             break;
                         case TelloAction.Connect: 
+                            Console.WriteLine("aufgerufen");
                             response = await _telloClient.InitTello();
                             if (response)
                             {
@@ -239,26 +241,6 @@ public class TelloCore : ICore
                 Thread.Sleep(200);
             }
         }
-    }
-    
-    /// <summary>
-    /// Tries to send a command.
-    /// </summary>
-    /// <param name="function">The command for the drone.</param>
-    /// <typeparam name="T">Type of command</typeparam>
-    /// <returns>Operation response.</returns>
-    private async Task<T> TrySendCommand<T>(Func<Task<T>> function)
-    {
-        try
-        {
-            return await function.Invoke();
-            // logger.LogError(ex, $"Connection to Tello established");
-        }
-        catch (Exception ex)
-        {
-            // logger.LogError(ex, $"Exception while invoking {function.Method.Name} function");
-        }
-        return default;
     }
 }
 
