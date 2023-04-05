@@ -15,7 +15,7 @@ public class StateDeterminer
     // TODO: constanten umbenennen
     private const int NotMeasureableTof = 10; // Wert für jede ungültige Messung oder eine Flughöhe unter 30 cm werden.
     private const int LowerMeasureableTof = 30; // Ab 30 cm aufwärts kann die ToF Messung erfasst werden
-    private const int MaxMeasurebaleTof = 3000; // Name falsch, Max Höhe gegebenfalls noch nicht erreich sit.
+    private const int MaxMeasurebaleTof = 3000; // Name falsch, Max Höhe gegebenfalls noch nicht erreicht. wurde aber noch nicht überprüft.
     
     // Acceleration
     private const int LowerXAccelerationForHovering = -50;
@@ -24,8 +24,8 @@ public class StateDeterminer
     private const int LowerYAccelerationForHovering = -50;
     private const int UpperYAccelerationForHovering = 50;
     
-    private const int LowerZAccelerationForHovering = -1020;
-    private const int UpperZAccelerationForHovering = -975;
+    private const int LowerZAccelerationForHovering = -1100;
+    private const int UpperZAccelerationForHovering = -950;
     
     //Velocity
     private const int RestVelocity = 0;
@@ -49,22 +49,22 @@ public class StateDeterminer
     // 1 <= x -> Right
     // x <= -1 -> Left
     private const int RollBalanced = 0;
-    private const int MinRollDegree = -1799;
-    private const int MaxRollDegree = 1799;
+    private const int MinRollDegree = -179;
+    private const int MaxRollDegree = 179;
 
     // Pitch
     // 1 <= x -> Backward
     // x <= -1 -> Forward
     private const int PitchBalanced = 0;
-    private const int MinPitchDegree = -1799;
-    private const int MaxPitchDegree = 1799;
+    private const int MinPitchDegree = -179;
+    private const int MaxPitchDegree = 179;
     
     // Yaw
     // x moving to -1799 CCW
     // x moving to 1799 CW 
     private const int Yawbalanced = 0;
-    private const int MinYawDegree = -1799;
-    private const int MaxYawDegree = 1799;
+    private const int MinYawDegree = -179;
+    private const int MaxYawDegree = 179;
     #endregion
 
     #region Private Member Variable
@@ -80,59 +80,67 @@ public class StateDeterminer
 
     #endregion
     
-    
-    public DroneState DetermineState(TelloStateParameter currState)
-    {
-        _stateParameter = currState;
-        
-        DroneState droneState = DroneState.Unknown;
-        foreach (Func<DroneState> function in _functions)
-        {
-            if(function.Equals(RotatingClockwise()) || function.Equals(RotatingCounterClockwise()) && _prevStateParameter == null) 
-            {
-                continue;
-            }
-            
-            droneState = function();
-
-            if (droneState != DroneState.Unknown)
-            {
-                return droneState;
-            }
-        }
-
-        _prevStateParameter = _stateParameter;
-        
-        return droneState;
-    }
-
-    public static StateDeterminer getStateDeterminerInstance() => _stateDeterminer ?? new StateDeterminer();
-
     /// <summary>
-    /// Instantiate the State determiner.
+    /// Return an instance of StateDeterminer
+    /// </summary>
+    /// <returns>Instance of StateDeterminer</returns>
+    public static StateDeterminer getStateDeterminerInstance() => _stateDeterminer ?? new StateDeterminer();
+    
+    /// <summary>
+    /// Instantiate the StateDeterminer.
     /// </summary>
     private StateDeterminer()
     {
         _functions = new()
         {
-            //InStandby,
-            //Hovering,
-            //TakingOff,
-            //Landing,
-            //MovingForward,
-            //MovingBackward,
+            InStandby,
+            TakingOff,
+            Landing,
+            Hovering,
+            MovingForward,
+            MovingBackward,
             MovingLeft,
-            //MovingRight,
-            //Rising,
-            //Sinking,
-            //RotatingClockwise,
-            //RotatingCounterClockwise
+            MovingRight,
+            Rising,
+            Sinking,
+            RotatingClockwise,
+            RotatingCounterClockwise,
         };
 
-        _stateParameter = null;
+        _prevStateParameter = new TelloStateParameter();
         _prevState = DroneState.Unknown;
     }
     
+    /// <summary>
+    /// Determines the state.
+    /// </summary>
+    /// <param name="currState">The state parameter of the drone.</param>
+    /// <returns>The drone state.</returns>
+    public DroneState DetermineState(TelloStateParameter currState)
+    {
+        _stateParameter = currState;
+
+        DroneState currentState = DroneState.Unknown;
+        foreach (Func<DroneState> function in _functions)
+        {
+            var droneState = function();
+            
+            if (droneState != DroneState.Unknown)
+            {
+                currentState = droneState;
+                break;
+            }
+        }
+
+        _prevStateParameter = _stateParameter;
+        
+        return currentState;
+    }
+
+    /// <summary>
+    /// Checks if the drone is in standby.
+    /// </summary>
+    /// <returns>the state of the drone</returns>
     private DroneState InStandby()
     {
         return 
@@ -147,6 +155,10 @@ public class StateDeterminer
                 : DroneState.Unknown;
     }
     
+    /// <summary>
+    /// Checks if the drone is taking off
+    /// </summary>
+    /// <returns>the state of the drone</returns>
     private DroneState TakingOff()
     {
         return NotMeasureableTof == _stateParameter.TOF && 
@@ -157,9 +169,14 @@ public class StateDeterminer
                 : DroneState.Unknown;
     }
 
+    /// <summary>
+    /// Checks if the drone is landing.
+    /// </summary>
+    /// <returns>the state of the drone</returns>
     private DroneState Landing()
     {
-        return NotMeasureableTof == _stateParameter.TOF && 
+        return 
+            NotMeasureableTof == _stateParameter.TOF && 
             MinZVelocity <= _stateParameter.VelocityZ && _stateParameter.VelocityX < RestVelocity &&
             _stateParameter.Roll == RollBalanced &&
             _stateParameter.Pitch == PitchBalanced 
@@ -167,34 +184,47 @@ public class StateDeterminer
             : DroneState.Unknown;
     }
     
+    /// <summary>
+    /// Checks if the drone is hovering
+    /// </summary>
+    /// <returns>the state of the drone</returns>
     private DroneState Hovering()
     {
         return 
             LowerMeasureableTof <= _stateParameter.TOF &&
+            _prevStateParameter.Yaw == _stateParameter.Yaw &&
             LowerXAccelerationForHovering <= _stateParameter.AccelerationX && _stateParameter.AccelerationX <= UpperXAccelerationForHovering &&
-             LowerYAccelerationForHovering <= _stateParameter.AccelerationY && _stateParameter.AccelerationY <= UpperYAccelerationForHovering &&
-             LowerZAccelerationForHovering <= _stateParameter.AccelerationZ && _stateParameter.AccelerationZ <= UpperZAccelerationForHovering && 
+            LowerYAccelerationForHovering <= _stateParameter.AccelerationY && _stateParameter.AccelerationY <= UpperYAccelerationForHovering &&
+            LowerZAccelerationForHovering <= _stateParameter.AccelerationZ && _stateParameter.AccelerationZ <= UpperZAccelerationForHovering && 
             _stateParameter.VelocityX == RestVelocity && 
-             _stateParameter.VelocityY == RestVelocity && 
-             _stateParameter.VelocityZ == RestVelocity
+            _stateParameter.VelocityY == RestVelocity && 
+            _stateParameter.VelocityZ == RestVelocity
             ? DroneState.Hovering
             : DroneState.Unknown;
     }
 
+    /// <summary>
+    /// Checks if the drone is moving forward.
+    /// </summary>
+    /// <returns>the state of the drone</returns>
     private DroneState MovingForward()
     {
         return 
-                        LowerMeasureableTof <= _stateParameter.TOF && 
-            RestVelocity < _stateParameter.VelocityZ && _stateParameter.VelocityX <= MaxZVelocity &&
-            _stateParameter.Roll == RollBalanced &&
-            _stateParameter.Pitch == PitchBalanced 
-            ? DroneState.Rising 
+            LowerMeasureableTof <= _stateParameter.TOF && 
+            RestVelocity < _stateParameter.VelocityX && _stateParameter.VelocityX <= MaxXVelocity &&
+             MinPitchDegree < _stateParameter.Pitch && _stateParameter.Pitch < PitchBalanced &&
+            _stateParameter.Roll == RollBalanced
+            ? DroneState.MovingForwards 
             : DroneState.Unknown;
     }
     
+    /// <summary>
+    /// Checks if the drone is moving backward.
+    /// </summary>
+    /// <returns>the state of the drone</returns>
     private DroneState MovingBackward()
     {
-        return 
+        return  
             LowerMeasureableTof <= _stateParameter.TOF && 
             MinXVelocity < _stateParameter.VelocityX && _stateParameter.VelocityX < RestVelocity && 
             PitchBalanced < _stateParameter.Pitch && _stateParameter.Pitch <= MaxPitchDegree
@@ -202,6 +232,10 @@ public class StateDeterminer
             : DroneState.Unknown;
     }
     
+    /// <summary>
+    /// Checks if the drone is moving left.
+    /// </summary>
+    /// <returns>the state of the drone</returns>
     private DroneState MovingLeft()
     {
         return 
@@ -212,6 +246,10 @@ public class StateDeterminer
             : DroneState.Unknown;
     }
     
+    /// <summary>
+    /// Checks if the drone is moving right.
+    /// </summary>
+    /// <returns>the state of the drone</returns>
     private DroneState MovingRight()
     {
         return 
@@ -222,6 +260,10 @@ public class StateDeterminer
             : DroneState.Unknown;
     }
     
+    /// <summary>
+    /// Checks if the drone is rotating clockwise.
+    /// </summary>
+    /// <returns>the state of the drone</returns>
     private DroneState RotatingClockwise()
     {
         return
@@ -233,6 +275,10 @@ public class StateDeterminer
             : DroneState.Unknown;
     }
     
+    /// <summary>
+    /// Checks if the drone is rotating counter clockwise.
+    /// </summary>
+    /// <returns>the state of the drone</returns>
     private DroneState RotatingCounterClockwise()
     {
         return
@@ -244,24 +290,32 @@ public class StateDeterminer
             : DroneState.Unknown;
     }
     
-    private DroneState Rising()
+    /// <summary>
+    /// Checks if the drone is sinking down.
+    /// </summary>
+    /// <returns>the state of the drone</returns>
+    private DroneState Sinking()
     {
         return 
             LowerMeasureableTof <= _stateParameter.TOF && 
-            RestVelocity < _stateParameter.VelocityZ && _stateParameter.VelocityX <= MaxZVelocity &&
+            RestVelocity < _stateParameter.VelocityZ && _stateParameter.VelocityZ <= MaxZVelocity &&
             _stateParameter.Roll == RollBalanced &&
             _stateParameter.Pitch == PitchBalanced 
-            ? DroneState.Rising 
+            ? DroneState.Sinking
             : DroneState.Unknown;
     }
     
-    private DroneState Sinking()
+    /// <summary>
+    /// Checks if the drone is rising up.
+    /// </summary>
+    /// <returns>the state of the drone</returns>
+    private DroneState Rising()
     {
         return LowerMeasureableTof <= _stateParameter.TOF && 
-            MinZVelocity <= _stateParameter.VelocityZ && _stateParameter.VelocityX < RestVelocity &&
+            MinZVelocity <= _stateParameter.VelocityZ && _stateParameter.VelocityZ < RestVelocity &&
             _stateParameter.Roll == RollBalanced &&
             _stateParameter.Pitch == PitchBalanced 
-                ? DroneState.Sinking 
+                ? DroneState.Rising 
                 : DroneState.Unknown;
     }
 }
