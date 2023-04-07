@@ -3,7 +3,7 @@
 namespace RyzeTelloSDK.Core
 {
     /**
-     * This class sets the edge values.
+     * Checks if the paramters used by the tello sdk is valid.
      */
     public static class CommandConstraints
     {
@@ -67,7 +67,7 @@ namespace RyzeTelloSDK.Core
         /// <exception cref="ArgumentException">Thrown if the value is not within the allowed range.</exception>
         public static void CheckRC(int value)
         {
-            if (value < -100 || value > 100) throw new ArgumentException($"RC should be between {RCMin} and {RCMax}", nameof(value));
+            if (value < RCMin || value > RCMax) throw new ArgumentException($"RC should be between {RCMin} and {RCMax}", nameof(value));
         }
     }
 }
