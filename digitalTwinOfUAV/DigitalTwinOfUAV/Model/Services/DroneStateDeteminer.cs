@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
 using DigitalTwinOfUAV.Model.Attributes;
-using MongoDB.Bson;
 using RyzeTelloSDK.Models;
+
+using static DigitalTwinOfUAV.Model.Services.TelloFlightMetrics;
 
 namespace DigitalTwinOfUAV.Model.Services;
 
@@ -11,62 +12,6 @@ namespace DigitalTwinOfUAV.Model.Services;
 /// </summary>
 public class StateDeterminer
 {
-    #region Constants
-    // TODO: constanten umbenennen
-    private const int NotMeasureableTof = 10; // Wert für jede ungültige Messung oder eine Flughöhe unter 30 cm werden.
-    private const int LowerMeasureableTof = 30; // Ab 30 cm aufwärts kann die ToF Messung erfasst werden
-    private const int MaxMeasurebaleTof = 3000; // Name falsch, Max Höhe gegebenfalls noch nicht erreicht. wurde aber noch nicht überprüft.
-    
-    // Acceleration
-    private const int LowerXAccelerationForHovering = -50;
-    private const int UpperXAccelerationForHovering = 50;
-
-    private const int LowerYAccelerationForHovering = -50;
-    private const int UpperYAccelerationForHovering = 50;
-    
-    private const int LowerZAccelerationForHovering = -1100;
-    private const int UpperZAccelerationForHovering = -950;
-    
-    //Velocity
-    private const int RestVelocity = 0;
-    
-    // x < 0 -> Backward
-    // 0 < x -> Forward
-    private const int MinXVelocity = -30;
-    private const int MaxXVelocity = 30;
-    
-    // y < 0 -> Right
-    // 0 < y -> Left
-    private const int MinYVelocity = -30;
-    private const int MaxYVelocity = 30;
-
-    // z < 0 -> Down
-    // 0 < z -> Up
-    private const int MinZVelocity = -30;
-    private const int MaxZVelocity = 30;
-
-    // Roll
-    // 1 <= x -> Right
-    // x <= -1 -> Left
-    private const int RollBalanced = 0;
-    private const int MinRollDegree = -179;
-    private const int MaxRollDegree = 179;
-
-    // Pitch
-    // 1 <= x -> Backward
-    // x <= -1 -> Forward
-    private const int PitchBalanced = 0;
-    private const int MinPitchDegree = -179;
-    private const int MaxPitchDegree = 179;
-    
-    // Yaw
-    // x moving to -1799 CCW
-    // x moving to 1799 CW 
-    private const int Yawbalanced = 0;
-    private const int MinYawDegree = -179;
-    private const int MaxYawDegree = 179;
-    #endregion
-
     #region Private Member Variable
 
     private static StateDeterminer _stateDeterminer;
