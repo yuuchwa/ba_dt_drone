@@ -106,24 +106,20 @@ public class StateDeterminer
     private DroneState TakingOff()
     {
         return NotMeasureableTof == _stateParameter.TOF && 
-            RestVelocity < _stateParameter.VelocityZ && _stateParameter.VelocityX <= MaxZVelocity &&
-            _stateParameter.Roll == RollBalanced &&
-            _stateParameter.Pitch == PitchBalanced 
+               MinZVelocity <= _stateParameter.VelocityZ && _stateParameter.VelocityZ < RestVelocity
                 ? DroneState.TakingOff 
                 : DroneState.Unknown;
     }
 
     /// <summary>
     /// Checks if the drone is landing.
-    /// </summary>
+    /// </summary>c
     /// <returns>the state of the drone</returns>
     private DroneState Landing()
     {
         return 
             NotMeasureableTof == _stateParameter.TOF && 
-            MinZVelocity <= _stateParameter.VelocityZ && _stateParameter.VelocityX < RestVelocity &&
-            _stateParameter.Roll == RollBalanced &&
-            _stateParameter.Pitch == PitchBalanced 
+            RestVelocity < _stateParameter.VelocityZ && _stateParameter.VelocityZ <= MaxZVelocity
             ? DroneState.Landing 
             : DroneState.Unknown;
     }
@@ -136,7 +132,6 @@ public class StateDeterminer
     {
         return 
             LowerMeasureableTof <= _stateParameter.TOF &&
-            _prevStateParameter.Yaw == _stateParameter.Yaw &&
             LowerXAccelerationForHovering <= _stateParameter.AccelerationX && _stateParameter.AccelerationX <= UpperXAccelerationForHovering &&
             LowerYAccelerationForHovering <= _stateParameter.AccelerationY && _stateParameter.AccelerationY <= UpperYAccelerationForHovering &&
             LowerZAccelerationForHovering <= _stateParameter.AccelerationZ && _stateParameter.AccelerationZ <= UpperZAccelerationForHovering && 
@@ -155,8 +150,8 @@ public class StateDeterminer
     {
         return 
             LowerMeasureableTof <= _stateParameter.TOF && 
-            RestVelocity < _stateParameter.VelocityX && _stateParameter.VelocityX <= MaxXVelocity &&
-             MinPitchDegree < _stateParameter.Pitch && _stateParameter.Pitch < PitchBalanced &&
+            MinXVelocity < _stateParameter.VelocityX && _stateParameter.VelocityX < RestVelocity &&
+            MinPitchDegree < _stateParameter.Pitch && _stateParameter.Pitch < PitchBalanced &&
             _stateParameter.Roll == RollBalanced
             ? DroneState.MovingForwards 
             : DroneState.Unknown;
@@ -170,7 +165,7 @@ public class StateDeterminer
     {
         return  
             LowerMeasureableTof <= _stateParameter.TOF && 
-            MinXVelocity < _stateParameter.VelocityX && _stateParameter.VelocityX < RestVelocity && 
+            RestVelocity < _stateParameter.VelocityX && _stateParameter.VelocityX <= MaxXVelocity &&
             PitchBalanced < _stateParameter.Pitch && _stateParameter.Pitch <= MaxPitchDegree
             ? DroneState.MovingBackwards 
             : DroneState.Unknown;
@@ -242,9 +237,7 @@ public class StateDeterminer
     {
         return 
             LowerMeasureableTof <= _stateParameter.TOF && 
-            RestVelocity < _stateParameter.VelocityZ && _stateParameter.VelocityZ <= MaxZVelocity &&
-            _stateParameter.Roll == RollBalanced &&
-            _stateParameter.Pitch == PitchBalanced 
+            RestVelocity < _stateParameter.VelocityZ && _stateParameter.VelocityZ <= MaxZVelocity
             ? DroneState.Sinking
             : DroneState.Unknown;
     }
@@ -256,10 +249,8 @@ public class StateDeterminer
     private DroneState Rising()
     {
         return LowerMeasureableTof <= _stateParameter.TOF && 
-            MinZVelocity <= _stateParameter.VelocityZ && _stateParameter.VelocityZ < RestVelocity &&
-            _stateParameter.Roll == RollBalanced &&
-            _stateParameter.Pitch == PitchBalanced 
-                ? DroneState.Rising 
-                : DroneState.Unknown;
+            MinZVelocity <= _stateParameter.VelocityZ && _stateParameter.VelocityZ < RestVelocity
+            ? DroneState.Rising 
+            : DroneState.Unknown;
     }
 }

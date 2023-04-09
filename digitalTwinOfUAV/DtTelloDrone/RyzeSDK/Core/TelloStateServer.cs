@@ -4,6 +4,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using DtTelloDrone.Logger;
 using DtTelloDrone.RyzeSDK.Models;
 
 namespace DtTelloDrone.RyzeSDK.Core
@@ -28,8 +29,6 @@ namespace DtTelloDrone.RyzeSDK.Core
         /// </summary>
         private CancellationTokenSource _cancellationToken;
         
-        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
-
         public event Action<Exception> OnException;
         public event Action<string> OnStateRaw;
         public event Action<TelloStateParameter> OnState;
@@ -71,8 +70,9 @@ namespace DtTelloDrone.RyzeSDK.Core
                 try
                 {
                     var result = await udpServer.ReceiveAsync();
-                    var data = Encoding.ASCII.GetString(result.Buffer);
-
+                    var data = Encoding.ASCII.GetString(result.Buffer).Replace('\n', ' ');
+                    
+Console.Write(data);
                     OnStateRaw?.Invoke(data);
                     OnState?.Invoke(TelloStateParameter.FromString(data));
                 }

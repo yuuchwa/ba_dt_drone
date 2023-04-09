@@ -18,7 +18,7 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter
 {
     #region Properties and Fields
 
-    private ILogger Logger;
+    private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger() ;
     
     private LandScapeLayer _layer;
 
@@ -35,6 +35,8 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter
 
     private int _tickCount = 0;
     private Random _random = new();
+
+    private DateTime _lastUpdateTS;
     
     // --------- digital Entity information
     
@@ -67,7 +69,7 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter
     public int StartY { get; set; }
 
     #endregion
-
+    
     #region Constants
     
     private const int DefaultSpeed = 30;
@@ -79,7 +81,6 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter
 
     public void Init(LandScapeLayer layer)
     {
-        Logger = new NLogLogger(GetType().Name);
 
         _layer = layer;
         _core = TelloCore.GetInstance();
@@ -90,9 +91,6 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter
         _stateDeterminer = StateDeterminer.getStateDeterminerInstance();
         _speed = DefaultSpeed;
         _bearing = DefaultBearing;
-
-        LogEntry entry = new LogEntry(LoggingEventType.Trace, "Agent Initilaisiert");
-        Logger.Log(entry);
     }
 
     #endregion
@@ -104,19 +102,28 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter
         // Lese Zustandsparameter aus
         var parameters = _core.GetStateParameter();
 
-        // Bestimme den Zustand der Tello Drohne
-        if (parameters != null)
+        if (parameters == null)
         {
-            DroneState state = _stateDeterminer.DetermineState(parameters);
-            // Log state
-            //Console.WriteLine($"Current Drone state is: {state.ToString()}");
-            
-            // Zustand in die Simulation überführen
-            //MapParameters(state, parameters);
+            return;
         }
+
+        // Bestimme den Zustand der Tello Drohne
+        if (parameters.TimeStamp == _lastUpdateTS)
+        {
+            return;
+        }
+
+        DroneState state = _stateDeterminer.DetermineState(parameters);
+        Logger.Trace(state);
+        // Log state
+        //Console.WriteLine($"Current Drone state is: {state.ToString()}");
+        
+        // Zustand in die Simulation überführen
+        //MapParameters(state, parameters);
+        _prevParameters = parameters;
+        _lastUpdateTS = parameters.TimeStamp;
         
         // Entscheidungsfindungs
-        _prevParameters = parameters;
         _tickCount++;
     }
 
@@ -131,7 +138,7 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter
             return;
         }
         
-        double timeDifferenceSinceLastUpdate = parameters.UpdateTime.Millisecond - _prevParameters.UpdateTime.Millisecond;
+        double timeDifferenceSinceLastUpdate = parameters.TimeStamp.Millisecond - _prevParameters.TimeStamp.Millisecond;
 
         if ((currentState == DroneState.MovingForwards ||
              currentState == DroneState.MovingBackwards ||
