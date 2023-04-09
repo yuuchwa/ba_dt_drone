@@ -55,7 +55,7 @@ namespace DtTelloDrone.RyzeSDK.Models
         [Name("agz")]
         public float AccelerationZ { get; private set; }
 
-        public DateTime UpdateTime { get; set; }
+        public DateTime TimeStamp { get; set; }
         
         private static readonly Regex regex = new Regex(@"(\w+):([\d.-]+)");
         private static readonly PropertyInfo[] props = typeof(TelloStateParameter).GetProperties();
@@ -66,7 +66,7 @@ namespace DtTelloDrone.RyzeSDK.Models
         {
             var state = new TelloStateParameter();
 
-            state.UpdateTime = DateTime.Now;
+            state.TimeStamp = DateTime.Now;
 
             var matches = regex.Matches(data);
 

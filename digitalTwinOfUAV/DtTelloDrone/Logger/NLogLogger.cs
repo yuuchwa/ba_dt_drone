@@ -1,3 +1,4 @@
+using Mars.Common.Core.Logging;
 using NLog;
 
 namespace DtTelloDrone.Logger;
@@ -5,10 +6,9 @@ namespace DtTelloDrone.Logger;
 public sealed class NLogLogger : ILogger
 {
     private readonly NLog.Logger _logger;
-    
     public NLogLogger(string name)
     {
-        _logger = NLog.LogManager.GetLogger(name);
+        _logger = NLog.LogManager.GetLogger(name); // Liefert bei einem neuen Namen eine neue Logger Instanz.
     }
 
     public void Log(LogEntry entry)

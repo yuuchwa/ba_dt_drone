@@ -24,7 +24,7 @@ public class TelloCore : ICore
     /// <summary>
     /// The logger.
     /// </summary>
-    private readonly ILogger Logger;
+    private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
     /// <summary>
     /// The Tello client
@@ -81,8 +81,6 @@ public class TelloCore : ICore
     private TelloCore()
     {
         _stopThread = false;
-
-        Logger = new NLogLogger(GetType().Name);
         
         _commandQueue = new Queue<DroneCommand>();
         _commandHandlerThread = new Thread(ProcessCommandTask);
@@ -93,7 +91,8 @@ public class TelloCore : ICore
         //_consoleOutput = new ConsoleDisplay(_stateServer);
         
         _stateServer.OnState += (s) => _telloStateParameter = s;
-        _stateServer.OnException += (ex) => Logger.Log(new LogEntry(LoggingEventType.Error, "stateServer.OnException", ex));
+        _stateServer.OnStateRaw += (s) => Logger.Trace(s);
+        _stateServer.OnException += (ex) => Logger.Error("stateServer.OnException");
 
         IntitializeConnectionToTello();
         
@@ -204,7 +203,6 @@ public class TelloCore : ICore
                             await _telloClient.GetTime();
                             break;
                         case TelloAction.Connect: 
-                            Console.WriteLine("aufgerufen");
                             response = await _telloClient.InitTello();
                             if (response)
                             {

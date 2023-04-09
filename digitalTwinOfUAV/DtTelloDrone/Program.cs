@@ -21,11 +21,11 @@ internal static class Program
         ConsoleWorker consoleWorker = new ConsoleWorker();
         consoleWorker.Listen();
 
-        runSimulation();
+        RunSimulation();
         //runPlayground();
     }
 
-    private static void runSimulation()
+    private static void RunSimulation()
     {
 
         // Create a new model description that holds all parts of the model (agents, entities, layers).
@@ -43,7 +43,7 @@ internal static class Program
         Console.WriteLine($"Simulation execution finished after {loopResults.Iterations} steps");
     }
 
-    public static async void runPlayground()
+    public static async void RunPlayground()
     {
 
 
