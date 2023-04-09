@@ -93,7 +93,7 @@ public class TelloCore : ICore
         //_consoleOutput = new ConsoleDisplay(_stateServer);
         
         _stateServer.OnState += (s) => _telloStateParameter = s;
-        _stateServer.OnException += (ex) => Logger.Error(ex, "stateServer.OnException");
+        _stateServer.OnException += (ex) => Logger.Log(new LogEntry(LoggingEventType.Error, "stateServer.OnException", ex));
 
         IntitializeConnectionToTello();
         
