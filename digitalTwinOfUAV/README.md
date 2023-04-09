@@ -1,3 +1,1 @@
-# Digital Tin of a Tllo Dorne
-
-# Technology stack.
+# Digital Twin of the tello drone
