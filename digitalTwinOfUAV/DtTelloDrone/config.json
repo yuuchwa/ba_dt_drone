@@ -1,0 +1,30 @@
+{
+  "id": "digitalTwin",
+  "globals": {
+    "steps": 100000000000,
+    "console": false,
+    "output": "csv",
+    "options": {
+      "delimiter": ";",
+      "format": "en-EN"
+    }
+  },
+  "layers": [
+    {
+      "name": "LandScapeLayer",
+      "file": "Resources/livingroom.geojson"
+    }
+  ],
+  "agents": [
+    {
+      "name": "TelloAgent",
+      "count": 1,
+      "file": "Resources/TelloAgent.csv",
+      "outputs": [
+        {
+          "kind": "csv"
+        }
+      ]
+    }
+  ]
+}
