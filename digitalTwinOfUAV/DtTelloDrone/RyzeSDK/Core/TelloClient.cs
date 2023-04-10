@@ -22,6 +22,8 @@ namespace DtTelloDrone.RyzeSDK.Core
         private readonly Thread _responseListener;
         private readonly ConcurrentQueue<string> _responses;
         private long _lastReceivedCommandTs;
+
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         
         public bool IsConnected() => _udpClient.Client.Connected;
 
@@ -358,11 +360,11 @@ namespace DtTelloDrone.RyzeSDK.Core
                 
                 if (response != null && String.CompareOrdinal(response.ToLower(), SuccessResponse) == 0)
                 {
-                    Console.WriteLine($"Command '{command}' was successful");
+                    Logger.Trace($"Command '{command}' was successful");
                     return true;
                 }
                 // Logging
-                Console.WriteLine($"Command attempt {attempt} failed for command: '{command}'");
+                Logger.Trace($"Command attempt {attempt} failed for command: '{command}'");
             }
             
             return false;

@@ -72,7 +72,6 @@ namespace DtTelloDrone.RyzeSDK.Core
                     var result = await udpServer.ReceiveAsync();
                     var data = Encoding.ASCII.GetString(result.Buffer).Replace('\n', ' ');
                     
-Console.Write(data);
                     OnStateRaw?.Invoke(data);
                     OnState?.Invoke(TelloStateParameter.FromString(data));
                 }

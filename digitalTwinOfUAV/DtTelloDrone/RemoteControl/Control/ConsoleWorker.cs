@@ -5,13 +5,14 @@ using DtTelloDrone.Logger;
 using DtTelloDrone.RyzeSDK;
 using DtTelloDrone.RyzeSDK.Attribute;
 using DtTelloDrone.RyzeSDK.Core;
+using NLog;
 using ServiceStack;
 
 namespace DtTelloDrone.RemoteControl.Control
 {
     public class ConsoleWorker
     {
-        private readonly ILogger Logger;
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         /// <summary>
         /// Core Service
@@ -21,7 +22,6 @@ namespace DtTelloDrone.RemoteControl.Control
         private Task _mainloop;
 
         private int _speed = 50;
-        private int _rotationSpeed = 60;
 
         /// <summary>
         /// Token for canceling a thread.
@@ -30,36 +30,36 @@ namespace DtTelloDrone.RemoteControl.Control
         
         public ConsoleWorker()
         {
-            Logger = new NLogLogger(GetType().Name);
-            Logger.Log(new LogEntry(LoggingEventType.Debug, "Console Worker created."));
+            Logger.Info("Console Control initialized.");
         }
 
         public void Close()
         {
             _cancellationToken.Cancel();
-            Logger.Log(new LogEntry(LoggingEventType.Debug, "Console Worker terminated."));
-
+            Logger.Info("Console Control terminated.");
         }
 
         public void Listen()
         {
             _cancellationToken = new CancellationTokenSource();
+            Logger.Info("Console Control started.");
+
             _mainloop = Task.Run(StartConsoleWorker, _cancellationToken.Token);
         }
 
         private async void StartConsoleWorker()
         {
+            Logger.Info("Console Control started.");
             DroneCommand command;
             while (true)
             {
                 TelloAction selectedAction = ReadKeyboard();
-
+                
                 if (selectedAction == TelloAction.Unknown)
                 {
                     continue;
                 }
 
-                Logger.Log(new LogEntry(LoggingEventType.Information,$"User entered {selectedAction}."));
                 command = new DroneCommand(selectedAction, _speed);
                 _telloCore.QueryCommand(command);
             }
@@ -73,9 +73,7 @@ namespace DtTelloDrone.RemoteControl.Control
         {
             TelloAction action = TelloAction.Unknown;
             var key = Console.ReadKey(true);
-
-            //Console.WriteLine($"{key.Key} pressed");
-
+            
             switch (key.Key)
             {
                 case ConsoleKey.W: action = TelloAction.MoveForward; break;

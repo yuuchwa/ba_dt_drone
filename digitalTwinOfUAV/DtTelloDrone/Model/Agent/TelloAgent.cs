@@ -11,6 +11,8 @@ using Mars.Components.Environments.Cartesian;
 using Mars.Interfaces.Agents;
 using Mars.Interfaces.Annotations;
 using Mars.Interfaces.Environments;
+using NLog;
+using NLog.Fluent;
 
 namespace DtTelloDrone.Model.Agent;
 
@@ -30,7 +32,6 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter
     private DroneState _currentDroneState;
     private DroneState _prevDroneState;
 
-    private double _travelDuration;
     private int _travelDurationCounter = 0;
 
     private int _tickCount = 0;
@@ -49,8 +50,8 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter
     
     public Position Target { get; set; }
     
+    
     private List<Position> _directions;
-    private double _bearing;
     private byte _speed;
 
     /// <summary>
@@ -67,6 +68,9 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter
     
     [PropertyDescription (Name = "StartY")]
     public int StartY { get; set; }
+    
+    [PropertyDescription (Name = "Bearing")]
+    public double Bearing { get; set; }
 
     #endregion
     
@@ -81,7 +85,6 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter
 
     public void Init(LandScapeLayer layer)
     {
-
         _layer = layer;
         _core = TelloCore.GetInstance();
         
@@ -90,7 +93,9 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter
             
         _stateDeterminer = StateDeterminer.getStateDeterminerInstance();
         _speed = DefaultSpeed;
-        _bearing = DefaultBearing;
+        Bearing = DefaultBearing;
+        Logger.Trace(_layer);
+        Logger.Info("Agent has been initialized");
     }
 
     #endregion
@@ -114,15 +119,19 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter
         }
 
         DroneState state = _stateDeterminer.DetermineState(parameters);
-        Logger.Trace(state);
-        // Log state
-        //Console.WriteLine($"Current Drone state is: {state.ToString()}");
         
+        Logger.Trace($"Current Drone state is: {state.ToString()}");
+        if (state != _prevDroneState)
+        {
+            Logger.Info($"Drone is {state}");
+        }
+
         // Zustand in die Simulation überführen
         //MapParameters(state, parameters);
         _prevParameters = parameters;
+        _prevDroneState = state;
         _lastUpdateTS = parameters.TimeStamp;
-        
+
         // Entscheidungsfindungs
         _tickCount++;
     }
@@ -133,46 +142,42 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter
 
     private void MapParameters(DroneState currentState, TelloStateParameter parameters)
     {
-        if (_prevParameters == null || currentState == DroneState.Unknown)
+        if (_prevParameters == null)
         {
             return;
         }
         
-        double timeDifferenceSinceLastUpdate = parameters.TimeStamp.Millisecond - _prevParameters.TimeStamp.Millisecond;
+        double timeInterval = parameters.TimeStamp.Second - _prevParameters.TimeStamp.Second;
 
-        if ((currentState == DroneState.MovingForwards ||
-             currentState == DroneState.MovingBackwards ||
-             currentState == DroneState.MovingLeft ||
-             currentState == DroneState.MovingRight) &&
-            currentState == _prevDroneState)
-        {
-            _travelDuration += timeDifferenceSinceLastUpdate;
-        }
-        
         // Calculate bearing
-        _bearing = DataMapper.CalculateBearing(currentState, _bearing, timeDifferenceSinceLastUpdate, _speed);
+        Bearing = DataMapper.MapToMarsBearing(parameters.Yaw);
+        //Logger.Trace(Bearing);
         double motionBearing = DataMapper.GetMotionBearing(currentState);
-        double motionDirection = (_bearing + motionBearing) % 360;
+        double flyDirection = (Bearing + motionBearing) % 360;
 
         // calculate travelled distance
-        double travelledDistance = 0;
-        float acceleationDirection = 0;
-        
+        double acceleration = parameters.AccelerationX;       // cm/s
+        double velocity = parameters.VelocityX * 10;          // cm/s
+
+        /*
         if (_currentDroneState == DroneState.MovingForwards || _currentDroneState == DroneState.MovingBackwards)
         {
-            acceleationDirection = parameters.AccelerationX;
+            acceleration = parameters.AccelerationX;
+            velocity = parameters.VelocityX;
         }
         else if (_currentDroneState == DroneState.MovingRight || _currentDroneState == DroneState.MovingLeft)
         {
-            acceleationDirection = parameters.AccelerationY;
+            acceleration = parameters.AccelerationY;
+            velocity = parameters.VelocityY;
         }
+        */
         
-        travelledDistance = DataMapper.CalculateTravelledDistance(currentState, acceleationDirection, _travelDuration, timeDifferenceSinceLastUpdate);
-        
-        // move the agent to the corresponding position of the drone.
-        Position = _layer._landScapeEnvironment.Move(this, motionDirection, travelledDistance); // nicht geprüft
-        Console.WriteLine($"Agent moved to {Position}");
+        double travelledDistance = DataMapper.CalculateTravelledDistance(timeInterval, acceleration, velocity);
+        Logger.Trace($"Travelled Distance: {travelledDistance}");
 
+        // move the agent to the corresponding position of the drone.
+        Position = _layer._landScapeEnvironment.Move(this, flyDirection, travelledDistance); // nicht geprüft
+        Logger.Trace($"Agent moved to {Position}");
         _height = parameters.Height;
     }
 

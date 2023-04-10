@@ -2,6 +2,7 @@ using System;
 using System.Text.RegularExpressions;
 using DtTelloDrone.Model.Attributes;
 using DtTelloDrone.RyzeSDK.Attribute;
+using static DtTelloDrone.Model.Services.TelloFlightMetrics;
 
 namespace DtTelloDrone.Model.Services;
 
@@ -14,49 +15,30 @@ public static class DataMapper
     /// Calculates the distance in mm in which the drone is travelled.
     /// </summary>
     /// <returns></returns>
-    public static double CalculateTravelledDistance(DroneState state, float accelecation, double timeSinceMovement, double timeInterval)
+    public static double CalculateTravelledDistance(double timeInterval, double accelecation,  double velocity)
     {
-        double travelledDistance = 0;
-        if (state == DroneState.MovingForwards || 
-            state == DroneState.MovingBackwards ||
-            state == DroneState.MovingLeft || 
-            state == DroneState.MovingRight)
-        {
-            return travelledDistance;
-        }
-
-        double speed = accelecation * timeSinceMovement; 
-        travelledDistance = speed * timeInterval;
-
-        return travelledDistance;
+        return (0.5 * accelecation * (timeInterval * timeInterval)) + (velocity * timeInterval); // 1/2 * m * s² + v0 * t
     }
-
-    /// <summary>
-    /// calculates the direction the drone is oriented.
-    /// </summary>
-    /// <returns></returns>
-    public static double CalculateBearing(DroneState state, double oldBearing, double timeInterval, int angleVelocity)
+    
+    public static double MapToMarsBearing(double yaw)
     {
-        if (state != DroneState.RotatingClockwise || state != DroneState.RotatingCounterClockwise)
-        {
-            return oldBearing;
-        }
+        double marsBearing = -1;
+        int intYaw = Convert.ToInt32(yaw);
 
-        float droneLengthRadius = TelloDroneSpecification.Length / 2;
-        
-        double newBearing = oldBearing;
-        double RotationAngle = Math.Atan(angleVelocity * timeInterval / droneLengthRadius) % 360;
-        
-        if (state == DroneState.RotatingCounterClockwise)
+        if (intYaw == InitialYaw)
         {
-            newBearing += RotationAngle;
+            marsBearing = 0;
         }
-        else if (state == DroneState.RotatingClockwise)
+        else if (MinYawDegree <= intYaw && intYaw < InitialYaw)
         {
-            newBearing -= RotationAngle;
+            marsBearing = -1 * intYaw;
+        }
+        else if (InitialYaw < intYaw && intYaw <= MaxYawDegree)
+        {
+            marsBearing = 360 - intYaw;
         }
         
-        return newBearing;
+        return Math.Truncate(marsBearing);
     }
 
     /// <summary>

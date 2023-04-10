@@ -20,42 +20,18 @@ namespace DtTelloDrone.RyzeSDK;
 public class TelloCore : ICore
 {
     private static TelloCore _telloCoreInstance;
-
-    /// <summary>
-    /// The logger.
-    /// </summary>
     private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
-
-    /// <summary>
-    /// The Tello client
-    /// </summary>
-    private readonly ITelloClient _telloClient;
     
-    /// <summary>
-    /// The state server
-    /// </summary>
+    private readonly ITelloClient _telloClient;
     private readonly TelloStateServer _stateServer;
 
     private readonly ConsoleCockpit _consoleOutput;
-
-    /// <summary>
-    /// The Status where the core is connected to the drone or not.
-    /// </summary>
-    private bool _connectionStatus;
     
-    /// <summary>
-    /// Flag that indicates where the process should be stopped.
-    /// </summary>
+    private bool _connectionStatus;
     private bool _stopThread;
-
-    /// <summary>
-    /// The FFmpeg
-    /// </summary>
     //private readonly FFmpeg ffmpeg;
 
     private readonly Queue<DroneCommand> _commandQueue = null;
-
-    //private Task _commandProcessor;
     private readonly Thread _commandHandlerThread;
     
     /// <summary>
@@ -91,7 +67,7 @@ public class TelloCore : ICore
         //_consoleOutput = new ConsoleDisplay(_stateServer);
         
         _stateServer.OnState += (s) => _telloStateParameter = s;
-        _stateServer.OnStateRaw += (s) => Logger.Trace(s);
+        //_stateServer.OnStateRaw += (s) => Logger.Trace(s);
         _stateServer.OnException += (ex) => Logger.Error("stateServer.OnException");
 
         IntitializeConnectionToTello();

@@ -52,7 +52,7 @@ public static class TelloFlightMetrics
     // Yaw
     // x moving to -1799 CCW
     // x moving to 1799 CW 
-    public const int Yawbalanced = 0;
+    public const int InitialYaw = 0;
     public const int MinYawDegree = -179;
     public const int MaxYawDegree = 179;
 }

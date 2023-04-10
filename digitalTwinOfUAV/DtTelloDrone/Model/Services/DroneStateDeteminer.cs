@@ -148,13 +148,13 @@ public class StateDeterminer
     /// <returns>the state of the drone</returns>
     private DroneState MovingForward()
     {
-        return 
-            LowerMeasureableTof <= _stateParameter.TOF && 
-            MinXVelocity < _stateParameter.VelocityX && _stateParameter.VelocityX < RestVelocity &&
-            MinPitchDegree < _stateParameter.Pitch && _stateParameter.Pitch < PitchBalanced &&
-            _stateParameter.Roll == RollBalanced
-            ? DroneState.MovingForwards 
-            : DroneState.Unknown;
+        return
+            LowerMeasureableTof <= _stateParameter.TOF &&
+            RestVelocity < _stateParameter.VelocityX && _stateParameter.VelocityX <= MaxXVelocity &&
+            MinPitchDegree < _stateParameter.Pitch && _stateParameter.Pitch < PitchBalanced
+                ? DroneState.MovingForwards
+                : DroneState.Unknown;
+
     }
     
     /// <summary>
@@ -165,7 +165,7 @@ public class StateDeterminer
     {
         return  
             LowerMeasureableTof <= _stateParameter.TOF && 
-            RestVelocity < _stateParameter.VelocityX && _stateParameter.VelocityX <= MaxXVelocity &&
+            MinXVelocity < _stateParameter.VelocityX && _stateParameter.VelocityX < RestVelocity &&
             PitchBalanced < _stateParameter.Pitch && _stateParameter.Pitch <= MaxPitchDegree
             ? DroneState.MovingBackwards 
             : DroneState.Unknown;
@@ -208,8 +208,8 @@ public class StateDeterminer
         return
             LowerMeasureableTof <= _stateParameter.TOF && 
             (_prevStateParameter.Yaw < _stateParameter.Yaw || 
-            (_prevStateParameter.Yaw < Yawbalanced && Yawbalanced < _stateParameter.Yaw)) &&
-            Yawbalanced < _stateParameter.Yaw && _stateParameter.Yaw <= MaxYawDegree
+            (_prevStateParameter.Yaw < InitialYaw && InitialYaw < _stateParameter.Yaw)) &&
+            InitialYaw < _stateParameter.Yaw && _stateParameter.Yaw <= MaxYawDegree
             ? DroneState.RotatingClockwise 
             : DroneState.Unknown;
     }
@@ -223,7 +223,7 @@ public class StateDeterminer
         return
             LowerMeasureableTof <= _stateParameter.TOF && 
             (_stateParameter.Yaw < _prevStateParameter.Yaw || 
-            (_stateParameter.Yaw < Yawbalanced && Yawbalanced < _prevStateParameter.Yaw)) &&
+            (_stateParameter.Yaw < InitialYaw && InitialYaw < _prevStateParameter.Yaw)) &&
             MinYawDegree < _stateParameter.Yaw && _stateParameter.Yaw < MaxYawDegree
             ? DroneState.RotatingCounterClockwise 
             : DroneState.Unknown;
