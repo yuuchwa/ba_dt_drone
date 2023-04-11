@@ -52,8 +52,6 @@ public class TelloCore : ICore
     /// <summary>
     /// Instantiates the Core
     /// </summary>
-    // public Core(ILogger<Core> logger , TelloClient client, TelloStateServer stateServer, FFmpeg ffmpeg)
-    //public TelloCore(TelloClient telloClient, TelloStateServer stateServer)
     private TelloCore()
     {
         _stopThread = false;
@@ -64,10 +62,9 @@ public class TelloCore : ICore
         
         _telloClient = new TelloClient();
         _stateServer = new TelloStateServer();
-        //_consoleOutput = new ConsoleDisplay(_stateServer);
+        //_consoleOutput = new ConsoleCockpit(_stateServer);
         
         _stateServer.OnState += (s) => _telloStateParameter = s;
-        //_stateServer.OnStateRaw += (s) => Logger.Trace(s);
         _stateServer.OnException += (ex) => Logger.Error("stateServer.OnException");
 
         IntitializeConnectionToTello();
@@ -182,11 +179,11 @@ public class TelloCore : ICore
                             response = await _telloClient.InitTello();
                             if (response)
                             {
-                                Console.WriteLine("Tello successfully connected");
+                                Logger.Info("Tello successfully connected");
                             }
                             else
                             {
-                                Console.WriteLine("Tello connection failed");
+                                Logger.Info("Tello connection failed");
                             }
                             break;
                         default: 

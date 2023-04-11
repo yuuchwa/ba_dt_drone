@@ -107,4 +107,25 @@ public class DataMapperTests
         result = DataMapper.MapToMarsBearing(inputYaw);
         Assert.AreEqual(expectedBearing, result);
     }
+
+    [Test]
+    public void TestCalculateTravelledDistance()
+    {
+        double acc = 400;
+        double timeDifference = 0.002;
+        double vel = 2000;
+        double expectedResult = 4.001;
+
+        var result = DataMapper.CalculateTravelledDistance(timeDifference, acc, vel);
+        Assert.AreEqual(expectedResult, result);
+        
+        acc = 500;
+        timeDifference = 0.005;
+        vel = 6000;
+        
+        expectedResult = 30.006;
+
+        result = DataMapper.CalculateTravelledDistance(timeDifference, acc, vel);
+        Assert.AreEqual(expectedResult, result);
+    }
 }

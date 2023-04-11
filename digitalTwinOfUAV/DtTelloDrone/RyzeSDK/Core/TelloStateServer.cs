@@ -19,7 +19,9 @@ namespace DtTelloDrone.RyzeSDK.Core
         /// </summary>
         private readonly UdpClient udpServer;
         
-	    /// <summary>
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
+        /// <summary>
         /// The main loop
         /// </summary>
         private Task _mainLoop;
@@ -71,9 +73,9 @@ namespace DtTelloDrone.RyzeSDK.Core
                 {
                     var result = await udpServer.ReceiveAsync();
                     var data = Encoding.ASCII.GetString(result.Buffer).Replace('\n', ' ');
-                    
                     OnStateRaw?.Invoke(data);
                     OnState?.Invoke(TelloStateParameter.FromString(data));
+                    Logger.Trace(data);
                 }
                 catch (Exception ex)
                 {

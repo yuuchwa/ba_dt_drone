@@ -386,8 +386,7 @@ namespace DtTelloDrone.RyzeSDK.Core
                 {
                     _responses.Enqueue(Encoding.ASCII.GetString(response));
                 }
-            }   
-
+            }
         }
 
         #endregion

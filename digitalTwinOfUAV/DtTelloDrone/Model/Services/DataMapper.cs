@@ -14,10 +14,15 @@ public static class DataMapper
     /// <summary>
     /// Calculates the distance in mm in which the drone is travelled.
     /// </summary>
+    /// <param name="timeInterval">Time in seconds</param>
+    /// <param name="acceleration">Acceleration in mm/s^2</param>
+    /// <param name="velocity">Velocity in m/s</param>
     /// <returns></returns>
-    public static double CalculateTravelledDistance(double timeInterval, double accelecation,  double velocity)
+    public static double CalculateTravelledDistance(double timeInterval, double acceleration,  double velocity)
     {
-        return (0.5 * accelecation * (timeInterval * timeInterval)) + (velocity * timeInterval); // 1/2 * m * s² + v0 * t
+        // 1/2 * m * s² + v0 * t gleichmäßige Beschleunigung mit Anfangsgeschwindigkeit
+        var distance = 0.5 * acceleration * (timeInterval * timeInterval) + velocity * timeInterval;
+        return Math.Round(distance, 3); 
     }
     
     public static double MapToMarsBearing(double yaw)
@@ -58,5 +63,10 @@ public static class DataMapper
             default: break;
         }
         return bearing;
+    }
+
+    public static double CalculateMotionBearing(double speed, int time)
+    {
+        return 0;
     }
 }

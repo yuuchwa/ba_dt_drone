@@ -1,7 +1,10 @@
 {
   "id": "digitalTwin",
   "globals": {
-    "steps": 100000000000,
+    "startPoint": "2020-01-01T00:00:00",
+    "endPoint": "2025-01-01T00:00:00",
+    "deltaT": 1,
+    "deltaTUnit": "seconds",
     "console": false,
     "output": "csv",
     "options": {
@@ -23,6 +26,9 @@
       "outputs": [
         {
           "kind": "csv"
+        },
+        {
+          "kind": "trips"
         }
       ]
     }

@@ -12,11 +12,12 @@ using Mars.Interfaces.Agents;
 using Mars.Interfaces.Annotations;
 using Mars.Interfaces.Environments;
 using NLog;
+using NLog.Filters;
 using NLog.Fluent;
 
 namespace DtTelloDrone.Model.Agent;
 
-public class TelloAgent : IAgent<LandScapeLayer>, ICharacter
+public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable
 {
     #region Properties and Fields
 
@@ -24,8 +25,8 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter
     
     private LandScapeLayer _layer;
 
-    private ICore _core;
-    private StateDeterminer _stateDeterminer;
+    private readonly ICore _core = TelloCore.GetInstance();
+    private readonly StateDeterminer _stateDeterminer = StateDeterminer.getStateDeterminerInstance();
 
     private TelloStateParameter _prevParameters;
     
@@ -50,9 +51,8 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter
     
     public Position Target { get; set; }
     
-    
     private List<Position> _directions;
-    private byte _speed;
+    private byte _speed = DefaultSpeed;
 
     /// <summary>
     /// the height measured from the starting Point
@@ -86,14 +86,9 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter
     public void Init(LandScapeLayer layer)
     {
         _layer = layer;
-        _core = TelloCore.GetInstance();
-        
         Position = Position.CreatePosition(StartX, StartY);
         _layer._landScapeEnvironment.Insert(this, Position);
             
-        _stateDeterminer = StateDeterminer.getStateDeterminerInstance();
-        _speed = DefaultSpeed;
-        Bearing = DefaultBearing;
         Logger.Trace(_layer);
         Logger.Info("Agent has been initialized");
     }
@@ -101,6 +96,12 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter
     #endregion
 
     #region Tick
+
+    public void createGPX()
+    {
+        // Nachkommastellen reduzieren.
+        // Qgis
+    }
 
     public void Tick()
     {
@@ -125,9 +126,9 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter
         {
             Logger.Info($"Drone is {state}");
         }
-
-        // Zustand in die Simulation überführen
-        //MapParameters(state, parameters);
+        
+        MapParameters(state, parameters);
+        
         _prevParameters = parameters;
         _prevDroneState = state;
         _lastUpdateTS = parameters.TimeStamp;
@@ -146,40 +147,28 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter
         {
             return;
         }
-        
-        double timeInterval = parameters.TimeStamp.Second - _prevParameters.TimeStamp.Second;
 
-        // Calculate bearing
         Bearing = DataMapper.MapToMarsBearing(parameters.Yaw);
-        //Logger.Trace(Bearing);
-        double motionBearing = DataMapper.GetMotionBearing(currentState);
-        double flyDirection = (Bearing + motionBearing) % 360;
-
-        // calculate travelled distance
-        double acceleration = parameters.AccelerationX;       // cm/s
-        double velocity = parameters.VelocityX * 10;          // cm/s
-
-        /*
-        if (_currentDroneState == DroneState.MovingForwards || _currentDroneState == DroneState.MovingBackwards)
-        {
-            acceleration = parameters.AccelerationX;
-            velocity = parameters.VelocityX;
-        }
-        else if (_currentDroneState == DroneState.MovingRight || _currentDroneState == DroneState.MovingLeft)
-        {
-            acceleration = parameters.AccelerationY;
-            velocity = parameters.VelocityY;
-        }
-        */
-        
-        double travelledDistance = DataMapper.CalculateTravelledDistance(timeInterval, acceleration, velocity);
-        Logger.Trace($"Travelled Distance: {travelledDistance}");
-
-        // move the agent to the corresponding position of the drone.
-        Position = _layer._landScapeEnvironment.Move(this, flyDirection, travelledDistance); // nicht geprüft
+        Position = CalculateNewPosition(currentState, parameters);
         Logger.Trace($"Agent moved to {Position}");
         _height = parameters.Height;
     }
+
+    private Position CalculateNewPosition(DroneState state, TelloStateParameter parameters)
+    {
+        double motionBearing = DataMapper.GetMotionBearing(state);
+        double flyDirection = (Bearing + motionBearing) % 360;
+
+        // calculate travelled distance
+        double timeInterval = parameters.TimeStamp.Second - _prevParameters.TimeStamp.Second;
+        double acceleration = parameters.AccelerationX * 10;       // mm/s
+        double velocity = parameters.VelocityX * 1000;             // mm/s
+
+        double travelledDistance = DataMapper.CalculateTravelledDistance(timeInterval, acceleration, velocity);
+        Logger.Trace($"Travelled Distance: {travelledDistance}");
+        return _layer._landScapeEnvironment.Move(this, flyDirection, travelledDistance); // nicht geprüft
+    }
+        
 
     private void DoAction()
     {

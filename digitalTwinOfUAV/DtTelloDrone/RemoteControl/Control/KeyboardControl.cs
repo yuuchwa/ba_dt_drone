@@ -10,7 +10,7 @@ using ServiceStack;
 
 namespace DtTelloDrone.RemoteControl.Control
 {
-    public class ConsoleWorker
+    public class KeyboardControl
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -28,37 +28,36 @@ namespace DtTelloDrone.RemoteControl.Control
         /// </summary>
         private CancellationTokenSource _cancellationToken;
         
-        public ConsoleWorker()
+        public KeyboardControl()
         {
-            Logger.Info("Console Control initialized.");
+            Logger.Info("Keyboard Control initialized.");
         }
 
         public void Close()
         {
             _cancellationToken.Cancel();
-            Logger.Info("Console Control terminated.");
+            Logger.Info("Keyboard Control terminated.");
         }
 
         public void Listen()
         {
             _cancellationToken = new CancellationTokenSource();
-            Logger.Info("Console Control started.");
+            Logger.Info("Keyboard Control started.");
 
             _mainloop = Task.Run(StartConsoleWorker, _cancellationToken.Token);
         }
 
         private async void StartConsoleWorker()
         {
-            Logger.Info("Console Control started.");
+            Logger.Info("Keyboard Control started.");
             DroneCommand command;
             while (true)
             {
                 TelloAction selectedAction = ReadKeyboard();
                 
-                if (selectedAction == TelloAction.Unknown)
-                {
-                    continue;
-                }
+                if (selectedAction == TelloAction.Unknown) continue;
+                
+                Logger.Trace(selectedAction);
 
                 command = new DroneCommand(selectedAction, _speed);
                 _telloCore.QueryCommand(command);

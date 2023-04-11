@@ -5,7 +5,7 @@ public static class TelloFlightMetrics
     // TODO: constanten umbenennen
     public const int NotMeasureableTof = 10; // Wert für jede ungültige Messung oder eine Flughöhe unter 30 cm werden.
     public const int LowerMeasureableTof = 30; // Ab 30 cm aufwärts kann die ToF Messung erfasst werden
-    public const int MaxMeasurebaleTof = 3000; // Name falsch, Max Höhe gegebenfalls noch nicht erreicht. wurde aber noch nicht überprüft.
+    public const int MaxMeasureableTof = 3000; // Name falsch, Max Höhe gegebenfalls noch nicht erreicht. wurde aber noch nicht überprüft.
     
     // Acceleration
     public const int LowerXAccelerationForHovering = -50;
