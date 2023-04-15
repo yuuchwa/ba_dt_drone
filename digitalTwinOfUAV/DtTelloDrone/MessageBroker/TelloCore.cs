@@ -29,7 +29,6 @@ public class TelloCore : ICore
     
     private bool _connectionStatus;
     private bool _stopThread;
-    //private readonly FFmpeg ffmpeg;
 
     private readonly Queue<DroneCommand> _commandQueue = null;
     private readonly Thread _commandHandlerThread;

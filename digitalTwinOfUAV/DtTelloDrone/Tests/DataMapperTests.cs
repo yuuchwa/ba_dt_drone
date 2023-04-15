@@ -109,23 +109,98 @@ public class DataMapperTests
     }
 
     [Test]
-    public void TestCalculateTravelledDistance()
+    public void TestCalculateAngleOfTwoVektors()
     {
-        double acc = 400;
-        double timeDifference = 0.002;
-        double vel = 2000;
-        double expectedResult = 4.001;
+        double speedX = 6;
+        double speedY = 3;
+        
+        double[,] vec1 = {{speedX},{0}};
+        double[,] vec2 = {{0},{speedY}};
 
-        var result = DataMapper.CalculateTravelledDistance(timeDifference, acc, vel);
+        double expectedResult = 26.565;
+        double result = DataMapper.CalculateAngleOfTwoVectors(vec1, vec2);
         Assert.AreEqual(expectedResult, result);
         
-        acc = 500;
-        timeDifference = 0.005;
-        vel = 6000;
-        
-        expectedResult = 30.006;
+        speedX = -6;
+        speedY = 3;
 
-        result = DataMapper.CalculateTravelledDistance(timeDifference, acc, vel);
+        vec1[0, 0] = speedX;
+        vec2[1, 0] = speedY;
+
+        expectedResult = 180 - 26.565;
+        result = DataMapper.CalculateAngleOfTwoVectors(vec1, vec2);
+        Assert.AreEqual(expectedResult, result);
+        
+        speedX = -6;
+        speedY = -3;
+
+        vec1[0, 0] = speedX;
+        vec2[1, 0] = speedY;
+
+        expectedResult = 180 + 26.565;
+        result = DataMapper.CalculateAngleOfTwoVectors(vec1, vec2);
+        Assert.AreEqual(expectedResult, result);
+        
+        speedX = 6;
+        speedY = -3;
+
+        vec1[0, 0] = speedX;
+        vec2[1, 0] = speedY;
+
+        expectedResult = 360 - 26.565;
+        result = DataMapper.CalculateAngleOfTwoVectors(vec1, vec2);
         Assert.AreEqual(expectedResult, result);
     }
+
+    [Test]
+    public void TestCalculateSpeed()
+    {
+        double timeInterval = 0.002;
+        double acceleration = 40;
+        double initialVelocity = 5;
+
+        var expectedResult = 0.4;
+        var result = DataMapper.CalculateSpeed(timeInterval, acceleration, initialVelocity);
+        Assert.AreEqual(expectedResult, result);
+    }
+
+    [Test]
+    public void TestCalculateDotProduct()
+    {
+        double speedX = 6;
+        double speedY = 3;
+        
+        double[,] vec1 = {{speedX},{0}};
+        double[,] vec2 = {{0},{speedY}};
+    }
+
+    [Test]
+    public void TestCalculateMotionBearingValidInput()
+    {
+        /* Test 1 */
+        
+        double speedX = 6;
+        double speedY = 3;
+        
+        double[,] vec1 = {{speedX},{0}};
+        double[,] vec2 = {{0},{speedY}};
+        
+        double expectedResult = 26.565;
+        var result = DataMapper.CalculateAngleOfTwoVectors(vec1, vec2);
+        Assert.AreEqual(expectedResult, result);
+
+        /* Test 2 */
+        
+        speedX = -6;
+        speedY = 3;
+
+        vec1[0, 0] = speedX;
+        vec1[1, 0] = speedY;
+
+        expectedResult = 26.565;
+        result = DataMapper.CalculateAngleOfTwoVectors(vec1, vec2);
+        Assert.AreEqual(expectedResult, result);
+    }
+
+
 }

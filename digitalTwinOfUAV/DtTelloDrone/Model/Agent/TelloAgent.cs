@@ -1,19 +1,15 @@
 using System;
 using System.Collections.Generic;
-using DtTelloDrone.Logger;
 using DtTelloDrone.Model.Attributes;
 using DtTelloDrone.Model.Layer;
 using DtTelloDrone.Model.Services;
 using DtTelloDrone.RyzeSDK;
-using DtTelloDrone.RyzeSDK.Attribute;
 using DtTelloDrone.RyzeSDK.Models;
 using Mars.Components.Environments.Cartesian;
 using Mars.Interfaces.Agents;
 using Mars.Interfaces.Annotations;
 using Mars.Interfaces.Environments;
-using NLog;
-using NLog.Filters;
-using NLog.Fluent;
+using MathNet.Numerics;
 
 namespace DtTelloDrone.Model.Agent;
 
@@ -30,11 +26,8 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable
 
     private TelloStateParameter _prevParameters;
     
-    private DroneState _currentDroneState;
     private DroneState _prevDroneState;
-
-    private int _travelDurationCounter = 0;
-
+    
     private int _tickCount = 0;
     private Random _random = new();
 
@@ -97,43 +90,50 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable
 
     #region Tick
 
-    public void createGPX()
-    {
-        // Nachkommastellen reduzieren.
-        // Qgis
-    }
-
     public void Tick()
     {
-        // Lese Zustandsparameter aus
+        // Aktuellen Zustandsparameter auslesen.
         var parameters = _core.GetStateParameter();
 
+        // Überprüfe, ob die Daten richtig sind und wandel sie um.
+        
         if (parameters == null)
         {
             return;
         }
-
-        // Bestimme den Zustand der Tello Drohne
+        
+        /*
+        if(!TelloFlightMetrics.ValidateParameters(parameters))
+        {
+            Logger.Error("Parameters are invalid");
+            return;
+        }
+        */
+        
         if (parameters.TimeStamp == _lastUpdateTS)
         {
             return;
         }
 
+        // Zustand der Drohne bestimmen
+        
         DroneState state = _stateDeterminer.DetermineState(parameters);
         
-        Logger.Trace($"Current Drone state is: {state.ToString()}");
+        //Logger.Trace($"Current Drone state is: {state.ToString()}");
         if (state != _prevDroneState)
         {
             Logger.Info($"Drone is {state}");
         }
         
-        MapParameters(state, parameters);
+        // Agent synchronisieren
+        
+        UpdateAgentState(parameters);
+        
+        // Aktion ausführen
         
         _prevParameters = parameters;
         _prevDroneState = state;
         _lastUpdateTS = parameters.TimeStamp;
-
-        // Entscheidungsfindungs
         _tickCount++;
     }
 
@@ -141,7 +141,7 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable
     
     #region Private Methods
 
-    private void MapParameters(DroneState currentState, TelloStateParameter parameters)
+    private void UpdateAgentState(TelloStateParameter parameters)
     {
         if (_prevParameters == null)
         {
@@ -149,24 +149,40 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable
         }
 
         Bearing = DataMapper.MapToMarsBearing(parameters.Yaw);
-        Position = CalculateNewPosition(currentState, parameters);
-        Logger.Trace($"Agent moved to {Position}");
+        Position = UpdatePosition(parameters);
         _height = parameters.Height;
+
+        Logger.Trace($"Agent moved to {Position}");
     }
 
-    private Position CalculateNewPosition(DroneState state, TelloStateParameter parameters)
+    /// <summary>
+    /// Update the position depending on the new parameters.
+    /// </summary>
+    /// <param name="state">The current drone state.</param>
+    /// <param name="parameters">The new parameters</param>
+    /// <returns>The new position the drone is moving to.</returns>
+    private Position UpdatePosition(TelloStateParameter parameters)
     {
-        double motionBearing = DataMapper.GetMotionBearing(state);
+        double timeInterval = Math.Abs(parameters.TimeStamp.Second - _prevParameters.TimeStamp.Second);
+        double accelerationX = parameters.AccelerationX * 10;       // mm/s^2
+        double accelerationY = parameters.AccelerationY * 10;
+        double velocityX = parameters.VelocityX * 1000;             // mm/s
+        double velocityY = parameters.VelocityY * 1000;
+        
+        double speedX = DataMapper.CalculateSpeed(timeInterval, accelerationX, velocityX);
+        double speedY = DataMapper.CalculateSpeed(timeInterval, accelerationY, velocityY);;
+        
+        double[,] vec1 = {{speedX},{0}};
+        double[,] vec2 = {{0},{speedY}};
+        
+        double motionBearing = DataMapper.CalculateAngleOfTwoVectors(vec1, vec2);
         double flyDirection = (Bearing + motionBearing) % 360;
 
-        // calculate travelled distance
-        double timeInterval = parameters.TimeStamp.Second - _prevParameters.TimeStamp.Second;
-        double acceleration = parameters.AccelerationX * 10;       // mm/s
-        double velocity = parameters.VelocityX * 1000;             // mm/s
-
-        double travelledDistance = DataMapper.CalculateTravelledDistance(timeInterval, acceleration, velocity);
-        Logger.Trace($"Travelled Distance: {travelledDistance}");
-        return _layer._landScapeEnvironment.Move(this, flyDirection, travelledDistance); // nicht geprüft
+        double travelingDistance = DataMapper.CalculateMagnitude(vec1, vec2) / 1000;
+        Logger.Trace($"flyDirection: {flyDirection}");
+        Logger.Trace($"Distance: {travelingDistance}");
+        
+        return _layer._landScapeEnvironment.Move(this, flyDirection, travelingDistance);
     }
         
 
@@ -191,28 +207,16 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable
             }
         }*/
     }
-    
-            
-    /// <summary>
-    /// Check if the selected action is a movement.
-    /// </summary>
-    /// <param name="action"></param>
-    /// <returns></returns>
-    private bool IsMovementAction(TelloAction action)
-    {
-        // TODO: In eine static Methode auslagern.
-        return
-            action == TelloAction.MoveForward ||
-            action == TelloAction.MoveBackward ||
-            action == TelloAction.MoveLeft ||
-            action == TelloAction.MoveRight ||
-            action == TelloAction.Rise ||
-            action == TelloAction.Sink;
-    }
 
     private bool CheckObstacleCollision()
     {
         return false;
+    }
+    
+    private void createGPX()
+    {
+        // Nachkommastellen reduzieren.
+        // Qgis
     }
     
     #endregion
