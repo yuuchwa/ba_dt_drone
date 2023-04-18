@@ -15,7 +15,7 @@
   "layers": [
     {
       "name": "LandScapeLayer",
-      "file": "Resources/livingroom.geojson"
+      "file": "Resources/SimulationTestEnvironment.geojson"
     }
   ],
   "agents": [

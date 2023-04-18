@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using ServiceStack;
 
 namespace DtTelloDrone.RyzeSDK.Models
 {
@@ -93,6 +94,11 @@ namespace DtTelloDrone.RyzeSDK.Models
             }
             
             return state;
+        }
+
+        public string ToCsvString()
+        {
+            return this.ToCsv();
         }
     }
 }

@@ -9,7 +9,8 @@ using Mars.Components.Environments.Cartesian;
 using Mars.Interfaces.Agents;
 using Mars.Interfaces.Annotations;
 using Mars.Interfaces.Environments;
-using MathNet.Numerics;
+using MathNet.Numerics.LinearAlgebra;
+using MathNet.Numerics.LinearAlgebra.Double;
 
 namespace DtTelloDrone.Model.Agent;
 
@@ -69,7 +70,7 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable
     
     #region Constants
     
-    private const int DefaultSpeed = 30;
+    private const int DefaultSpeed = 5;
     private const int DefaultBearing = 0;
 
     #endregion
@@ -122,12 +123,12 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable
         //Logger.Trace($"Current Drone state is: {state.ToString()}");
         if (state != _prevDroneState)
         {
-            Logger.Info($"Drone is {state}");
+            Logger.Info($"Drone changed to {state}");
         }
         
         // Agent synchronisieren
         
-        UpdateAgentState(parameters);
+        UpdateAgentState(parameters, state);
         
         // Aktion ausführen
         
@@ -141,7 +142,7 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable
     
     #region Private Methods
 
-    private void UpdateAgentState(TelloStateParameter parameters)
+    private void UpdateAgentState(TelloStateParameter parameters, DroneState state)
     {
         if (_prevParameters == null)
         {
@@ -149,7 +150,15 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable
         }
 
         Bearing = DataMapper.MapToMarsBearing(parameters.Yaw);
-        Position = UpdatePosition(parameters);
+        
+        if (state == DroneState.MovingForwards || 
+            state == DroneState.MovingBackwards ||
+            state == DroneState.MovingLeft || 
+            state == DroneState.MovingRight)
+        {
+            Position = UpdatePosition(parameters);
+        }
+        
         _height = parameters.Height;
 
         Logger.Trace($"Agent moved to {Position}");
@@ -163,26 +172,33 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable
     /// <returns>The new position the drone is moving to.</returns>
     private Position UpdatePosition(TelloStateParameter parameters)
     {
-        double timeInterval = Math.Abs(parameters.TimeStamp.Second - _prevParameters.TimeStamp.Second);
-        double accelerationX = parameters.AccelerationX * 10;       // mm/s^2
-        double accelerationY = parameters.AccelerationY * 10;
-        double velocityX = parameters.VelocityX * 1000;             // mm/s
-        double velocityY = parameters.VelocityY * 1000;
+        double timeInterval = Math.Abs(parameters.TimeStamp.Millisecond - _prevParameters.TimeStamp.Millisecond);
+        timeInterval /= 1000;
+        
+        double accelerationX = Math.Round(parameters.AccelerationX) * -1;       // cm/ms^2
+        double accelerationY = Math.Round(parameters.AccelerationY) * -1;
+        double velocityX = parameters.VelocityX;             // cm/ms
+        double velocityY = parameters.VelocityY;
         
         double speedX = DataMapper.CalculateSpeed(timeInterval, accelerationX, velocityX);
-        double speedY = DataMapper.CalculateSpeed(timeInterval, accelerationY, velocityY);;
-        
-        double[,] vec1 = {{speedX},{0}};
-        double[,] vec2 = {{0},{speedY}};
-        
-        double motionBearing = DataMapper.CalculateAngleOfTwoVectors(vec1, vec2);
-        double flyDirection = (Bearing + motionBearing) % 360;
+        double speedY = DataMapper.CalculateSpeed(timeInterval, accelerationY, velocityY);
 
-        double travelingDistance = DataMapper.CalculateMagnitude(vec1, vec2) / 1000;
-        Logger.Trace($"flyDirection: {flyDirection}");
-        Logger.Trace($"Distance: {travelingDistance}");
+        Vector<double> vec1 = new DenseVector(new double[] {speedX, 0});
+        Vector<double> vec2 = new DenseVector(new double[] {0,speedY});
+
+        double motionBearing = DataMapper.CalculateAngleOfTwoVectors(vec1, vec2);
+        double motionBearingMars = DataMapper.MapNormalCoordinateToMars(motionBearing);
+
+        double flyDirection = DataMapper.CalculateFlyDirection(Bearing, motionBearingMars);
+
+        double travelingDistance = DataMapper.CalculateMagnitude(vec1) + DataMapper.CalculateMagnitude(vec2);
         
-        return _layer._landScapeEnvironment.Move(this, flyDirection, travelingDistance);
+        if (travelingDistance >= 1)
+        {
+            Position = _layer._landScapeEnvironment.Move(this, flyDirection, travelingDistance);
+        }
+
+        return Position;
     }
         
 
@@ -230,4 +246,4 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable
     }
 
     public double Extent { get; set; }
-}
+    }

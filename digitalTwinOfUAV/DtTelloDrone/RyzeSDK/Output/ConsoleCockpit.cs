@@ -1,4 +1,5 @@
 using System.Drawing;
+using DtTelloDrone.RyzeSDK.CommunicationInferfaces;
 using DtTelloDrone.RyzeSDK.Core;
 using DtTelloDrone.RyzeSDK.Models;
 using Console = Colorful.Console;

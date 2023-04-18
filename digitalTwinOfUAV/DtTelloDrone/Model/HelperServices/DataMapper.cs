@@ -1,8 +1,8 @@
 using System;
-using System.Numerics;
+using Mars.Common.Core;
 using static DtTelloDrone.Model.Services.TelloFlightMetrics;
-using MathNet.Numerics;
-using MathNet.Numerics.LinearAlgebra.Double;
+using MathNet.Numerics.LinearAlgebra;
+using NLog;
 
 namespace DtTelloDrone.Model.Services;
 
@@ -11,6 +11,8 @@ namespace DtTelloDrone.Model.Services;
 /// </summary>
 public static class DataMapper
 {
+    private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+    
     public static double MapToMarsBearing(double yaw)
     {
         double marsBearing = -1;
@@ -32,6 +34,11 @@ public static class DataMapper
         return Math.Truncate(marsBearing);
     }
 
+    public static double MapNormalCoordinateToMars(double bearing)
+    {
+        return (360 - bearing) % 360;
+    }
+
     /// <summary>
     /// Calculates the distance in mm in which the drone is travelled.
     /// </summary>
@@ -41,22 +48,57 @@ public static class DataMapper
     /// <returns></returns>
     public static double CalculateSpeed(double timeInterval, double acceleration, double initialVelocity)
     {
+        if (initialVelocity < 0 && acceleration < 0 || 0 < initialVelocity && 0 < acceleration)
+        {
+            Logger.Error("Velocity and acceleration in opposite directions.");
+        }
+        
         double speed = acceleration * timeInterval + initialVelocity;
         return Math.Round(speed, 3);
     }
 
     /// <summary>
     /// Calculates the angle of two given vectors.
+    /// https://www.cuemath.com/geometry/angle-between-vectors/
     /// </summary>
     /// <param name="vec1">Vector 1</param>
     /// <param name="vec2">Vector 2</param>
     /// <returns>The angle</returns>
-    public static double CalculateAngleOfTwoVectors(double[,] vec1, double[,] vec2)
+    public static double CalculateAngleOfTwoVectors(Vector<double> vec1, Vector<double> vec2)
     {
-        double[,] sumVec = CalculateSumVector(vec1, vec2);
-        double dotProduct = CalculateDotProduct(vec1, sumVec);
-        double magnitude = CalculateMagnitude(vec1, sumVec);
+        if (CalculateMagnitude(vec1) == 0 && CalculateMagnitude(vec2) == 0)
+        {
+            return 0;
+        }
+        
+        if (1 <= CalculateMagnitude(vec1)&& CalculateMagnitude(vec2) == 0)
+        {
+            if (0 < vec1.At(0))
+            {
+                return 0;
+            }
+            else if (vec1.At(0) < 0)
+            {
+                return 180;
+            }
+        }
 
+        if (CalculateMagnitude(vec1) == 0 && 1 <= CalculateMagnitude(vec2))
+        {
+            if (0 < vec2.At(1))
+            {
+                return 90;
+            }
+            else if (vec2.At(1) < 0)
+            {
+                return 270;
+            }
+        }
+
+        Vector<double> sumVec = vec1 + vec2;
+        double dotProduct = vec1.DotProduct(sumVec);
+        double magnitude = CalculateMagnitude(vec1) * CalculateMagnitude(sumVec);
+        
         double result = 0;
 
         if (magnitude == 0)
@@ -64,23 +106,25 @@ public static class DataMapper
             return result;
         }
 
-        double phi = Math.Round(Math.Acos(dotProduct / magnitude) * 180 / Math.PI, 3);
+        double phiRad = Math.Round( Math.Acos(dotProduct / magnitude), 3);
+
+        double phiDegree = phiRad * (180 / Math.PI);
         
-        if (0 < sumVec[0, 0] && 0 < sumVec[1, 0])
+        if (0 <= sumVec.At(0) && 0 <= sumVec.At(1))
         {
-            result = phi;
+            result = phiDegree;
         }
-        else if(sumVec[0, 0] < 0 && 0 < sumVec[1, 0])
+        else if(sumVec.At(0) <= 0 && 0 <= sumVec.At(1))
         {
-            result = 180 - phi;
+            result = 180 - phiDegree;
         }
-        else if (sumVec[0, 0] < 0 && sumVec[1, 0] < 0)
+        else if (sumVec.At(0) <= 0 && sumVec.At(1) <= 0)
         {
-            result = 180 + phi;
+            result = 180 + phiDegree;
         }
-        else if (0 < sumVec[0, 0] && sumVec[1, 0] < 0)
+        else if (0 <= sumVec.At(0) && sumVec.At(1) <= 0)
         {
-            result = 360 - phi;
+            result = 360 - phiDegree;
         }
         
         return result;
@@ -92,17 +136,15 @@ public static class DataMapper
     /// <param name="vec1">Vector 1</param>
     /// <param name="vec2">Vector 2</param>
     /// <returns>The result the dot product.</returns>
-    public static double CalculateDotProduct(double[,] vec1, double[,] vec2)
+    public static double CalculateDotProduct(Vector<double> vec1, Vector<double> vec2)
     {
-        return vec1[0, 0] * vec2[0, 0] + vec1[1, 0] * vec2[1, 0];
+        return vec1.At(0) * vec2.At(0) + vec1.At(1) * vec2.At(1);
     }
 
-    public static double CalculateMagnitude(double[,] vec1, double[,] vec2)
+    public static double CalculateMagnitude(Vector<double> vec)
     {
-        return Math.Sqrt(vec1[0, 0] * vec1[0, 0] + vec1[1, 0] * vec1[1, 0]) *
-               Math.Sqrt(vec2[0, 0] * vec2[0, 0] + vec2[1, 0] * vec2[1, 0]);
+        return Math.Sqrt(vec.At(0) * vec.At(0) + vec.At(1) * vec.At(1));
     }
-
 
     /// <summary>
     /// Calculates the angle between two given vectors.
@@ -110,9 +152,13 @@ public static class DataMapper
     /// <param name="vec1">Vector 1</param>
     /// <param name="vec2">Vector 2</param>
     /// <returns>The sum vector.</returns>
-    private static double[,] CalculateSumVector(double[,] vec1, double[,] vec2)
+    private static Vector<double> CalculateSumVector(Vector<double> vec1, Vector<double> vec2)
     {
-        double[,] sumVec = {{vec1[0, 0] + vec2[0, 0]}, {vec1[1, 0] + vec2[1, 0]}};
-        return sumVec;
+        return null;
+    }
+
+    public static double CalculateFlyDirection(double bearingSelf, double bearingMotion)
+    {
+        return (bearingMotion + bearingSelf) % 360;
     }
 }

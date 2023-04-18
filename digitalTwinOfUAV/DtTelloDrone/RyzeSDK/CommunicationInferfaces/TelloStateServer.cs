@@ -4,10 +4,11 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using DtTelloDrone.Logger;
+using DtTelloDrone.RyzeSDK.Core;
 using DtTelloDrone.RyzeSDK.Models;
+using ServiceStack;
 
-namespace DtTelloDrone.RyzeSDK.Core
+namespace DtTelloDrone.RyzeSDK.CommunicationInferfaces
 {
     /// <summary>
     /// The class for receiving the state information of the tello drone.
@@ -74,8 +75,10 @@ namespace DtTelloDrone.RyzeSDK.Core
                     var result = await udpServer.ReceiveAsync();
                     var data = Encoding.ASCII.GetString(result.Buffer).Replace('\n', ' ');
                     OnStateRaw?.Invoke(data);
-                    OnState?.Invoke(TelloStateParameter.FromString(data));
-                    Logger.Trace(data);
+                    var stateData = TelloStateParameter.FromString(data);
+                    OnState?.Invoke(stateData);
+                    Logger.Trace(stateData.ToCsv());
+
                 }
                 catch (Exception ex)
                 {
