@@ -22,4 +22,8 @@ public enum TelloAction
     Time,
     Connect,
     Unknown,
+    
+    SetCheckpoint,
+    DeleteCheckpoint,
+    StartAutonomousNavigation
 }

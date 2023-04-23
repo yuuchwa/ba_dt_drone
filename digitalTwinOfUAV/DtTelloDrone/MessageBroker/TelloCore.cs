@@ -5,11 +5,13 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using DtTelloDrone.Logger;
+using DtTelloDrone.Model.Agent;
 using DtTelloDrone.RyzeSDK.Attribute;
 using DtTelloDrone.RyzeSDK.CommunicationInferfaces;
 using DtTelloDrone.RyzeSDK.Core;
 using DtTelloDrone.RyzeSDK.Models;
 using DtTelloDrone.RyzeSDK.Output;
+using ServiceStack.Messaging;
 
 // using Microsoft.Extensions.Logging;
 
@@ -33,7 +35,9 @@ public class TelloCore : ICore
 
     private readonly Queue<DroneCommand> _commandQueue = null;
     private readonly Thread _commandHandlerThread;
-    
+
+    private List<ICoreSubscriber> _subscribers;
+
     /// <summary>
     /// Token for terminating a thread.
     /// </summary>
@@ -46,7 +50,7 @@ public class TelloCore : ICore
 
     public static TelloCore GetInstance()
     {
-        return _telloCoreInstance ?? (_telloCoreInstance = new TelloCore());
+        return _telloCoreInstance ??= new TelloCore();
     }
 
     /// <summary>
@@ -81,6 +85,16 @@ public class TelloCore : ICore
     {
         _telloClient.Connect();
         _stateServer.Listen();
+    }
+    
+    public void Subscribe(ICoreSubscriber subscriber)
+    {
+        _subscribers.Add(subscriber);
+    }
+
+    private void PublishMessage(TelloAction action)
+    {
+        
     }
 
     /// <summary>
@@ -120,7 +134,7 @@ public class TelloCore : ICore
         {
             DroneCommand command = null;
             if (_commandQueue.TryDequeue(out command))
-            {
+            {           
                 TelloAction action = command._action;
                 
                 try
@@ -186,14 +200,21 @@ public class TelloCore : ICore
                                 Logger.Info("Tello connection failed");
                             }
                             break;
+                        
+                        case TelloAction.SetCheckpoint: 
+                        case TelloAction.DeleteCheckpoint:
+                        case TelloAction.StartAutonomousNavigation:
+                            PublishMessage(action);
+                            break;
                         default: 
                             _telloClient.Emergency(); 
                             break;
                     }
                 }
                 catch (Exception e)
-                {
+                { 
                     _connectionStatus = false;
+                    Logger.Error($"Tello throws error for action {action}");
                     continue;
                 }
                 finally
