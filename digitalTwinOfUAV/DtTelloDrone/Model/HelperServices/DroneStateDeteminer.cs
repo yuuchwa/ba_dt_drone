@@ -38,17 +38,17 @@ public class StateDeterminer
         _functions = new()
         {
             InStandby,
-            TakingOff,
-            Landing,
-            Hovering,
+            Rising,
+            Sinking,
             MovingForward,
             MovingBackward,
             MovingLeft,
             MovingRight,
-            Rising,
-            Sinking,
             RotatingClockwise,
             RotatingCounterClockwise,
+            TakingOff,
+            Landing,
+            Hovering,
         };
 
         _prevStateParameter = new TelloStateParameter();
@@ -89,9 +89,9 @@ public class StateDeterminer
     {
         return 
             (ValidNonMeasureableTof == _stateParameter.TOF) &&
-            (LowerXAccelerationForHovering <= _stateParameter.AccelerationX && _stateParameter.AccelerationX <= UpperXAccelerationForHovering &&
-             LowerYAccelerationForHovering <= _stateParameter.AccelerationY && _stateParameter.AccelerationY <= UpperYAccelerationForHovering &&
-             LowerZAccelerationForHovering <= _stateParameter.AccelerationZ && _stateParameter.AccelerationZ <= UpperZAccelerationForHovering) && 
+            (ForwardAccelerationThreshold <= _stateParameter.AccelerationX && _stateParameter.AccelerationX <= BackwardAccelerationThreshold &&
+             RightAccelerationThreshold <= _stateParameter.AccelerationY && _stateParameter.AccelerationY <= LeftAccelerationThreshold &&
+             SinkAccelerationThreshold <= _stateParameter.AccelerationZ && _stateParameter.AccelerationZ <= RiseAccelerationThreshold) && 
             (_stateParameter.VelocityX == RestVelocity && 
              _stateParameter.VelocityY == RestVelocity && 
              _stateParameter.VelocityZ == RestVelocity)
@@ -132,9 +132,11 @@ public class StateDeterminer
     {
         return 
             StartMeasureableTof <= _stateParameter.TOF &&
-            LowerXAccelerationForHovering <= _stateParameter.AccelerationX && _stateParameter.AccelerationX <= UpperXAccelerationForHovering &&
-            LowerYAccelerationForHovering <= _stateParameter.AccelerationY && _stateParameter.AccelerationY <= UpperYAccelerationForHovering &&
-            LowerZAccelerationForHovering <= _stateParameter.AccelerationZ && _stateParameter.AccelerationZ <= UpperZAccelerationForHovering && 
+            /*
+            ForwardAccelerationThreshold <= _stateParameter.AccelerationX && _stateParameter.AccelerationX <= BackwardAccelerationThreshold &&
+            RightAccelerationThreshold <= _stateParameter.AccelerationY && _stateParameter.AccelerationY <=  LeftAccelerationThreshold&&
+            SinkAccelerationThreshold <= _stateParameter.AccelerationZ && _stateParameter.AccelerationZ <= RiseAccelerationThreshold && 
+            */
             _stateParameter.VelocityX == RestVelocity && 
             _stateParameter.VelocityY == RestVelocity && 
             _stateParameter.VelocityZ == RestVelocity
@@ -150,11 +152,12 @@ public class StateDeterminer
     {
         return
             StartMeasureableTof <= _stateParameter.TOF &&
-            RestVelocity < _stateParameter.VelocityX && _stateParameter.VelocityX <= MaxXVelocity &&
-            MinPitchDegree < _stateParameter.Pitch && _stateParameter.Pitch < PitchBalanced
+            ForwardVelocity <= _stateParameter.VelocityX && _stateParameter.VelocityX <= MaxXVelocity &&
+            MinPitchDegree < _stateParameter.Pitch && _stateParameter.Pitch < PitchBalanced &&
+            _stateParameter.AccelerationX <= ForwardAccelerationThreshold &&
+            Math.Abs(_stateParameter.AccelerationY) < Math.Abs(_stateParameter.AccelerationX)  // Diagonal Bewegungen ignorieren.
                 ? DroneState.MovingForwards
                 : DroneState.Unknown;
-
     }
     
     /// <summary>
@@ -165,8 +168,10 @@ public class StateDeterminer
     {
         return  
             StartMeasureableTof <= _stateParameter.TOF && 
-            MinXVelocity < _stateParameter.VelocityX && _stateParameter.VelocityX < RestVelocity &&
-            PitchBalanced < _stateParameter.Pitch && _stateParameter.Pitch <= MaxPitchDegree
+            MinXVelocity < _stateParameter.VelocityX && _stateParameter.VelocityX <= BackwardVelocity &&
+            PitchBalanced < _stateParameter.Pitch && _stateParameter.Pitch <= MaxPitchDegree &&
+            BackwardAccelerationThreshold <= _stateParameter.AccelerationX &&
+            Math.Abs(_stateParameter.AccelerationY) < Math.Abs(_stateParameter.AccelerationX)
             ? DroneState.MovingBackwards 
             : DroneState.Unknown;
     }
@@ -179,8 +184,10 @@ public class StateDeterminer
     {
         return 
             StartMeasureableTof <= _stateParameter.TOF && 
-            MinYVelocity <= _stateParameter.VelocityY && _stateParameter.VelocityY < RestVelocity &&
-            MinRollDegree <= _stateParameter.Roll && _stateParameter.Roll < RollBalanced
+            MinYVelocity <= _stateParameter.VelocityY && _stateParameter.VelocityY <= LeftVelocity &&
+            MinRollDegree <= _stateParameter.Roll && _stateParameter.Roll < RollBalanced &&
+            LeftAccelerationThreshold <= _stateParameter.AccelerationY&&
+            Math.Abs(_stateParameter.AccelerationX) < Math.Abs(_stateParameter.AccelerationY)
             ? DroneState.MovingLeft 
             : DroneState.Unknown;
     }
@@ -193,8 +200,10 @@ public class StateDeterminer
     {
         return 
             StartMeasureableTof <= _stateParameter.TOF && 
-            RestVelocity < _stateParameter.VelocityY && _stateParameter.VelocityY <= MaxYVelocity &&
-            RollBalanced < _stateParameter.Roll && _stateParameter.Roll <= MaxRollDegree 
+            RightVelocity <= _stateParameter.VelocityY && _stateParameter.VelocityY <= MaxYVelocity &&
+            RollBalanced < _stateParameter.Roll && _stateParameter.Roll <= MaxRollDegree &&
+            _stateParameter.AccelerationY >= RightAccelerationThreshold &&
+            Math.Abs(_stateParameter.AccelerationX) < Math.Abs(_stateParameter.AccelerationY)
             ? DroneState.MovingRight 
             : DroneState.Unknown;
     }
@@ -237,7 +246,8 @@ public class StateDeterminer
     {
         return 
             StartMeasureableTof <= _stateParameter.TOF && 
-            RestVelocity < _stateParameter.VelocityZ && _stateParameter.VelocityZ <= MaxZVelocity
+            SinkVelocity < _stateParameter.VelocityZ && _stateParameter.VelocityZ <= MaxZVelocity &&
+            _stateParameter.AccelerationZ <= SinkAccelerationThreshold 
             ? DroneState.Sinking
             : DroneState.Unknown;
     }
@@ -249,7 +259,8 @@ public class StateDeterminer
     private DroneState Rising()
     {
         return StartMeasureableTof <= _stateParameter.TOF && 
-            MinZVelocity <= _stateParameter.VelocityZ && _stateParameter.VelocityZ < RestVelocity
+            MinZVelocity <= _stateParameter.VelocityZ && _stateParameter.VelocityZ < RiseVelocity &&
+            RiseAccelerationThreshold <=_stateParameter.AccelerationZ
             ? DroneState.Rising 
             : DroneState.Unknown;
     }

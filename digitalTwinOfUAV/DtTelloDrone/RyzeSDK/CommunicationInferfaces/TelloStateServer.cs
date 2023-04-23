@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DtTelloDrone.RyzeSDK.Core;
 using DtTelloDrone.RyzeSDK.Models;
+using Mars.Components.Services.Planning;
 using ServiceStack;
 
 namespace DtTelloDrone.RyzeSDK.CommunicationInferfaces
@@ -68,6 +69,7 @@ namespace DtTelloDrone.RyzeSDK.CommunicationInferfaces
         /// </summary>
         private async void ListenTask()
         {
+            Logger.Trace("Pitch;Roll;Yaw;VelocityX;VelocityY;VelocityZ;TemperaturLow;TemperaturHigh;TimeOfFlight;Height;Battery;Barometer;Time;AccelerationX;AccelerationY;AccelerationZ;Timestamp");
             while (true)
             {
                 try
@@ -77,8 +79,9 @@ namespace DtTelloDrone.RyzeSDK.CommunicationInferfaces
                     OnStateRaw?.Invoke(data);
                     var stateData = TelloStateParameter.FromString(data);
                     OnState?.Invoke(stateData);
-                    Logger.Trace(stateData.ToCsv());
+                    stateData.ConvertToCsv();
 
+                    Logger.Trace(stateData.ConvertToCsv());
                 }
                 catch (Exception ex)
                 {

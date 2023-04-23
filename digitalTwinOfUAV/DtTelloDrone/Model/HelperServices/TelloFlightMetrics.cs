@@ -14,18 +14,24 @@ public static class TelloFlightMetrics
     public const int MaxHeight = 10000;
     
     // Acceleration
-    public const int LowerXAccelerationForHovering = -50;
-    public const int UpperXAccelerationForHovering = 50;
+    public const int ForwardAccelerationThreshold = -25;
+    public const int BackwardAccelerationThreshold = 25;
 
-    public const int LowerYAccelerationForHovering = -50;
-    public const int UpperYAccelerationForHovering = 50;
-    
-    public const int LowerZAccelerationForHovering = -1100;
-    public const int UpperZAccelerationForHovering = -950;
+    public const int LeftAccelerationThreshold = 25;
+    public const int RightAccelerationThreshold = -25;
+
+    public const int SinkAccelerationThreshold = -1000; //-1100;
+    public const int RiseAccelerationThreshold = -960;
     
     //Velocity
     public const int RestVelocity = 0;
-    
+    public const int ForwardVelocity = 1;
+    public const int BackwardVelocity = -1;
+    public const int RightVelocity = 1;
+    public const int LeftVelocity = -1;
+    public const int SinkVelocity = 1;
+    public const int RiseVelocity = -1;
+
     // x < 0 -> Backward
     // 0 < x -> Forward
     public const int MinXVelocity = -30;

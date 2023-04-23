@@ -522,4 +522,28 @@ public class TelloAgentTest
         double expectedTravelingDistance = 22; // cm
         Assert.AreEqual(expectedTravelingDistance, travelingDistance);
     }
+    
+    [Test]
+    public void TestUpdatePositionReadData()
+    {
+        double timeInterval = 0.102;
+        double accelerationX = Math.Round(28.0) * -1;       // cm/ms^2
+        double accelerationY = Math.Round(-12.0) * -1;
+        double velocityX = -2;             // cm/ms
+        double velocityY = 0;
+        double Bearing = 0;
+        
+        double speedX = DataMapper.CalculateSpeed(timeInterval, accelerationX, velocityX);
+        double speedY = DataMapper.CalculateSpeed(timeInterval, accelerationY, velocityY);
+
+        Vector<double> vec1 = new DenseVector(new double[] {speedX, 0});
+        Vector<double> vec2 = new DenseVector(new double[] {0,speedY});
+
+        double motionBearing = DataMapper.CalculateAngleOfTwoVectors(vec1, vec2);
+        
+        double motionBearingMars = DataMapper.MapNormalCoordinateToMars(motionBearing);
+        double flyDirection = DataMapper.CalculateFlyDirection(Bearing, motionBearingMars);
+        
+        double travelingDistance = DataMapper.CalculateMagnitude(vec1) + DataMapper.CalculateMagnitude(vec2);
+    }
 }
