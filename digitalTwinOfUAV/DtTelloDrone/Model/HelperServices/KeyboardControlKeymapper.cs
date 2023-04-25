@@ -16,7 +16,7 @@ public static class KeyboardControlKeymapper
     private const string RiseKey = "R";
     private const string SinkKey = "F";
     private const string StopKey = "";
-    private const string StopSpaceKey = "SPACEBAR";
+    private const string StopSpaceKey = "Spacebar";
     
     private const string TakeOffKey = "T";
     private const string LandKey = "L";
@@ -24,9 +24,10 @@ public static class KeyboardControlKeymapper
     
     private const string BatteryKey = "B";
     
-    private const string SetCheckpointKey = "Z";
-    private const string RemoveLastCheckpointKey = "U";
-    private const string StartRecordedNavigationKey = "I";
+    //private const string SetCheckpointKey = "Z";
+    //private const string RemoveLastCheckpointKey = "U";
+    private const string StartRecordedNavigationKey = "U";
+    private const string StopRecordedNavigationKey = "I";
     
     private const string CloseKey = "O";
     
@@ -49,8 +50,8 @@ public static class KeyboardControlKeymapper
             case MoveRightKey: action = TelloAction.MoveRight; break;
             case RiseKey: action = TelloAction.Rise; break;
             case SinkKey: action = TelloAction.Sink; break;
-            case RotateClockwiseKey: action = TelloAction.RotateLeft; break;
-            case RotateCounterClockwiseKey: action = TelloAction.RotateRight; break;
+            case RotateClockwiseKey: action = TelloAction.RotateClockwise; break;
+            case RotateCounterClockwiseKey: action = TelloAction.RotateCounterClockwise; break;
             case StopSpaceKey:
             case StopKey: action = TelloAction.Stop; break;
             
@@ -60,12 +61,13 @@ public static class KeyboardControlKeymapper
             
             case BatteryKey: action = TelloAction.Battery; break;
                 
-            case SetCheckpointKey: action = TelloAction.SetCheckpoint; break;
-            case RemoveLastCheckpointKey: action = TelloAction.DeleteCheckpoint; break;
+            //case SetCheckpointKey: action = TelloAction.SetCheckpoint; break;
+            //case RemoveLastCheckpointKey: action = TelloAction.DeleteCheckpoint; break;
             case StartRecordedNavigationKey: action = TelloAction.StartRecordedNavigation; break;
-                
+            case StopRecordedNavigationKey: action = TelloAction.StartRecordedNavigation; break;
+
             default: action = TelloAction.Unknown; break;
-        }
+        } 
         return action;
     }
 }

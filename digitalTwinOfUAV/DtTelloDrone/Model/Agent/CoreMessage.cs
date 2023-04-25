@@ -6,7 +6,7 @@ public struct CoreMessage
 {
     private TelloAction _action;
     
-    CoreMessage(TelloAction message)
+    public CoreMessage(TelloAction message)
     {
         _action = message;
     }

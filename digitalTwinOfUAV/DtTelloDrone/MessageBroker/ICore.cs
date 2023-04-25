@@ -1,3 +1,4 @@
+using DtTelloDrone.Model.Agent;
 using DtTelloDrone.RyzeSDK.Core;
 using DtTelloDrone.RyzeSDK.Models;
 
@@ -16,4 +17,6 @@ public interface ICore
     /// </summary>
     /// <returns>The state of the drone</returns>
     public TelloStateParameter GetStateParameter();
+
+    public void Subscribe(ICoreSubscriber subscriber);
 }

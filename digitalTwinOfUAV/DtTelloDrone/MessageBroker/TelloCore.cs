@@ -36,7 +36,7 @@ public class TelloCore : ICore
     private readonly Queue<DroneCommand> _commandQueue = null;
     private readonly Thread _commandHandlerThread;
 
-    private List<ICoreSubscriber> _subscribers;
+    private readonly List<ICoreSubscriber> _subscribers = new();
 
     /// <summary>
     /// Token for terminating a thread.
@@ -94,7 +94,11 @@ public class TelloCore : ICore
 
     private void PublishMessage(TelloAction action)
     {
-        
+        CoreMessage msg = new CoreMessage(action);
+        foreach (var subscriber in _subscribers)
+        {
+            subscriber.PublishMessage(msg);
+        }
     }
 
     /// <summary>
@@ -162,10 +166,10 @@ public class TelloCore : ICore
                         case TelloAction.Sink:
                             _telloClient.RemoteControl(0, 0, -command._value, 0);
                             break;
-                        case TelloAction.RotateLeft:
+                        case TelloAction.RotateCounterClockwise:
                             _telloClient.RemoteControl(0, 0, 0, -command._value);
                             break;
-                        case TelloAction.RotateRight:
+                        case TelloAction.RotateClockwise:
                             _telloClient.RemoteControl(0, 0, 0, command._value);
                             break;
                         case TelloAction.Stop:
@@ -204,6 +208,7 @@ public class TelloCore : ICore
                         case TelloAction.SetCheckpoint: 
                         case TelloAction.DeleteCheckpoint:
                         case TelloAction.StartRecordedNavigation:
+                        case TelloAction.StopRecordedNavigation:
                             PublishMessage(action);
                             break;
                         default: 
