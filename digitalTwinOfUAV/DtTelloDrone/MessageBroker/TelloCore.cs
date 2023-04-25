@@ -203,7 +203,7 @@ public class TelloCore : ICore
                         
                         case TelloAction.SetCheckpoint: 
                         case TelloAction.DeleteCheckpoint:
-                        case TelloAction.StartAutonomousNavigation:
+                        case TelloAction.StartRecordedNavigation:
                             PublishMessage(action);
                             break;
                         default: 

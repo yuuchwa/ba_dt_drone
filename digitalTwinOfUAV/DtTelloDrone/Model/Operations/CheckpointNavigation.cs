@@ -19,7 +19,10 @@ public struct CheckpointNavigation
     public Position RemoveLastCheckpoint()
     {
         var result = Checkpoints.TryDequeue(out var dequeuedPosition);
-        
+        if (!result)
+        {
+            dequeuedPosition = null;
+        }
         return dequeuedPosition;
     }
 

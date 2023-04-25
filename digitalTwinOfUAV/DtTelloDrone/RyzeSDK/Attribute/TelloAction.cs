@@ -25,5 +25,5 @@ public enum TelloAction
     
     SetCheckpoint,
     DeleteCheckpoint,
-    StartAutonomousNavigation
+    StartRecordedNavigation
 }

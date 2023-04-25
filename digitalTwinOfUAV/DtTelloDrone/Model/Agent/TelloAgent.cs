@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using DtTelloDrone.Model.Attributes;
+using DtTelloDrone.Model.HelperServices;
 using DtTelloDrone.Model.Layer;
 using DtTelloDrone.Model.PathPlanning;
 using DtTelloDrone.Model.Services;
@@ -22,43 +25,27 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, ICo
     #region Properties and Fields
 
     private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger() ;
-    
-    private LandScapeLayer _layer;
-
     private readonly ICore _core = TelloCore.GetInstance();
     private readonly StateDeterminer _stateDeterminer = StateDeterminer.getStateDeterminerInstance();
-
-    private TelloStateParameter _prevParameters;
-    
-    private DroneState _prevDroneState;
-
-    private CheckpointNavigation _checkpointNavigation = new CheckpointNavigation();
-    
-    private int _tickCount = 0;
     private Random _random = new();
 
-    private DateTime _lastUpdateTS;
+    private LandScapeLayer _layer;
+    private int _tickCount = 0;
 
+    private CheckpointNavigation _checkpointNavigation = new CheckpointNavigation();
     private Queue<CoreMessage> _messages;
-
-    // --------- digital Entity information
     
-    /// <summary>
-    /// The unique identifier of the agent.
-    /// </summary>
+    private Operation _operation = Operation.None;
+    private List<TelloAction> _recordedActions = new List<TelloAction>();
+
+    private Position _target = null;
+
     public Guid ID { get; set; }
-
-    public Position Position { get; set; }
-    
-    public Position Target { get; set; }
-    
-    private List<Position> _directions;
-    private byte _speed = DefaultSpeed;
-
-    /// <summary>
-    /// the height measured from the starting Point
-    /// </summary>
     private int _height;
+    public Position Position { get; set; }
+    private TelloStateParameter _prevParameters;
+    private DroneState _prevDroneState;
+    private DateTime _lastUpdateTs;
 
     #endregion
 
@@ -72,13 +59,16 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, ICo
     
     [PropertyDescription (Name = "Bearing")]
     public double Bearing { get; set; }
-
+    
+    [PropertyDescription (Name ="Speed")]
+    public double Speed { get; set; }
+    
     #endregion
-    
+
     #region Constants
-    
-    private const int DefaultSpeed = 5;
-    private const int DefaultBearing = 0;
+
+    private const double DistanceTolerance = 5;
+    private const double BearingTolerance = 2;
 
     #endregion
 
@@ -90,6 +80,7 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, ICo
         Position = Position.CreatePosition(StartX, StartY);
         _layer._landScapeEnvironment.Insert(this, Position);
 
+        
         Logger.Trace(_layer);
         Logger.Info("Agent has been initialized");
     }
@@ -112,7 +103,7 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, ICo
                 return;
             }
 
-            if (parameters.TimeStamp == _lastUpdateTS)
+            if (parameters.TimeStamp == _lastUpdateTs)
             {
                 return;
             }
@@ -135,7 +126,7 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, ICo
 
             _prevParameters = parameters;
             _prevDroneState = state;
-            _lastUpdateTS = parameters.TimeStamp;
+            _lastUpdateTs = parameters.TimeStamp;
             
             /*
             if (_messages.TryDequeue(out CoreMessage message))
@@ -246,24 +237,11 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, ICo
 
     private void DoAction()
     {
-        // Check Command validity
-        /*
-        if (selectedAction != TelloAction.Unknown)
+        if (_operation == Operation.RecordedNavigation)
         {
-            DroneCommand command = new DroneCommand(selectedAction, _speed);
-
-            if (IsMovementAction(selectedAction))
-            {
-                if (!CheckObstacleCollision())
-                {
-                    _core.QueryCommand(command);
-                }
-            }
-            else
-            {
-                _core.QueryCommand(command);
-            }
-        }*/
+            TelloAction action = _recordedActions.RemoveAt(_recordedActions.Count() - 1);
+        }
+        // Check Command validity
     }
 
     private bool CheckObstacleCollision()
@@ -281,7 +259,8 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, ICo
                 break;
             case TelloAction.DeleteCheckpoint: _checkpointNavigation.RemoveLastCheckpoint();
                 break;
-            case TelloAction.StartAutonomousNavigation: break;
+            case TelloAction.StartRecordedNavigation:
+                _operation = Operation.RecordedNavigation; break;
             default: break;
         }
     }
