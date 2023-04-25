@@ -7,7 +7,7 @@ namespace DtTelloDrone.Model.Attributes;
 /// </summary>
 public enum DroneState
 {
-    Unknown,
+    Unknown, // Deckt alle Zustände ab, die nicht definiert sind. Muss kein Fehlerzustand sein.
     Standby,
     Hovering,
     TakingOff,

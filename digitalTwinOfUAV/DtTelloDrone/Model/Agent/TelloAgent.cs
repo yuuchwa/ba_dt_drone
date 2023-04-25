@@ -1,62 +1,52 @@
 using System;
 using System.Collections.Generic;
-using DtTelloDrone.Logger;
+using System.IO;
+using System.Linq;
 using DtTelloDrone.Model.Attributes;
+using DtTelloDrone.Model.HelperServices;
 using DtTelloDrone.Model.Layer;
+using DtTelloDrone.Model.PathPlanning;
 using DtTelloDrone.Model.Services;
 using DtTelloDrone.RyzeSDK;
 using DtTelloDrone.RyzeSDK.Attribute;
+using DtTelloDrone.RyzeSDK.Core;
 using DtTelloDrone.RyzeSDK.Models;
 using Mars.Components.Environments.Cartesian;
 using Mars.Interfaces.Agents;
 using Mars.Interfaces.Annotations;
 using Mars.Interfaces.Environments;
+using MathNet.Numerics.LinearAlgebra;
+using MathNet.Numerics.LinearAlgebra.Double;
 
 namespace DtTelloDrone.Model.Agent;
 
-public class TelloAgent : IAgent<LandScapeLayer>, ICharacter
+public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, ICoreSubscriber
 {
     #region Properties and Fields
 
     private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger() ;
-    
-    private LandScapeLayer _layer;
-
-    private ICore _core;
-    private StateDeterminer _stateDeterminer;
-
-    private TelloStateParameter _prevParameters;
-    
-    private DroneState _currentDroneState;
-    private DroneState _prevDroneState;
-
-    private double _travelDuration;
-    private int _travelDurationCounter = 0;
-
-    private int _tickCount = 0;
+    private readonly ICore _core = TelloCore.GetInstance();
+    private readonly StateDeterminer _stateDeterminer = StateDeterminer.getStateDeterminerInstance();
     private Random _random = new();
 
-    private DateTime _lastUpdateTS;
+    private LandScapeLayer _layer;
+    private int _tickCount = 0;
+
+    private CheckpointNavigation _checkpointNavigation = new();
+    private Queue<CoreMessage> _messages = new();
+    private CoreMessage _message = new();
     
-    // --------- digital Entity information
-    
-    /// <summary>
-    /// The unique identifier of the agent.
-    /// </summary>
+    private Operation _operation = Operation.None;
+    private RecordedActionNavigation _recordedActionNavigation;
+
+    private Position _target = null;
+
     public Guid ID { get; set; }
-
-    public Position Position { get; set; }
-    
-    public Position Target { get; set; }
-    
-    private List<Position> _directions;
-    private double _bearing;
-    private byte _speed;
-
-    /// <summary>
-    /// the height measured from the starting Point
-    /// </summary>
     private int _height;
+    public Position Position { get; set; }
+    private TelloStateParameter _prevParameters;
+    private DroneState _prevDroneState;
+    private DateTime _lastUpdateTs;
 
     #endregion
 
@@ -67,13 +57,19 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter
     
     [PropertyDescription (Name = "StartY")]
     public int StartY { get; set; }
-
+    
+    [PropertyDescription (Name = "Bearing")]
+    public double Bearing { get; set; }
+    
+    [PropertyDescription (Name ="Speed")]
+    public int Speed { get; set; }
+    
     #endregion
-    
+
     #region Constants
-    
-    private const int DefaultSpeed = 30;
-    private const int DefaultBearing = 0;
+
+    private const double DistanceTolerance = 5;
+    private const double BearingTolerance = 2;
 
     #endregion
 
@@ -81,16 +77,14 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter
 
     public void Init(LandScapeLayer layer)
     {
-
         _layer = layer;
-        _core = TelloCore.GetInstance();
-        
         Position = Position.CreatePosition(StartX, StartY);
         _layer._landScapeEnvironment.Insert(this, Position);
-            
-        _stateDeterminer = StateDeterminer.getStateDeterminerInstance();
-        _speed = DefaultSpeed;
-        _bearing = DefaultBearing;
+        _recordedActionNavigation = new RecordedActionNavigation();
+        _core.Subscribe(this);
+        
+        Logger.Trace(_layer);
+        Logger.Info("Agent has been initialized");
     }
 
     #endregion
@@ -99,126 +93,190 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter
 
     public void Tick()
     {
-        // Lese Zustandsparameter aus
-        var parameters = _core.GetStateParameter();
-
-        if (parameters == null)
+        try
         {
-            return;
-        }
+            if (_messages.TryDequeue(out _message))
+            {
+                ReadMessage(_message);
+            }
+            
+            // Aktuellen Zustandsparameter auslesen.
+            var parameters = _core.GetStateParameter();
 
-        // Bestimme den Zustand der Tello Drohne
-        if (parameters.TimeStamp == _lastUpdateTS)
+            // Überprüfe, ob die Daten richtig sind und wandel sie um.
+
+            if (parameters == null)
+            {
+                return;
+            }
+
+            if (parameters.TimeStamp == _lastUpdateTs)
+            {
+                return;
+            }
+
+            // Zustand der Drohne bestimmen
+
+            DroneState state = _stateDeterminer.DetermineState(parameters);
+
+            //Logger.Trace($"Current Drone state is: {state.ToString()}");
+            if (state != _prevDroneState)
+            {
+                Logger.Info($"Drone changed to {state}");
+            }
+
+            // Agent synchronisieren
+
+            UpdateAgentState(parameters, state);
+
+            // Aktion ausführen
+
+            _prevParameters = parameters;
+            _prevDroneState = state;
+            _lastUpdateTs = parameters.TimeStamp;
+
+            ExecuteNextOperation();
+            _tickCount++;
+        }
+        catch (Exception ex)
         {
-            return;
+            Console.WriteLine(ex.ToString());
+            DroneCommand command = new DroneCommand(TelloAction.Emergency, 0);
+            _core.QueryCommand(command);
         }
+    }
+    
+    #endregion
 
-        DroneState state = _stateDeterminer.DetermineState(parameters);
-        Logger.Trace(state);
-        // Log state
-        //Console.WriteLine($"Current Drone state is: {state.ToString()}");
-        
-        // Zustand in die Simulation überführen
-        //MapParameters(state, parameters);
-        _prevParameters = parameters;
-        _lastUpdateTS = parameters.TimeStamp;
-        
-        // Entscheidungsfindungs
-        _tickCount++;
+    #region Public Methods
+
+    public void PublishMessage(CoreMessage message)
+    {
+        _messages.Enqueue(message);
     }
 
     #endregion
     
     #region Private Methods
 
-    private void MapParameters(DroneState currentState, TelloStateParameter parameters)
+    private void UpdateAgentState(TelloStateParameter parameters, DroneState state)
     {
-        if (_prevParameters == null || currentState == DroneState.Unknown)
+        if (_prevParameters == null)
         {
             return;
         }
-        
-        double timeDifferenceSinceLastUpdate = parameters.TimeStamp.Millisecond - _prevParameters.TimeStamp.Millisecond;
 
-        if ((currentState == DroneState.MovingForwards ||
-             currentState == DroneState.MovingBackwards ||
-             currentState == DroneState.MovingLeft ||
-             currentState == DroneState.MovingRight) &&
-            currentState == _prevDroneState)
+        Bearing = DataMapper.MapToMarsBearing(parameters.Yaw);
+
+        if (state == DroneState.MovingForwards || 
+            state == DroneState.MovingBackwards ||
+            state == DroneState.MovingLeft || 
+            state == DroneState.MovingRight ||
+            state == DroneState.Unknown)
         {
-            _travelDuration += timeDifferenceSinceLastUpdate;
+            Position = UpdatePosition(parameters);
         }
         
-        // Calculate bearing
-        _bearing = DataMapper.CalculateBearing(currentState, _bearing, timeDifferenceSinceLastUpdate, _speed);
-        double motionBearing = DataMapper.GetMotionBearing(currentState);
-        double motionDirection = (_bearing + motionBearing) % 360;
-
-        // calculate travelled distance
-        double travelledDistance = 0;
-        float acceleationDirection = 0;
-        
-        if (_currentDroneState == DroneState.MovingForwards || _currentDroneState == DroneState.MovingBackwards)
-        {
-            acceleationDirection = parameters.AccelerationX;
-        }
-        else if (_currentDroneState == DroneState.MovingRight || _currentDroneState == DroneState.MovingLeft)
-        {
-            acceleationDirection = parameters.AccelerationY;
-        }
-        
-        travelledDistance = DataMapper.CalculateTravelledDistance(currentState, acceleationDirection, _travelDuration, timeDifferenceSinceLastUpdate);
-        
-        // move the agent to the corresponding position of the drone.
-        Position = _layer._landScapeEnvironment.Move(this, motionDirection, travelledDistance); // nicht geprüft
-        Console.WriteLine($"Agent moved to {Position}");
-
         _height = parameters.Height;
+
+        Logger.Trace($"Agent moved to {Position}");
     }
 
-    private void DoAction()
-    {
-        // Check Command validity
-        /*
-        if (selectedAction != TelloAction.Unknown)
-        {
-            DroneCommand command = new DroneCommand(selectedAction, _speed);
-
-            if (IsMovementAction(selectedAction))
-            {
-                if (!CheckObstacleCollision())
-                {
-                    _core.QueryCommand(command);
-                }
-            }
-            else
-            {
-                _core.QueryCommand(command);
-            }
-        }*/
-    }
-    
-            
     /// <summary>
-    /// Check if the selected action is a movement.
+    /// Update the position depending on the new parameters.
     /// </summary>
-    /// <param name="action"></param>
-    /// <returns></returns>
-    private bool IsMovementAction(TelloAction action)
+    /// <param name="state">The current drone state.</param>
+    /// <param name="parameters">The new parameters</param>
+    /// <returns>The new position the drone is moving to.</returns>
+    private Position UpdatePosition(TelloStateParameter parameters)
     {
-        // TODO: In eine static Methode auslagern.
-        return
-            action == TelloAction.MoveForward ||
-            action == TelloAction.MoveBackward ||
-            action == TelloAction.MoveLeft ||
-            action == TelloAction.MoveRight ||
-            action == TelloAction.Rise ||
-            action == TelloAction.Sink;
+        double timeInterval = Math.Abs(parameters.TimeStamp.Millisecond - _prevParameters.TimeStamp.Millisecond);
+        timeInterval /= 1000;
+        
+        double accelerationX = Math.Round(parameters.AccelerationX) * -1;       // cm/ms^2
+        double accelerationY = Math.Round(parameters.AccelerationY) * -1;
+        double velocityX = parameters.VelocityX;             // cm/ms
+        double velocityY = parameters.VelocityY;
+
+        if (TelloFlightMetrics.ForwardAccelerationThreshold < accelerationX &&
+            accelerationX < TelloFlightMetrics.BackwardAccelerationThreshold)
+        {
+            accelerationX = 0;
+        }
+        
+        if (TelloFlightMetrics.LeftAccelerationThreshold < accelerationY &&
+            accelerationY < TelloFlightMetrics.RightAccelerationThreshold)
+        {
+            accelerationY = 0;
+        }
+        
+        double speedX = DataMapper.CalculateSpeed(timeInterval, accelerationX, velocityX);
+        double speedY = DataMapper.CalculateSpeed(timeInterval, accelerationY, velocityY);
+
+        Vector<double> vec1 = new DenseVector(new []{speedX, 0});
+        Vector<double> vec2 = new DenseVector(new []{0,speedY});
+
+        double motionBearing = DataMapper.CalculateAngleOfTwoVectors(vec1, vec2);
+        double motionBearingMars = DataMapper.MapNormalCoordinateToMars(motionBearing);
+
+        double flyDirection = DataMapper.CalculateFlyDirection(Bearing, motionBearingMars);
+
+        double travelingDistance = (DataMapper.CalculateMagnitude(vec1) + DataMapper.CalculateMagnitude(vec2)) / 10;
+
+        Logger.Trace($"Bearing {Bearing}");
+        
+        if (travelingDistance >= 0.1)
+        {
+            Logger.Trace($"FlyDirection {flyDirection}");
+            Logger.Trace($"TravelingDistance {travelingDistance}");
+            Position = _layer._landScapeEnvironment.Move(this, flyDirection, travelingDistance);
+        }
+
+        return Position;
+    }
+        
+
+    private void ExecuteNextOperation()
+    {
+        if (_operation == Operation.RecordedNavigation)
+        {
+            TelloAction action = _recordedActionNavigation.GetNextAction();
+            if (action == TelloAction.StopRecordedNavigation)
+            {
+                _operation = Operation.None;
+                return;
+            }
+            
+            DroneCommand command = new DroneCommand(action, Speed);
+            _core.QueryCommand(command);
+        }
     }
 
     private bool CheckObstacleCollision()
     {
         return false;
+    }
+
+    private void ReadMessage(CoreMessage msg)
+    {
+        TelloAction action = msg.GetAction();
+
+        switch (action) 
+        {
+            case TelloAction.SetCheckpoint: _checkpointNavigation.AddCheckpoint(Position);
+                break;
+            case TelloAction.DeleteCheckpoint: _checkpointNavigation.RemoveLastCheckpoint();
+                break;
+            case TelloAction.StartRecordedNavigation:
+                _operation = Operation.RecordedNavigation; break;
+            default: break;
+        }
+    }
+    
+    private void createGPX()
+    {
+        // Nachkommastellen reduzieren.
+        // Qgis
     }
     
     #endregion
@@ -232,4 +290,4 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter
     }
 
     public double Extent { get; set; }
-}
+    }

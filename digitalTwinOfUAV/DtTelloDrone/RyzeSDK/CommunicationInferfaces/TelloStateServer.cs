@@ -4,10 +4,12 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using DtTelloDrone.Logger;
+using DtTelloDrone.RyzeSDK.Core;
 using DtTelloDrone.RyzeSDK.Models;
+using Mars.Components.Services.Planning;
+using ServiceStack;
 
-namespace DtTelloDrone.RyzeSDK.Core
+namespace DtTelloDrone.RyzeSDK.CommunicationInferfaces
 {
     /// <summary>
     /// The class for receiving the state information of the tello drone.
@@ -19,7 +21,9 @@ namespace DtTelloDrone.RyzeSDK.Core
         /// </summary>
         private readonly UdpClient udpServer;
         
-	    /// <summary>
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
+        /// <summary>
         /// The main loop
         /// </summary>
         private Task _mainLoop;
@@ -65,16 +69,19 @@ namespace DtTelloDrone.RyzeSDK.Core
         /// </summary>
         private async void ListenTask()
         {
+            Logger.Trace("Pitch;Roll;Yaw;VelocityX;VelocityY;VelocityZ;TemperaturLow;TemperaturHigh;TimeOfFlight;Height;Battery;Barometer;Time;AccelerationX;AccelerationY;AccelerationZ;Timestamp");
             while (true)
             {
                 try
                 {
                     var result = await udpServer.ReceiveAsync();
                     var data = Encoding.ASCII.GetString(result.Buffer).Replace('\n', ' ');
-                    
-Console.Write(data);
                     OnStateRaw?.Invoke(data);
-                    OnState?.Invoke(TelloStateParameter.FromString(data));
+                    var stateData = TelloStateParameter.FromString(data);
+                    OnState?.Invoke(stateData);
+                    stateData.ConvertToCsv();
+
+                    Logger.Trace(stateData.ConvertToCsv());
                 }
                 catch (Exception ex)
                 {

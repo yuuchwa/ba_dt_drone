@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using NetTopologySuite.Algorithm;
+using NUnit.Framework.Internal;
+using ServiceStack;
 
 namespace DtTelloDrone.RyzeSDK.Models
 {
@@ -93,6 +97,46 @@ namespace DtTelloDrone.RyzeSDK.Models
             }
             
             return state;
+        }
+
+        private bool _noHeader = true;
+        
+        public string ConvertToCsv()
+        {
+            Type type = this.GetType();
+            PropertyInfo[] properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public);
+
+            string result = "";
+            foreach (PropertyInfo property in properties)
+            {
+                result += $"{property.GetValue(this)};";
+            }
+
+            if (result.Length > 0)
+            {
+                result = result.Remove(result.Length - 2); // entfernt das letzte Komma und Leerzeichen
+            }
+
+            return result;
+        }
+        
+        public static string GetMemberVariablesAsString(object obj)
+        {
+            Type type = obj.GetType();
+            PropertyInfo[] properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public);
+
+            string result = "";
+            foreach (PropertyInfo property in properties)
+            {
+                result += $"{property.Name}: {property.GetValue(obj)}, ";
+            }
+
+            if (result.Length > 0)
+            {
+                result = result.Remove(result.Length - 2); // entfernt das letzte Komma und Leerzeichen
+            }
+
+            return result;
         }
     }
 }

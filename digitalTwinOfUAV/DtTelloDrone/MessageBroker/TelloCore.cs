@@ -5,10 +5,13 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using DtTelloDrone.Logger;
+using DtTelloDrone.Model.Agent;
 using DtTelloDrone.RyzeSDK.Attribute;
+using DtTelloDrone.RyzeSDK.CommunicationInferfaces;
 using DtTelloDrone.RyzeSDK.Core;
 using DtTelloDrone.RyzeSDK.Models;
 using DtTelloDrone.RyzeSDK.Output;
+using ServiceStack.Messaging;
 
 // using Microsoft.Extensions.Logging;
 
@@ -20,44 +23,21 @@ namespace DtTelloDrone.RyzeSDK;
 public class TelloCore : ICore
 {
     private static TelloCore _telloCoreInstance;
-
-    /// <summary>
-    /// The logger.
-    /// </summary>
     private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
-
-    /// <summary>
-    /// The Tello client
-    /// </summary>
-    private readonly ITelloClient _telloClient;
     
-    /// <summary>
-    /// The state server
-    /// </summary>
+    private readonly ITelloClient _telloClient;
     private readonly TelloStateServer _stateServer;
 
     private readonly ConsoleCockpit _consoleOutput;
-
-    /// <summary>
-    /// The Status where the core is connected to the drone or not.
-    /// </summary>
-    private bool _connectionStatus;
     
-    /// <summary>
-    /// Flag that indicates where the process should be stopped.
-    /// </summary>
+    private bool _connectionStatus;
     private bool _stopThread;
 
-    /// <summary>
-    /// The FFmpeg
-    /// </summary>
-    //private readonly FFmpeg ffmpeg;
-
     private readonly Queue<DroneCommand> _commandQueue = null;
-
-    //private Task _commandProcessor;
     private readonly Thread _commandHandlerThread;
-    
+
+    private readonly List<ICoreSubscriber> _subscribers = new();
+
     /// <summary>
     /// Token for terminating a thread.
     /// </summary>
@@ -70,14 +50,12 @@ public class TelloCore : ICore
 
     public static TelloCore GetInstance()
     {
-        return _telloCoreInstance ?? (_telloCoreInstance = new TelloCore());
+        return _telloCoreInstance ??= new TelloCore();
     }
 
     /// <summary>
     /// Instantiates the Core
     /// </summary>
-    // public Core(ILogger<Core> logger , TelloClient client, TelloStateServer stateServer, FFmpeg ffmpeg)
-    //public TelloCore(TelloClient telloClient, TelloStateServer stateServer)
     private TelloCore()
     {
         _stopThread = false;
@@ -88,10 +66,9 @@ public class TelloCore : ICore
         
         _telloClient = new TelloClient();
         _stateServer = new TelloStateServer();
-        //_consoleOutput = new ConsoleDisplay(_stateServer);
+        //_consoleOutput = new ConsoleCockpit(_stateServer);
         
         _stateServer.OnState += (s) => _telloStateParameter = s;
-        _stateServer.OnStateRaw += (s) => Logger.Trace(s);
         _stateServer.OnException += (ex) => Logger.Error("stateServer.OnException");
 
         IntitializeConnectionToTello();
@@ -108,6 +85,20 @@ public class TelloCore : ICore
     {
         _telloClient.Connect();
         _stateServer.Listen();
+    }
+    
+    public void Subscribe(ICoreSubscriber subscriber)
+    {
+        _subscribers.Add(subscriber);
+    }
+
+    private void PublishMessage(TelloAction action)
+    {
+        CoreMessage msg = new CoreMessage(action);
+        foreach (var subscriber in _subscribers)
+        {
+            subscriber.PublishMessage(msg);
+        }
     }
 
     /// <summary>
@@ -147,7 +138,7 @@ public class TelloCore : ICore
         {
             DroneCommand command = null;
             if (_commandQueue.TryDequeue(out command))
-            {
+            {           
                 TelloAction action = command._action;
                 
                 try
@@ -175,10 +166,10 @@ public class TelloCore : ICore
                         case TelloAction.Sink:
                             _telloClient.RemoteControl(0, 0, -command._value, 0);
                             break;
-                        case TelloAction.RotateLeft:
+                        case TelloAction.RotateCounterClockwise:
                             _telloClient.RemoteControl(0, 0, 0, -command._value);
                             break;
-                        case TelloAction.RotateRight:
+                        case TelloAction.RotateClockwise:
                             _telloClient.RemoteControl(0, 0, 0, command._value);
                             break;
                         case TelloAction.Stop:
@@ -206,12 +197,19 @@ public class TelloCore : ICore
                             response = await _telloClient.InitTello();
                             if (response)
                             {
-                                Console.WriteLine("Tello successfully connected");
+                                Logger.Info("Tello successfully connected");
                             }
                             else
                             {
-                                Console.WriteLine("Tello connection failed");
+                                Logger.Info("Tello connection failed");
                             }
+                            break;
+                        
+                        case TelloAction.SetCheckpoint: 
+                        case TelloAction.DeleteCheckpoint:
+                        case TelloAction.StartRecordedNavigation:
+                        case TelloAction.StopRecordedNavigation:
+                            PublishMessage(action);
                             break;
                         default: 
                             _telloClient.Emergency(); 
@@ -219,8 +217,9 @@ public class TelloCore : ICore
                     }
                 }
                 catch (Exception e)
-                {
+                { 
                     _connectionStatus = false;
+                    Logger.Error($"Tello throws error for action {action}");
                     continue;
                 }
                 finally

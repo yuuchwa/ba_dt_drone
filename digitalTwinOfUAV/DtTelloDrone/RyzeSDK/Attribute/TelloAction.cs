@@ -9,8 +9,8 @@ public enum TelloAction
     MoveBackward,
     MoveLeft,
     MoveRight,
-    RotateLeft,
-    RotateRight,
+    RotateCounterClockwise,
+    RotateClockwise,
     Stop,
     TakeOff,
     Land,
@@ -22,4 +22,9 @@ public enum TelloAction
     Time,
     Connect,
     Unknown,
+    
+    SetCheckpoint,
+    DeleteCheckpoint,
+    StartRecordedNavigation,
+    StopRecordedNavigation
 }
