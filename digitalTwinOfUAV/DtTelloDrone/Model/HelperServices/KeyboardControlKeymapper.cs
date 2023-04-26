@@ -29,8 +29,6 @@ public static class KeyboardControlKeymapper
     private const string StartRecordedNavigationKey = "U";
     private const string StopRecordedNavigationKey = "I";
     
-    private const string CloseKey = "O";
-    
     /// <summary>
     /// Maps the key to a corresponding tello action.
     /// </summary>
@@ -64,7 +62,7 @@ public static class KeyboardControlKeymapper
             //case SetCheckpointKey: action = TelloAction.SetCheckpoint; break;
             //case RemoveLastCheckpointKey: action = TelloAction.DeleteCheckpoint; break;
             case StartRecordedNavigationKey: action = TelloAction.StartRecordedNavigation; break;
-            case StopRecordedNavigationKey: action = TelloAction.StartRecordedNavigation; break;
+            case StopRecordedNavigationKey: action = TelloAction.StartRecordedNavigation; break; 
 
             default: action = TelloAction.Unknown; break;
         } 

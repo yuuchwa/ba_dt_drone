@@ -188,7 +188,8 @@ public class TelloCore : ICore
                             await _telloClient.GetSpeed();
                             break;
                         case TelloAction.Battery:
-                            await _telloClient.GetBattery();
+                            var ans = await _telloClient.GetBattery();
+                            Logger.Info(ans);
                             break;
                         case TelloAction.Time:
                             await _telloClient.GetTime();

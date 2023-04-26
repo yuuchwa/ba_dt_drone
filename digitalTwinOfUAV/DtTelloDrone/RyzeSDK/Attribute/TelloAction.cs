@@ -5,6 +5,7 @@ namespace DtTelloDrone.RyzeSDK.Attribute;
 /// </summary>
 public enum TelloAction
 {
+    NoAction,
     MoveForward,
     MoveBackward,
     MoveLeft,

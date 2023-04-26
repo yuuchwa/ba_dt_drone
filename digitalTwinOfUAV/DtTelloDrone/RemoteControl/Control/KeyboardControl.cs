@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using DtTelloDrone.Logger;
@@ -6,6 +7,9 @@ using DtTelloDrone.Model.HelperServices;
 using DtTelloDrone.RyzeSDK;
 using DtTelloDrone.RyzeSDK.Attribute;
 using DtTelloDrone.RyzeSDK.Core;
+using DtTelloDrone.Shared;
+using Mars.Components.Starter;
+using Mars.Core.Simulation;
 using NLog;
 using ServiceStack;
 
@@ -14,7 +18,13 @@ namespace DtTelloDrone.RemoteControl.Control
     public class KeyboardControl
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+        private static readonly ResourceDirectoryManager _directoryManager =
+            ResourceDirectoryManager.GetDirectoryManager();
 
+        private SimulationStarter _simulation;
+        
+        private List<string> records = new List<string>();
+        
         /// <summary>
         /// Core Service
         /// </summary>
@@ -37,10 +47,21 @@ namespace DtTelloDrone.RemoteControl.Control
         public void Close()
         {
             _cancellationToken.Cancel();
+
+            foreach (var record in records)
+            {
+                _directoryManager.AppendToKeyboardInputFile(record);
+            }
+            
             Logger.Info("Keyboard Control terminated.");
         }
 
-        public void Listen()
+        public void AddSimulation(SimulationStarter simulation)
+        {
+            _simulation = simulation;
+        }
+
+        public void StartKeyboardControl()
         {
             _cancellationToken = new CancellationTokenSource();
             Logger.Info("Keyboard Control started.");
@@ -52,15 +73,25 @@ namespace DtTelloDrone.RemoteControl.Control
         {
             Logger.Info("Keyboard Control started.");
             DroneCommand command;
+            string record;
             while (true)
             {
                 var key = Console.ReadKey(true).Key.ToString();;
+                record = DateTime.Now.ToString("hhmmssfff") + ";" + key + "\n";
+                records.Add(record);
+
+                if (key == "Delete")
+                {
+                    // Simulation unterbrechen.
+                    Close();
+                    _telloCore.Close();
+                    ResourceDirectoryManager.Close();
+                }
+                
                 TelloAction selectedAction = KeyboardControlKeymapper.MapKeyToAction(key);
                 
                 if (selectedAction == TelloAction.Unknown) continue;
                 
-                Logger.Trace(key);
-
                 command = new DroneCommand(selectedAction, _speed);
                 _telloCore.QueryCommand(command);
             }

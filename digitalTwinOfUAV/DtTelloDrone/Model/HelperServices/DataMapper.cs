@@ -48,11 +48,6 @@ public static class DataMapper
     /// <returns></returns>
     public static double CalculateSpeed(double timeInterval, double acceleration, double initialVelocity)
     {
-        if (initialVelocity < 0 && acceleration < 0 || 0 < initialVelocity && 0 < acceleration)
-        {
-            Logger.Error("Velocity and acceleration in opposite directions.");
-        }
-        
         double speed = acceleration * timeInterval + initialVelocity;
         return Math.Round(speed, 3);
     }

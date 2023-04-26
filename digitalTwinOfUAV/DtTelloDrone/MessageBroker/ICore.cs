@@ -19,4 +19,9 @@ public interface ICore
     public TelloStateParameter GetStateParameter();
 
     public void Subscribe(ICoreSubscriber subscriber);
+
+    /// <summary>
+    /// Close and dispose.
+    /// </summary>
+    public void Close();
 }
