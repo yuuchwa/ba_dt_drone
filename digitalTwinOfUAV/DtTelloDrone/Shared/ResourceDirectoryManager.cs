@@ -6,11 +6,12 @@ namespace DtTelloDrone.Shared;
 
 public class ResourceDirectoryManager
 {
+    private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
     private static ResourceDirectoryManager _manager;
-    private readonly string DirectoryPath =
+    private readonly string _directoryPath =
         "/home/leon/Documents/Studium/Bachelorarbeit/ba_dt_drone/digitalTwinOfUAV/DtTelloDrone/OutputResources/";
 
-    private readonly string KeyboardInputFilePath = "KeyboardInput.csv";
+    private readonly string _keyboardInputFilePath = "KeyboardInput.csv";
     private static FileStream _keyboardInputFile;
     
     public static ResourceDirectoryManager GetDirectoryManager()
@@ -24,18 +25,18 @@ public class ResourceDirectoryManager
         string dateFolder = "Resources." + now.ToString("yyyy-MM-dd") + "/";
         string sessionFolder = "Session." + now.ToString("HH-mm-ss") + "/";
 
-        DirectoryPath = DirectoryPath + dateFolder + sessionFolder;
-        new DirectoryInfo(DirectoryPath).Create();
+        _directoryPath = _directoryPath + dateFolder + sessionFolder;
+        new DirectoryInfo(_directoryPath).Create();
 
-        KeyboardInputFilePath = DirectoryPath + KeyboardInputFilePath;
+        _keyboardInputFilePath = _directoryPath + _keyboardInputFilePath;
     }
     
     public void AppendToKeyboardInputFile(string record)
     {
-        if (!File.Exists(KeyboardInputFilePath))
+        if (!File.Exists(_keyboardInputFilePath))
         {
-            _keyboardInputFile = File.Open(KeyboardInputFilePath, FileMode.Create, FileAccess.Write);
-            byte[] bytes = "time;input\n"u8.ToArray();
+            _keyboardInputFile = File.Open(_keyboardInputFilePath, FileMode.Create, FileAccess.Write);
+            byte[] bytes = "time;input;xPos;yPos;zPos\n"u8.ToArray();
             _keyboardInputFile.Write(bytes);
         }
 
@@ -55,6 +56,7 @@ public class ResourceDirectoryManager
         {
             _keyboardInputFile.Dispose();
             _keyboardInputFile = null;
+            Logger.Info("Resource Directory Manager disposed");
         }
     }
 }

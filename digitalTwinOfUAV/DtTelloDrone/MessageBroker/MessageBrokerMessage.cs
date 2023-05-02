@@ -2,11 +2,11 @@ using DtTelloDrone.RyzeSDK.Attribute;
 
 namespace DtTelloDrone.Model.Agent;
 
-public struct CoreMessage
+public struct MessageBrokerMessage
 {
     private TelloAction _action;
     
-    public CoreMessage(TelloAction message)
+    public MessageBrokerMessage(TelloAction message)
     {
         _action = message;
     }

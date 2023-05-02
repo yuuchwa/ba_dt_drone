@@ -8,8 +8,8 @@ public static class KeyboardControlKeymapper
     private const string ConnectKey = "C";
 
     private const string MoveForwardKey = "W";
-    private const string MoveBackwardKey = "A";
-    private const string MoveLeftKey = "S";
+    private const string MoveBackwardKey = "S";
+    private const string MoveLeftKey = "A";
     private const string MoveRightKey = "D";
     private const string RotateClockwiseKey = "E";
     private const string RotateCounterClockwiseKey = "Q";

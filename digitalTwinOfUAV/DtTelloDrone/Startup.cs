@@ -17,18 +17,18 @@ namespace DtTelloDrone;
 public static class Startup
 {
     private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger() ;
-    private static readonly TelloCore _telloCore = TelloCore.GetInstance();
+    private static readonly TelloMessageBroker TelloMessageBroker = TelloMessageBroker.GetInstance();
 
     private static KeyboardControl _keyboardControl;
     private static SimulationStarter _simulationStarter;
-    
+
     public static void Run()
     {
         RunKeybordControl();
         RunSimulation();
         DisposeApplicationRessources();
     }
-    
+
     private static void RunSimulation()
     {
 
@@ -58,7 +58,7 @@ public static class Startup
     private static void DisposeApplicationRessources()
     {
         _keyboardControl.Close();
-        _telloCore.Close();
+        TelloMessageBroker.Close();
         ResourceDirectoryManager.Close();
         Logger.Info("Ressoures Disposed");
     }

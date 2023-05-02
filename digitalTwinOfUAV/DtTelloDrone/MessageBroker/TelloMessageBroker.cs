@@ -20,9 +20,9 @@ namespace DtTelloDrone.RyzeSDK;
 /// <summary>
 /// This class handels all communications with the tello drone.
 /// </summary>
-public class TelloCore : ICore
+public class TelloMessageBroker : IDroneMessageBroker
 {
-    private static TelloCore _telloCoreInstance;
+    private static TelloMessageBroker _telloMessageBrokerInstance;
     private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
     
     private readonly ITelloClient _telloClient;
@@ -36,7 +36,7 @@ public class TelloCore : ICore
     private readonly Queue<DroneCommand> _commandQueue = null;
     private readonly Thread _commandHandlerThread;
 
-    private readonly List<ICoreSubscriber> _subscribers = new();
+    private readonly List<IMessageBrokerSubscriber> _subscribers = new();
 
     /// <summary>
     /// Token for terminating a thread.
@@ -48,15 +48,15 @@ public class TelloCore : ICore
     /// </summary>
     private TelloStateParameter _telloStateParameter;
 
-    public static TelloCore GetInstance()
+    public static TelloMessageBroker GetInstance()
     {
-        return _telloCoreInstance ??= new TelloCore();
+        return _telloMessageBrokerInstance ??= new TelloMessageBroker();
     }
 
     /// <summary>
     /// Instantiates the Core
     /// </summary>
-    private TelloCore()
+    private TelloMessageBroker()
     {
         _stopThread = false;
         
@@ -87,14 +87,14 @@ public class TelloCore : ICore
         _stateServer.Listen();
     }
     
-    public void Subscribe(ICoreSubscriber subscriber)
+    public void Subscribe(IMessageBrokerSubscriber subscriber)
     {
         _subscribers.Add(subscriber);
     }
 
     private void PublishMessage(TelloAction action)
     {
-        CoreMessage msg = new CoreMessage(action);
+        MessageBrokerMessage msg = new MessageBrokerMessage(action);
         foreach (var subscriber in _subscribers)
         {
             subscriber.PublishMessage(msg);
@@ -144,7 +144,7 @@ public class TelloCore : ICore
                 try
                 {
                     bool response = true;
-
+                    Logger.Info($"MessageBroker send action: {action}");
                     switch (action)
                     {
                         // Antwort wird ignoriert.

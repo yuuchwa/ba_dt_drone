@@ -15,16 +15,16 @@ namespace TelloTestApp
         private static readonly int DeadZone = 10;
 
         // private readonly ILogger logger;
-        private readonly TelloCore _telloCore;
+        private readonly TelloMessageBroker _telloMessageBroker;
         private readonly TelloClient client;
 
         private Joystick gamepad;
         private Task mainLoop;
         private CancellationTokenSource cts;
 
-        public GamePadController(TelloCore telloCore, TelloClient client, ILogger<GamePadController> logger)
+        public GamePadController(TelloMessageBroker telloMessageBroker, TelloClient client, ILogger<GamePadController> logger)
         {
-            this._telloCore = telloCore;
+            this._telloMessageBroker = telloMessageBroker;
             //  this.logger = logger;
             this.client = client;
 

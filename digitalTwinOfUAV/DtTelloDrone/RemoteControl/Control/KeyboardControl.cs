@@ -2,16 +2,12 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using DtTelloDrone.Logger;
 using DtTelloDrone.Model.HelperServices;
 using DtTelloDrone.RyzeSDK;
 using DtTelloDrone.RyzeSDK.Attribute;
 using DtTelloDrone.RyzeSDK.Core;
 using DtTelloDrone.Shared;
 using Mars.Components.Starter;
-using Mars.Core.Simulation;
-using NLog;
-using ServiceStack;
 
 namespace DtTelloDrone.RemoteControl.Control
 {
@@ -23,12 +19,12 @@ namespace DtTelloDrone.RemoteControl.Control
 
         private SimulationStarter _simulation;
         
-        private List<string> records = new List<string>();
+        private readonly List<string> _records = new();
         
         /// <summary>
         /// Core Service
         /// </summary>
-        private readonly ICore _telloCore = TelloCore.GetInstance();
+        private readonly IDroneMessageBroker _telloDroneMessageBroker = TelloMessageBroker.GetInstance();
 
         private Task _mainloop;
 
@@ -48,7 +44,7 @@ namespace DtTelloDrone.RemoteControl.Control
         {
             _cancellationToken.Cancel();
 
-            foreach (var record in records)
+            foreach (var record in _records)
             {
                 _directoryManager.AppendToKeyboardInputFile(record);
             }
@@ -78,13 +74,13 @@ namespace DtTelloDrone.RemoteControl.Control
             {
                 var key = Console.ReadKey(true).Key.ToString();;
                 record = DateTime.Now.ToString("hhmmssfff") + ";" + key + "\n";
-                records.Add(record);
+                _records.Add(record);
 
                 if (key == "Delete")
                 {
                     // Simulation unterbrechen.
                     Close();
-                    _telloCore.Close();
+                    _telloDroneMessageBroker.Close();
                     ResourceDirectoryManager.Close();
                 }
                 
@@ -93,7 +89,7 @@ namespace DtTelloDrone.RemoteControl.Control
                 if (selectedAction == TelloAction.Unknown) continue;
                 
                 command = new DroneCommand(selectedAction, _speed);
-                _telloCore.QueryCommand(command);
+                _telloDroneMessageBroker.QueryCommand(command);
             }
         }
     }    

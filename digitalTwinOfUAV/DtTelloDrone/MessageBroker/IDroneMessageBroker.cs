@@ -4,7 +4,7 @@ using DtTelloDrone.RyzeSDK.Models;
 
 namespace DtTelloDrone.RyzeSDK;
 
-public interface ICore
+public interface IDroneMessageBroker
 {
     /// <summary>
     /// Query a command to the drone.
@@ -18,7 +18,7 @@ public interface ICore
     /// <returns>The state of the drone</returns>
     public TelloStateParameter GetStateParameter();
 
-    public void Subscribe(ICoreSubscriber subscriber);
+    public void Subscribe(IMessageBrokerSubscriber subscriber);
 
     /// <summary>
     /// Close and dispose.

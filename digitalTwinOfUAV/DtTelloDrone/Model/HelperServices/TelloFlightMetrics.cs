@@ -22,7 +22,7 @@ public static class TelloFlightMetrics
 
     public const int SinkAccelerationThreshold = -1000; //-1100;
     public const int RiseAccelerationThreshold = -960;
-    
+
     //Velocity
     public const int RestVelocity = 0;
     public const int ForwardVelocity = 1;

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using DtTelloDrone.Model.Attributes;
 using DtTelloDrone.Model.Layer;
+using DtTelloDrone.Model.Operations.RecordAndRepeatNavigation;
 using DtTelloDrone.Model.PathPlanning;
 using DtTelloDrone.Model.Services;
 using DtTelloDrone.RyzeSDK;
@@ -15,18 +16,17 @@ using Mars.Interfaces.Annotations;
 using Mars.Interfaces.Environments;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
-using NLog;
 
 namespace DtTelloDrone.Model.Agent;
 
-public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, ICoreSubscriber
+public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMessageBrokerSubscriber
 {
     #region Properties and Fields
 
     private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger() ;
     private static readonly ResourceDirectoryManager ResourceManager = ResourceDirectoryManager.GetDirectoryManager();
     
-    private readonly ICore _core = TelloCore.GetInstance();
+    private readonly IDroneMessageBroker _droneMessageBroker = TelloMessageBroker.GetInstance();
     private readonly StateDeterminer _stateDeterminer = StateDeterminer.getStateDeterminerInstance();
     private Random _random = new();
 
@@ -34,13 +34,13 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, ICo
     private int _tickCount = 0;
 
     private CheckpointNavigation _checkpointNavigation = new();
-    private Queue<CoreMessage> _messages = new();
-    private CoreMessage _message = new();
+    private Queue<MessageBrokerMessage> _messages = new();
+    private MessageBrokerMessage _messageBrokerMessage = new();
     
     private Operation _operation = Operation.None;
-    private PlaybackNavigation _playbackNavigation;
+    private RecordAndRepeatNavigation _recordAndRepeatNavigation;
     
-    private PlaybackNavigationRecord _nextRecord;
+    private RecordAndRepeatNavigationRecord _record;
     private DateTime _lastExecActionTs = DateTime.Now;
     private long _waitTime;
     
@@ -55,6 +55,14 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, ICo
 
     #endregion
 
+    # region Paths
+    
+    // In eine externe Datei auslagern, beim Startup den Pfad reinläd.
+    private const string _keyboardRecordPath = "./home/leon/Documents/Studium/Bachelorarbeit/ba_dt_drone/digitalTwinOfUAV/DtTelloDrone/bin/Debug/net7.0/DtTelloDroneLogs/Log.2023-04-25/Session_20230425_1157/KeyboardControl.log";
+    private const string _demoRessourcesPath =  "/home/leon/Documents/Studium/Bachelorarbeit/ba_dt_drone/digitalTwinOfUAV/DtTelloDrone/OutputResources/TestingResources/PlaybackNavigationDemos/TakeoffFlyLand.csv";
+    
+    #endregion
+    
     #region Initialization Values
 
     [PropertyDescription (Name ="StartX")]
@@ -85,8 +93,8 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, ICo
         _layer = layer;
         Position = Position.CreatePosition(StartX, StartY);
         _layer._landScapeEnvironment.Insert(this, Position);
-        _playbackNavigation = new PlaybackNavigation();
-        _core.Subscribe(this);
+        _recordAndRepeatNavigation = new RecordAndRepeatNavigation(_demoRessourcesPath);
+        _droneMessageBroker.Subscribe(this);
         
         Logger.Trace(_layer);
         Logger.Info("Agent has been initialized");
@@ -100,15 +108,16 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, ICo
     {
         try
         {
-            if (_messages.TryDequeue(out _message))                 
-                ReadMessage(_message);
+            if (_messages.TryDequeue(out _messageBrokerMessage))                 
+                ReadMessage(_messageBrokerMessage);
             
             // Aktuellen Zustandsparameter auslesen.
-            var parameters = _core.GetStateParameter();
+            var parameters = _droneMessageBroker.GetStateParameter();
 
             if (parameters == null) 
                 return;
 
+            //Logger.Info("Battery: " + parameters.Battery);
             if (parameters.TimeStamp == _lastUpdateTs) 
                 return;
 
@@ -132,7 +141,7 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, ICo
         {
             Console.WriteLine(ex.ToString());
             DroneCommand command = new DroneCommand(TelloAction.Emergency, 0);
-            _core.QueryCommand(command);
+            _droneMessageBroker.QueryCommand(command);
         }
     }
     
@@ -140,9 +149,9 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, ICo
 
     #region Public Methods
 
-    public void PublishMessage(CoreMessage message)
+    public void PublishMessage(MessageBrokerMessage messageBrokerMessage)
     {
-        _messages.Enqueue(message);
+        _messages.Enqueue(messageBrokerMessage);
     }
 
     #endregion
@@ -183,6 +192,12 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, ICo
         double timeInterval = Math.Abs(parameters.TimeStamp.Millisecond - _prevParameters.TimeStamp.Millisecond);
         timeInterval /= 1000;
         
+        // Die Negation verbessert die Lesbarkeit der Positionsänderung (x_prev, y_prev) => (x_curr,y_curr).
+        // nach der Korrektur liest man:
+        //  x_prev < x_curr => right,
+        //  x_curr < x_prev => left
+        //  y_prev < y_curr => fordwar,
+        //  y_curr < y_prev => back
         double accelerationX = Math.Round(parameters.AccelerationX) * -1;       // cm/ms^2
         double accelerationY = Math.Round(parameters.AccelerationY) * -1;
         double velocityX = parameters.VelocityX;             // cm/ms
@@ -211,14 +226,15 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, ICo
 
         double flyDirection = DataMapper.CalculateFlyDirection(Bearing, motionBearingMars);
 
-        double travelingDistance = (DataMapper.CalculateMagnitude(vec1) + DataMapper.CalculateMagnitude(vec2)) / 10;
+        double travelingDistance = (DataMapper.CalculateMagnitude(vec1) + DataMapper.CalculateMagnitude(vec2)) / 30;
 
         Logger.Trace($"Bearing {Bearing}");
+        // in das untere if legen, wenn drived korrigiert wurde.
+        Logger.Trace($"FlyDirection {flyDirection}");
+        Logger.Trace($"TravelingDistance {travelingDistance}");
         
-        if (travelingDistance >= 0.1)
+        if (0.1 <= travelingDistance)
         {
-            Logger.Trace($"FlyDirection {flyDirection}");
-            Logger.Trace($"TravelingDistance {travelingDistance}");
             Position = _layer._landScapeEnvironment.Move(this, flyDirection, travelingDistance);
         }
 
@@ -228,34 +244,49 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, ICo
 
     private void ExecuteNextOperation()
     {
-        if (_operation == Operation.RecordedNavigation)
+        if (_operation == Operation.RecordAndRepeatNavigation)
         {
-            if (_nextRecord == null)
+            if (_record == null)
             {
-                _nextRecord = _playbackNavigation.GetNextRecord();
+                _record = _recordAndRepeatNavigation.GetNextRecord();
                 
-                if (_nextRecord == null)
+                if (_record == null)
                 {
                     _operation = Operation.None;
-                    Logger.Info("Playback Navigation beendet");
+                    Logger.Info($"Record and Repeat Navigation successfully completed at Position at X:{Position.X} Y:{Position.Y}");
                     return;
                 }
             }
             
-            TelloAction action = _nextRecord._action;
+            TelloAction action = _record.GetAction();
 
             var timePastSinceLastAction = DateTime.Now - _lastExecActionTs;
-            long waitTime = _playbackNavigation.GetWaitTime();
-            
-            Console.WriteLine(timePastSinceLastAction.TotalMilliseconds);
+            long waitTime = _recordAndRepeatNavigation.GetWaitTime();
+            Console.WriteLine($"WaitTime {waitTime} for action {action}");
+            Console.WriteLine("TimePast: " + timePastSinceLastAction.TotalMilliseconds);
             
             if (action != TelloAction.NoAction && waitTime < timePastSinceLastAction.TotalMilliseconds)
             {
-                DroneCommand command = new DroneCommand(action, Speed);
-                _core.QueryCommand(command);
+                bool isValid = true;
                 
-                _playbackNavigation.RecordExecuted();
-                _nextRecord = null;
+                DroneCommand command = new DroneCommand(action, Speed);
+                _droneMessageBroker.QueryCommand(command);
+                
+                if (action == TelloAction.Stop)
+                {
+                    isValid = _recordAndRepeatNavigation.ValidateCheckpoint(this.Position);
+                    if (!isValid)
+                    {
+                        command = new DroneCommand(TelloAction.Land, Speed);
+                        _droneMessageBroker.QueryCommand(command);
+                        _operation = Operation.None;
+                        Logger.Info($"{action} could not be executed and the operation has been aborted.");
+                        Logger.Info($"The drone is not located at the intended position X:{_record.GetPosition().X} Y:{_record.GetPosition().Y}, but outside the valid range of 10cm at X:{Position.X} Y:{Position.Y}.");
+                    }
+                }
+
+                _recordAndRepeatNavigation.RecordExecuted();
+                _record = null;
                 _lastExecActionTs = DateTime.Now;
             }
         }
@@ -266,7 +297,7 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, ICo
         return false;
     }
 
-    private void ReadMessage(CoreMessage msg)
+    private void ReadMessage(MessageBrokerMessage msg)
     {
         TelloAction action = msg.GetAction();
 
@@ -277,7 +308,8 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, ICo
             case TelloAction.DeleteCheckpoint: _checkpointNavigation.RemoveLastCheckpoint();
                 break;
             case TelloAction.StartRecordedNavigation:
-                _operation = Operation.RecordedNavigation; break;
+                Logger.Info("Record and Repeat Navigation started");
+                _operation = Operation.RecordAndRepeatNavigation; break;
             default: break;
         }
     }
