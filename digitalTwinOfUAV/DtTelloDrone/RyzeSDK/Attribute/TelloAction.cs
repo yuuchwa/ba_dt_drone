@@ -26,6 +26,8 @@ public enum TelloAction
     
     SetCheckpoint,
     DeleteCheckpoint,
-    StartRecordedNavigation,
-    StopRecordedNavigation
+    StartRecordRepeatNavigation,
+    StopRecordRepeatNavigation,
+    
+    StopRecordingKeyboardInput
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using DtTelloDrone.MessageBroker;
 using DtTelloDrone.Model.Attributes;
 using DtTelloDrone.Model.Layer;
 using DtTelloDrone.Model.Operations.RecordAndRepeatNavigation;
@@ -7,6 +8,7 @@ using DtTelloDrone.Model.PathPlanning;
 using DtTelloDrone.Model.Services;
 using DtTelloDrone.RyzeSDK;
 using DtTelloDrone.RyzeSDK.Attribute;
+using DtTelloDrone.RyzeSDK.CommunicationInferfaces;
 using DtTelloDrone.RyzeSDK.Core;
 using DtTelloDrone.RyzeSDK.Models;
 using DtTelloDrone.Shared;
@@ -34,13 +36,14 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
     private int _tickCount = 0;
 
     private CheckpointNavigation _checkpointNavigation = new();
-    private Queue<MessageBrokerMessage> _messages = new();
-    private MessageBrokerMessage _messageBrokerMessage = new();
+    private Queue<TelloMessage> _messages = new();
     
     private Operation _operation = Operation.None;
     private RecordAndRepeatNavigation _recordAndRepeatNavigation;
     
+    private readonly List<string> _newRecords = new();
     private RecordAndRepeatNavigationRecord _record;
+
     private DateTime _lastExecActionTs = DateTime.Now;
     private long _waitTime;
     
@@ -108,8 +111,8 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
     {
         try
         {
-            if (_messages.TryDequeue(out _messageBrokerMessage))                 
-                ReadMessage(_messageBrokerMessage);
+            if (_messages.TryDequeue(out TelloMessage message))                 
+                ReadMessage(message);
             
             // Aktuellen Zustandsparameter auslesen.
             var parameters = _droneMessageBroker.GetStateParameter();
@@ -140,7 +143,8 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
         catch (Exception ex)
         {
             Console.WriteLine(ex.ToString());
-            DroneCommand command = new DroneCommand(TelloAction.Emergency, 0);
+            TelloMessage command = 
+                new TelloMessage( TelloTopic.DroneControl, MessageSender.DigitalTwin,new Tuple<TelloAction, string>(TelloAction.Emergency, String.Empty));
             _droneMessageBroker.QueryCommand(command);
         }
     }
@@ -149,9 +153,9 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
 
     #region Public Methods
 
-    public void PublishMessage(MessageBrokerMessage messageBrokerMessage)
+    public void PublishMessage(TelloMessage message)
     {
-        _messages.Enqueue(messageBrokerMessage);
+        _messages.Enqueue(message);
     }
 
     #endregion
@@ -269,7 +273,7 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
             {
                 bool isValid = true;
                 
-                DroneCommand command = new DroneCommand(action, Speed);
+                TelloMessage command = new TelloMessage(TelloTopic.DroneControl, MessageSender.DigitalTwin, new(action, Speed.ToString()));
                 _droneMessageBroker.QueryCommand(command);
                 
                 if (action == TelloAction.Stop)
@@ -277,7 +281,7 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
                     isValid = _recordAndRepeatNavigation.ValidateCheckpoint(this.Position);
                     if (!isValid)
                     {
-                        command = new DroneCommand(TelloAction.Land, Speed);
+                        command = new TelloMessage(TelloTopic.DroneControl, MessageSender.DigitalTwin, new(TelloAction.Land, Speed.ToString()));
                         _droneMessageBroker.QueryCommand(command);
                         _operation = Operation.None;
                         Logger.Info($"{action} could not be executed and the operation has been aborted.");
@@ -297,20 +301,63 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
         return false;
     }
 
-    private void ReadMessage(MessageBrokerMessage msg)
+    private void ReadMessage(TelloMessage message)
     {
-        TelloAction action = msg.GetAction();
-
-        switch (action) 
+        // Eigene Nachichten nicht empfangen
+        if (message.GetSource() == MessageSender.Drone)
         {
-            case TelloAction.SetCheckpoint: _checkpointNavigation.AddCheckpoint(Position);
-                break;
-            case TelloAction.DeleteCheckpoint: _checkpointNavigation.RemoveLastCheckpoint();
-                break;
-            case TelloAction.StartRecordedNavigation:
-                Logger.Info("Record and Repeat Navigation started");
-                _operation = Operation.RecordAndRepeatNavigation; break;
-            default: break;
+            return;
+        }
+        
+        TelloTopic topic = message.GetTopic();
+
+        if (topic == TelloTopic.DroneControl)
+        {
+            _newRecords.Add(CreateRecord(message));
+        }
+        else if (topic == TelloTopic.Operation)
+        {
+            var action = message.GetCommand().Item1;
+            
+            switch (action) 
+            {
+                case TelloAction.SetCheckpoint: 
+                    _checkpointNavigation.AddCheckpoint(Position);
+                    break;
+                case TelloAction.DeleteCheckpoint: 
+                    _checkpointNavigation.RemoveLastCheckpoint();
+                    break;
+                case TelloAction.StartRecordRepeatNavigation:
+                    Logger.Info("Record-Repeat Navigation started");
+                    _operation = Operation.RecordAndRepeatNavigation; 
+                    break;
+                case TelloAction.StopRecordRepeatNavigation:
+                    Logger.Info("Record-Repeat Navigation stopped");
+                    break;
+                case TelloAction.StopRecordingKeyboardInput:
+                    FlushRecords();
+                    ResourceDirectoryManager.Close();
+                    break;
+                default: break;
+            }
+        }
+    }
+
+    private string CreateRecord(TelloMessage message)
+    {
+        return DateTime.Now.ToString("hhmmssfff") + ";" + 
+               message.GetCommand().Item1 + ";" + 
+               Math.Truncate(Position.X) + ";" + 
+               Math.Truncate(Position.Y) + ";" + 
+               _height + 
+               "\n";
+    }
+    
+    private void FlushRecords()
+    {
+        foreach (var record in _newRecords)
+        {
+            ResourceManager.AppendToKeyboardInputFile(record);
         }
     }
     

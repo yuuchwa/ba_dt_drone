@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using DtTelloDrone.MessageBroker;
 using DtTelloDrone.RyzeSDK;
 using DtTelloDrone.RyzeSDK.Core;
 

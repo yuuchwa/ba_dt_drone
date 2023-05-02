@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using DtTelloDrone.MessageBroker;
 using DtTelloDrone.Model.HelperServices;
 using DtTelloDrone.RyzeSDK;
 using DtTelloDrone.RyzeSDK.Attribute;
+using DtTelloDrone.RyzeSDK.CommunicationInferfaces;
 using DtTelloDrone.RyzeSDK.Core;
 using DtTelloDrone.Shared;
 using Mars.Components.Starter;
@@ -18,8 +20,6 @@ namespace DtTelloDrone.RemoteControl.Control
             ResourceDirectoryManager.GetDirectoryManager();
 
         private SimulationStarter _simulation;
-        
-        private readonly List<string> _records = new();
         
         /// <summary>
         /// Core Service
@@ -44,11 +44,6 @@ namespace DtTelloDrone.RemoteControl.Control
         {
             _cancellationToken.Cancel();
 
-            foreach (var record in _records)
-            {
-                _directoryManager.AppendToKeyboardInputFile(record);
-            }
-            
             Logger.Info("Keyboard Control terminated.");
         }
 
@@ -68,27 +63,35 @@ namespace DtTelloDrone.RemoteControl.Control
         private async void StartConsoleWorker()
         {
             Logger.Info("Keyboard Control started.");
-            DroneCommand command;
+            TelloMessage command;
             string record;
             while (true)
             {
                 var key = Console.ReadKey(true).Key.ToString();;
-                record = DateTime.Now.ToString("hhmmssfff") + ";" + key + "\n";
-                _records.Add(record);
 
+                /*
                 if (key == "Delete")
                 {
                     // Simulation unterbrechen.
                     Close();
                     _telloDroneMessageBroker.Close();
-                    ResourceDirectoryManager.Close();
                 }
+                */
                 
                 TelloAction selectedAction = KeyboardControlKeymapper.MapKeyToAction(key);
                 
                 if (selectedAction == TelloAction.Unknown) continue;
-                
-                command = new DroneCommand(selectedAction, _speed);
+
+                TelloTopic topic;
+                if (selectedAction == TelloAction.StartRecordRepeatNavigation || 
+                    selectedAction == TelloAction.StopRecordRepeatNavigation || 
+                    selectedAction == TelloAction.StopRecordingKeyboardInput)
+                    topic = TelloTopic.Operation;
+                else 
+                    topic = TelloTopic.DroneControl;
+
+                command = new TelloMessage(topic, MessageSender.KeyboardControl, new(selectedAction, _speed.ToString()));
+
                 _telloDroneMessageBroker.QueryCommand(command);
             }
         }

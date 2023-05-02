@@ -1,4 +1,6 @@
+using DtTelloDrone.MessageBroker;
 using DtTelloDrone.Model.Agent;
+using DtTelloDrone.RyzeSDK.CommunicationInferfaces;
 using DtTelloDrone.RyzeSDK.Core;
 using DtTelloDrone.RyzeSDK.Models;
 
@@ -10,7 +12,7 @@ public interface IDroneMessageBroker
     /// Query a command to the drone.
     /// </summary>
     /// <param name="command"></param>
-    public void QueryCommand(DroneCommand command);
+    public void QueryCommand(TelloMessage command);
     
     /// <summary>
     /// Get the state of the drone.

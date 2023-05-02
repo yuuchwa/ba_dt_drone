@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using DtTelloDrone.MessageBroker;
 using DtTelloDrone.Model.Agent;
 using DtTelloDrone.Model.Layer;
 using DtTelloDrone.RemoteControl.Control;
