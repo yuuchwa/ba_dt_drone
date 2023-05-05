@@ -156,7 +156,7 @@ public class StateDeterminer
             MinPitchDegree < _stateParameter.Pitch && _stateParameter.Pitch < PitchBalanced &&
             _stateParameter.AccelerationX <= ForwardAccelerationThreshold &&
             Math.Abs(_stateParameter.AccelerationY) < Math.Abs(_stateParameter.AccelerationX)  // Diagonal Bewegungen ignorieren.
-                ? DroneState.MovingForwards
+                ? DroneState.MovingForward
                 : DroneState.Unknown;
     }
     
@@ -172,7 +172,7 @@ public class StateDeterminer
             PitchBalanced < _stateParameter.Pitch && _stateParameter.Pitch <= MaxPitchDegree &&
             BackwardAccelerationThreshold <= _stateParameter.AccelerationX &&
             Math.Abs(_stateParameter.AccelerationY) < Math.Abs(_stateParameter.AccelerationX)
-            ? DroneState.MovingBackwards 
+            ? DroneState.MovingBackward 
             : DroneState.Unknown;
     }
     

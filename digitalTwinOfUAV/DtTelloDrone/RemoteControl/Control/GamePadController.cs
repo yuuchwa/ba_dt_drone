@@ -4,8 +4,10 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using DtTelloDrone.MessageBroker;
 using DtTelloDrone.RyzeSDK;
 using DtTelloDrone.RyzeSDK.Core;
+using DtTelloDrone.TelloSdk.CommunicationInferfaces;
 
 namespace TelloTestApp
 {
@@ -15,16 +17,16 @@ namespace TelloTestApp
         private static readonly int DeadZone = 10;
 
         // private readonly ILogger logger;
-        private readonly TelloCore _telloCore;
-        private readonly TelloClient client;
+        private readonly TelloMessageBroker _telloMessageBroker;
+        private readonly DroneClient client;
 
         private Joystick gamepad;
         private Task mainLoop;
         private CancellationTokenSource cts;
 
-        public GamePadController(TelloCore telloCore, TelloClient client, ILogger<GamePadController> logger)
+        public GamePadController(TelloMessageBroker telloMessageBroker, DroneClient client, ILogger<GamePadController> logger)
         {
-            this._telloCore = telloCore;
+            this._telloMessageBroker = telloMessageBroker;
             //  this.logger = logger;
             this.client = client;
 

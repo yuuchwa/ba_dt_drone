@@ -5,6 +5,6 @@ namespace DtTelloDrone.Model.Attributes;
 public enum Operation
 {
     None,
-    RecordedNavigation,
+    RecordAndRepeatNavigation,
     PointToPointNavigatio,
 }

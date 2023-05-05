@@ -1,0 +1,7 @@
+time;input;xPos;yPos;zPos
+055934898;TakeOff;50;50;0
+055942106;MoveForward;51;50;110
+055945109;Stop;53;58;100
+055948710;RotateCounterClockwise;54;63;100
+055953521;Stop;54;63;100
+055954922;Land;54;63;100
