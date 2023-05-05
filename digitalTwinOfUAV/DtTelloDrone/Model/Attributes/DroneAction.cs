@@ -1,9 +1,9 @@
-namespace DtTelloDrone.RyzeSDK.Attribute;
+namespace DtTelloDrone.Model.Attributes;
 
 /// <summary>
 /// The actions of the Tello drone.
 /// </summary>
-public enum TelloAction
+public enum DroneAction
 {
     NoAction,
     MoveForward,
@@ -17,7 +17,7 @@ public enum TelloAction
     Land,
     Rise,
     Sink,
-    Emergency,
+    EmergencyLanding,
     Battery,
     Speed,
     Time,
@@ -29,5 +29,5 @@ public enum TelloAction
     StartRecordRepeatNavigation,
     StopRecordRepeatNavigation,
     
-    StopRecordingKeyboardInput
+    StopRecordRepeatNavigationRecording
 }

@@ -79,7 +79,6 @@ namespace DtTelloDrone.RyzeSDK.CommunicationInferfaces
                     OnStateRaw?.Invoke(data);
                     var stateData = TelloStateParameter.FromString(data);
                     OnState?.Invoke(stateData);
-                    stateData.ConvertToCsv();
 
                     Logger.Trace(stateData.ConvertToCsv());
                 }

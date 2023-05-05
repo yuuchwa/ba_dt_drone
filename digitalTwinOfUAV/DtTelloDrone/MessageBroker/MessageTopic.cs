@@ -1,10 +1,8 @@
-using ServiceStack.Redis;
-
 namespace DtTelloDrone.MessageBroker;
 
-public enum TelloTopic
+public enum MessageTopic
 {
-    DroneControl,
+    DroneCommand,
     StatusResponse,
     Operation,
     Unknown

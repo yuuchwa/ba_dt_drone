@@ -7,10 +7,11 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DtTelloDrone.RyzeSDK.Attribute;
+using DtTelloDrone.RyzeSDK.Core;
 
-namespace DtTelloDrone.RyzeSDK.Core
+namespace DtTelloDrone.TelloSdk.CommunicationInferfaces
 {
-    public class TelloClient : ITelloClient
+    public class DroneClient : IDroneClient
     {
         private const string SuccessResponse = "ok";
         private const string FailedResponse = "failed";
@@ -30,7 +31,7 @@ namespace DtTelloDrone.RyzeSDK.Core
         /// <summary>
         /// Instantiate the Tello client.
         /// </summary>
-        public TelloClient()
+        public DroneClient()
         {
             _udpClient = new UdpClient();
             _udpClient.Client.ReceiveTimeout = TelloSettings.ResponseTimeOut;
@@ -63,7 +64,7 @@ namespace DtTelloDrone.RyzeSDK.Core
         /// </summary>
         /// <param name="telloClient">Upd server connected to tello</param>
         /// <returns></returns>
-        public Task<bool> InitTello()
+        public Task<bool> InitDrone()
         {
             return SendCommandWithResponse("command");
         }

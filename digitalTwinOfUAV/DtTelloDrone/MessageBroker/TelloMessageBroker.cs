@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using DtTelloDrone.Model.Attributes;
 using DtTelloDrone.RyzeSDK;
-using DtTelloDrone.RyzeSDK.Attribute;
 using DtTelloDrone.RyzeSDK.CommunicationInferfaces;
 using DtTelloDrone.RyzeSDK.Core;
 using DtTelloDrone.RyzeSDK.Models;
 using DtTelloDrone.RyzeSDK.Output;
+using DtTelloDrone.TelloSdk.CommunicationInferfaces;
 
 // using Microsoft.Extensions.Logging;
 
@@ -20,7 +21,7 @@ public class TelloMessageBroker : IDroneMessageBroker
     private static TelloMessageBroker _telloMessageBrokerInstance;
     private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
     
-    private readonly ITelloClient _telloClient;
+    private readonly IDroneClient _droneClient;
     private readonly TelloStateServer _stateServer;
 
     private readonly ConsoleCockpit _consoleOutput;
@@ -28,7 +29,7 @@ public class TelloMessageBroker : IDroneMessageBroker
     private bool _connectionStatus;
     private bool _stopThread;
 
-    private readonly Queue<TelloMessage> _commandQueue = null;
+    private readonly Queue<DroneMessage> _commandQueue = null;
     private readonly Thread _commandHandlerThread;
 
     private readonly List<IMessageBrokerSubscriber> _subscribers = new();
@@ -55,11 +56,11 @@ public class TelloMessageBroker : IDroneMessageBroker
     {
         _stopThread = false;
         
-        _commandQueue = new Queue<TelloMessage>();
+        _commandQueue = new Queue<DroneMessage>();
         _commandHandlerThread = new Thread(ProcessCommandTask);
         _commandHandlerThread.Start();
         
-        _telloClient = new TelloClient();
+        _droneClient = new DroneClient();
         _stateServer = new TelloStateServer();
         //_consoleOutput = new ConsoleCockpit(_stateServer);
         
@@ -83,11 +84,11 @@ public class TelloMessageBroker : IDroneMessageBroker
     /// </summary>
     private async void IntitializeConnectionToTello()
     {
-        _telloClient.Connect();
+        _droneClient.Connect();
         _stateServer.Listen();
     }
 
-    private void PublishMessage(TelloMessage message)
+    private void PublishMessage(DroneMessage message)
     {
         foreach (var subscriber in _subscribers)
         {
@@ -106,7 +107,7 @@ public class TelloMessageBroker : IDroneMessageBroker
 
         _commandQueue.Clear();
         _commandProcessorCancellationToken.Cancel();
-        _telloClient.Disconnect();
+        _droneClient.Disconnect();
         _stateServer.Close();
 
         //ffmpeg.Close();
@@ -121,7 +122,7 @@ public class TelloMessageBroker : IDroneMessageBroker
         return _telloStateParameter;
     }
     
-    public void QueryCommand(TelloMessage command)
+    public void QueryMessage(DroneMessage command)
     {
         _commandQueue.Enqueue(command);
     }
@@ -130,16 +131,16 @@ public class TelloMessageBroker : IDroneMessageBroker
     {
         while (!_stopThread)
         {
-            if (_commandQueue.TryDequeue(out TelloMessage message))
+            if (_commandQueue.TryDequeue(out DroneMessage message))
             {
-                TelloTopic topic = message.GetTopic();
+                MessageTopic topic = message.GetTopic();
                 switch (topic)
                 {
-                    case TelloTopic.DroneControl: 
+                    case MessageTopic.DroneCommand: 
                         PublishMessage(message);
                         ProcessDroneActionMessage(message.GetCommand()); 
                         break;
-                    case TelloTopic.Operation: 
+                    case MessageTopic.Operation: 
                         PublishMessage(message);
                         break;
                     default: break;
@@ -152,7 +153,7 @@ public class TelloMessageBroker : IDroneMessageBroker
         }
     }
 
-    private async void ProcessDroneActionMessage(Tuple<TelloAction, string> command)
+    private async void ProcessDroneActionMessage(Tuple<DroneAction, string> command)
     {
         if (command == null)
         {
@@ -160,7 +161,7 @@ public class TelloMessageBroker : IDroneMessageBroker
             return;
         }
         
-        TelloAction action = command.Item1 ;
+        DroneAction action = command.Item1 ;
         if(!int.TryParse(command.Item2, out int value))
             Logger.Error($"Command value {value} was not a number");
             
@@ -170,53 +171,53 @@ public class TelloMessageBroker : IDroneMessageBroker
             switch (action)
             {
                 // Antwort wird ignoriert.
-                case TelloAction.MoveForward:
-                    _telloClient.RemoteControl(0, value, 0, 0);
+                case DroneAction.MoveForward:
+                    _droneClient.RemoteControl(0, value, 0, 0);
                     break;
-                case TelloAction.MoveBackward:
-                    _telloClient.RemoteControl(0, (-1) * value, 0, 0);
+                case DroneAction.MoveBackward:
+                    _droneClient.RemoteControl(0, (-1) * value, 0, 0);
                     break;
-                case TelloAction.MoveLeft:
-                    _telloClient.RemoteControl((-1) * value, 0, 0, 0);
+                case DroneAction.MoveLeft:
+                    _droneClient.RemoteControl((-1) * value, 0, 0, 0);
                     break;
-                case TelloAction.MoveRight:
-                    _telloClient.RemoteControl(value, 0, 0, 0);
+                case DroneAction.MoveRight:
+                    _droneClient.RemoteControl(value, 0, 0, 0);
                     break;
-                case TelloAction.Rise:
-                    _telloClient.RemoteControl(0, 0, value, 0);
+                case DroneAction.Rise:
+                    _droneClient.RemoteControl(0, 0, value, 0);
                     break;
-                case TelloAction.Sink:
-                    _telloClient.RemoteControl(0, 0, (-1) * value, 0);
+                case DroneAction.Sink:
+                    _droneClient.RemoteControl(0, 0, (-1) * value, 0);
                     break;
-                case TelloAction.RotateCounterClockwise:
-                    _telloClient.RemoteControl(0, 0, 0, (-1) * value);
+                case DroneAction.RotateCounterClockwise:
+                    _droneClient.RemoteControl(0, 0, 0, (-1) * value);
                     break;
-                case TelloAction.RotateClockwise:
-                    _telloClient.RemoteControl(0, 0, 0, value);
+                case DroneAction.RotateClockwise:
+                    _droneClient.RemoteControl(0, 0, 0, value);
                     break;
-                case TelloAction.Stop:
-                    _telloClient.RemoteControl(0, 0, 0, 0);
+                case DroneAction.Stop:
+                    _droneClient.RemoteControl(0, 0, 0, 0);
                     break;
-                case TelloAction.TakeOff:
-                    await _telloClient.TakeOff();
+                case DroneAction.TakeOff:
+                    await _droneClient.TakeOff();
                     break;
-                case TelloAction.Land:
-                    await _telloClient.Land();
+                case DroneAction.Land:
+                    await _droneClient.Land();
                     break;
-                case TelloAction.Emergency:
-                    await _telloClient.Emergency();
+                case DroneAction.EmergencyLanding:
+                    await _droneClient.Emergency();
                     break;
-                case TelloAction.Speed:
-                    await _telloClient.GetSpeed();
+                case DroneAction.Speed:
+                    await _droneClient.GetSpeed();
                     break;
-                case TelloAction.Battery:
-                    await _telloClient.GetBattery();
+                case DroneAction.Battery:
+                    await _droneClient.GetBattery();
                     break;
-                case TelloAction.Time:
-                    await _telloClient.GetTime();
+                case DroneAction.Time:
+                    await _droneClient.GetTime();
                     break;
-                case TelloAction.Connect: 
-                    if (await _telloClient.InitTello())
+                case DroneAction.Connect: 
+                    if (await _droneClient.InitDrone())
                     {
                         _connectionStatus = true;
                         Logger.Info("Message Broker successfully connected to Tello");
@@ -227,7 +228,7 @@ public class TelloMessageBroker : IDroneMessageBroker
                     }
                     break;
                 default: 
-                    await _telloClient.Emergency(); 
+                    await _droneClient.Emergency(); 
                     break;
             }
         }
@@ -236,8 +237,6 @@ public class TelloMessageBroker : IDroneMessageBroker
             _connectionStatus = false;
             Logger.Error($"Tello throwed error on action {action}");
         }
-
-        // rufe extend action auf.
     }
 }
 

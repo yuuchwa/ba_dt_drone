@@ -9,10 +9,10 @@ namespace DtTelloDrone.RyzeSDK;
 public interface IDroneMessageBroker
 {
     /// <summary>
-    /// Query a command to the drone.
+    /// Query a message to the Message broker.
     /// </summary>
-    /// <param name="command"></param>
-    public void QueryCommand(TelloMessage command);
+    /// <param name="message">The Message</param>
+    public void QueryMessage(DroneMessage message);
     
     /// <summary>
     /// Get the state of the drone.

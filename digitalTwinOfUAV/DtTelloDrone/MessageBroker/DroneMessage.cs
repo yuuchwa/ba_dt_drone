@@ -1,24 +1,25 @@
 using System;
 using System.Collections.Generic;
 using DtTelloDrone.MessageBroker;
+using DtTelloDrone.Model.Attributes;
 using DtTelloDrone.RyzeSDK.Attribute;
 
 namespace DtTelloDrone.RyzeSDK.CommunicationInferfaces;
 
-public class TelloMessage
+public class DroneMessage
 {
-    private readonly TelloTopic _topic;
+    private readonly MessageTopic _topic;
     private readonly MessageSender _source;
-    private readonly Tuple<TelloAction, string> _command;
+    private readonly Tuple<DroneAction, string> _command;
 
-    public TelloMessage(TelloTopic topic, MessageSender source, Tuple<TelloAction, string> command)
+    public DroneMessage(MessageTopic topic, MessageSender source, Tuple<DroneAction, string> command)
     {
         _topic = topic;
         _source = source;
         _command = command;
     }
 
-    public TelloTopic GetTopic()
+    public MessageTopic GetTopic()
     {
         return _topic;
     }
@@ -28,7 +29,7 @@ public class TelloMessage
         return _source;
     }
 
-    public Tuple<TelloAction, string> GetCommand()
+    public Tuple<DroneAction, string> GetCommand()
     {
         return _command;
     }

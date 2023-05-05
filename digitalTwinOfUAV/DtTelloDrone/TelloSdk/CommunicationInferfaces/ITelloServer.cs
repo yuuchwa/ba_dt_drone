@@ -6,6 +6,5 @@ namespace DtTelloDrone.RyzeSDK.Core
     {
         void Listen();
         void Close();
-
     }
 }

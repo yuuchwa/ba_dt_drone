@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using DtTelloDrone.MessageBroker;
+using DtTelloDrone.Model.Attributes;
 using DtTelloDrone.Model.HelperServices;
 using DtTelloDrone.RyzeSDK;
 using DtTelloDrone.RyzeSDK.Attribute;
@@ -63,7 +64,7 @@ namespace DtTelloDrone.RemoteControl.Control
         private async void StartConsoleWorker()
         {
             Logger.Info("Keyboard Control started.");
-            TelloMessage command;
+            DroneMessage command;
             string record;
             while (true)
             {
@@ -78,21 +79,21 @@ namespace DtTelloDrone.RemoteControl.Control
                 }
                 */
                 
-                TelloAction selectedAction = KeyboardControlKeymapper.MapKeyToAction(key);
+                DroneAction selectedAction = KeyboardControlKeymapper.MapKeyToAction(key);
                 
-                if (selectedAction == TelloAction.Unknown) continue;
+                if (selectedAction == DroneAction.Unknown) continue;
 
-                TelloTopic topic;
-                if (selectedAction == TelloAction.StartRecordRepeatNavigation || 
-                    selectedAction == TelloAction.StopRecordRepeatNavigation || 
-                    selectedAction == TelloAction.StopRecordingKeyboardInput)
-                    topic = TelloTopic.Operation;
+                MessageTopic topic;
+                if (selectedAction == DroneAction.StartRecordRepeatNavigation || 
+                    selectedAction == DroneAction.StopRecordRepeatNavigation || 
+                    selectedAction == DroneAction.StopRecordRepeatNavigationRecording)
+                    topic = MessageTopic.Operation;
                 else 
-                    topic = TelloTopic.DroneControl;
+                    topic = MessageTopic.DroneCommand;
 
-                command = new TelloMessage(topic, MessageSender.KeyboardControl, new(selectedAction, _speed.ToString()));
+                command = new DroneMessage(topic, MessageSender.KeyboardControl, new(selectedAction, _speed.ToString()));
 
-                _telloDroneMessageBroker.QueryCommand(command);
+                _telloDroneMessageBroker.QueryMessage(command);
             }
         }
     }    

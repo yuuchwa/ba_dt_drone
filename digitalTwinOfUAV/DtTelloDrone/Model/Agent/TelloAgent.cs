@@ -36,7 +36,7 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
     private int _tickCount = 0;
 
     private CheckpointNavigation _checkpointNavigation = new();
-    private Queue<TelloMessage> _messages = new();
+    private Queue<DroneMessage> _messages = new();
     
     private Operation _operation = Operation.None;
     private RecordAndRepeatNavigation _recordAndRepeatNavigation;
@@ -62,7 +62,7 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
     
     // In eine externe Datei auslagern, beim Startup den Pfad reinläd.
     private const string _keyboardRecordPath = "./home/leon/Documents/Studium/Bachelorarbeit/ba_dt_drone/digitalTwinOfUAV/DtTelloDrone/bin/Debug/net7.0/DtTelloDroneLogs/Log.2023-04-25/Session_20230425_1157/KeyboardControl.log";
-    private const string _demoRessourcesPath =  "/home/leon/Documents/Studium/Bachelorarbeit/ba_dt_drone/digitalTwinOfUAV/DtTelloDrone/OutputResources/TestingResources/PlaybackNavigationDemos/TakeoffFlyLand.csv";
+    private const string _demoRessourcesPath =  "/home/leon/Documents/Studium/Bachelorarbeit/ba_dt_drone/digitalTwinOfUAV/DtTelloDrone/OutputResources/TestingResources/PlaybackNavigationDemos/demoFile.csv";
     
     #endregion
     
@@ -111,7 +111,7 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
     {
         try
         {
-            if (_messages.TryDequeue(out TelloMessage message))                 
+            if (_messages.TryDequeue(out DroneMessage message))                 
                 ReadMessage(message);
             
             // Aktuellen Zustandsparameter auslesen.
@@ -143,9 +143,9 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
         catch (Exception ex)
         {
             Console.WriteLine(ex.ToString());
-            TelloMessage command = 
-                new TelloMessage( TelloTopic.DroneControl, MessageSender.DigitalTwin,new Tuple<TelloAction, string>(TelloAction.Emergency, String.Empty));
-            _droneMessageBroker.QueryCommand(command);
+            DroneMessage command = 
+                new DroneMessage( MessageTopic.DroneCommand, MessageSender.DigitalTwin,new Tuple<DroneAction, string>(DroneAction.EmergencyLanding, String.Empty));
+            _droneMessageBroker.QueryMessage(command);
         }
     }
     
@@ -153,7 +153,7 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
 
     #region Public Methods
 
-    public void PublishMessage(TelloMessage message)
+    public void PublishMessage(DroneMessage message)
     {
         _messages.Enqueue(message);
     }
@@ -171,8 +171,8 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
 
         Bearing = DataMapper.MapToMarsBearing(parameters.Yaw);
 
-        if (state == DroneState.MovingForwards || 
-            state == DroneState.MovingBackwards ||
+        if (state == DroneState.MovingForward || 
+            state == DroneState.MovingBackward ||
             state == DroneState.MovingLeft || 
             state == DroneState.MovingRight ||
             state == DroneState.Unknown)
@@ -262,27 +262,27 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
                 }
             }
             
-            TelloAction action = _record.GetAction();
+            DroneAction action = _record.GetAction();
 
             var timePastSinceLastAction = DateTime.Now - _lastExecActionTs;
             long waitTime = _recordAndRepeatNavigation.GetWaitTime();
             Console.WriteLine($"WaitTime {waitTime} for action {action}");
             Console.WriteLine("TimePast: " + timePastSinceLastAction.TotalMilliseconds);
             
-            if (action != TelloAction.NoAction && waitTime < timePastSinceLastAction.TotalMilliseconds)
+            if (action != DroneAction.NoAction && waitTime < timePastSinceLastAction.TotalMilliseconds)
             {
                 bool isValid = true;
                 
-                TelloMessage command = new TelloMessage(TelloTopic.DroneControl, MessageSender.DigitalTwin, new(action, Speed.ToString()));
-                _droneMessageBroker.QueryCommand(command);
+                DroneMessage command = new DroneMessage(MessageTopic.DroneCommand, MessageSender.DigitalTwin, new(action, Speed.ToString()));
+                _droneMessageBroker.QueryMessage(command);
                 
-                if (action == TelloAction.Stop)
+                if (action == DroneAction.Stop)
                 {
                     isValid = _recordAndRepeatNavigation.ValidateCheckpoint(this.Position);
                     if (!isValid)
                     {
-                        command = new TelloMessage(TelloTopic.DroneControl, MessageSender.DigitalTwin, new(TelloAction.Land, Speed.ToString()));
-                        _droneMessageBroker.QueryCommand(command);
+                        command = new DroneMessage(MessageTopic.DroneCommand, MessageSender.DigitalTwin, new(DroneAction.Land, Speed.ToString()));
+                        _droneMessageBroker.QueryMessage(command);
                         _operation = Operation.None;
                         Logger.Info($"{action} could not be executed and the operation has been aborted.");
                         Logger.Info($"The drone is not located at the intended position X:{_record.GetPosition().X} Y:{_record.GetPosition().Y}, but outside the valid range of 10cm at X:{Position.X} Y:{Position.Y}.");
@@ -301,7 +301,7 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
         return false;
     }
 
-    private void ReadMessage(TelloMessage message)
+    private void ReadMessage(DroneMessage message)
     {
         // Eigene Nachichten nicht empfangen
         if (message.GetSource() == MessageSender.Drone)
@@ -309,32 +309,32 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
             return;
         }
         
-        TelloTopic topic = message.GetTopic();
+        MessageTopic topic = message.GetTopic();
 
-        if (topic == TelloTopic.DroneControl)
+        if (topic == MessageTopic.DroneCommand)
         {
             _newRecords.Add(CreateRecord(message));
         }
-        else if (topic == TelloTopic.Operation)
+        else if (topic == MessageTopic.Operation)
         {
             var action = message.GetCommand().Item1;
             
             switch (action) 
             {
-                case TelloAction.SetCheckpoint: 
+                case DroneAction.SetCheckpoint: 
                     _checkpointNavigation.AddCheckpoint(Position);
                     break;
-                case TelloAction.DeleteCheckpoint: 
+                case DroneAction.DeleteCheckpoint: 
                     _checkpointNavigation.RemoveLastCheckpoint();
                     break;
-                case TelloAction.StartRecordRepeatNavigation:
+                case DroneAction.StartRecordRepeatNavigation:
                     Logger.Info("Record-Repeat Navigation started");
                     _operation = Operation.RecordAndRepeatNavigation; 
                     break;
-                case TelloAction.StopRecordRepeatNavigation:
+                case DroneAction.StopRecordRepeatNavigation:
                     Logger.Info("Record-Repeat Navigation stopped");
                     break;
-                case TelloAction.StopRecordingKeyboardInput:
+                case DroneAction.StopRecordRepeatNavigationRecording:
                     FlushRecords();
                     ResourceDirectoryManager.Close();
                     break;
@@ -343,7 +343,7 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
         }
     }
 
-    private string CreateRecord(TelloMessage message)
+    private string CreateRecord(DroneMessage message)
     {
         return DateTime.Now.ToString("hhmmssfff") + ";" + 
                message.GetCommand().Item1 + ";" + 

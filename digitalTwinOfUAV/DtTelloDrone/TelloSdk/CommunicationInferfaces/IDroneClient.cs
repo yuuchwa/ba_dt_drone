@@ -2,19 +2,19 @@
 using System.Threading.Tasks;
 using DtTelloDrone.RyzeSDK.Attribute;
 
-namespace DtTelloDrone.RyzeSDK.Core
+namespace DtTelloDrone.TelloSdk.CommunicationInferfaces
 {
     /// <summary>
     /// Interface for tello command actions.
     /// </summary>
-    public interface ITelloClient : IDisposable
+    public interface IDroneClient : IDisposable
     {
         bool IsConnected();
 
         void Connect();
         void Disconnect();
 
-        public Task<bool> InitTello();
+        public Task<bool> InitDrone();
 
         public Task<bool> TakeOff();
 

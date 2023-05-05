@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using DtTelloDrone.Model.Attributes;
 using DtTelloDrone.RyzeSDK.Attribute;
 
 namespace DtTelloDrone.Model.HelperServices;
@@ -35,38 +36,38 @@ public static class KeyboardControlKeymapper
     /// </summary>
     /// <param name="key">The key.</param>
     /// <returns>The action.</returns>
-    public static TelloAction MapKeyToAction(string key)
+    public static DroneAction MapKeyToAction(string key)
     {
-        TelloAction action;
+        DroneAction action;
         
         switch (key)
         {
-            case ConnectKey: action = TelloAction.Connect; break;
+            case ConnectKey: action = DroneAction.Connect; break;
 
-            case MoveForwardKey: action = TelloAction.MoveForward; break;
-            case MoveBackwardKey: action = TelloAction.MoveBackward; break;
-            case MoveLeftKey: action = TelloAction.MoveLeft; break;
-            case MoveRightKey: action = TelloAction.MoveRight; break;
-            case RiseKey: action = TelloAction.Rise; break;
-            case SinkKey: action = TelloAction.Sink; break;
-            case RotateClockwiseKey: action = TelloAction.RotateClockwise; break;
-            case RotateCounterClockwiseKey: action = TelloAction.RotateCounterClockwise; break;
+            case MoveForwardKey: action = DroneAction.MoveForward; break;
+            case MoveBackwardKey: action = DroneAction.MoveBackward; break;
+            case MoveLeftKey: action = DroneAction.MoveLeft; break;
+            case MoveRightKey: action = DroneAction.MoveRight; break;
+            case RiseKey: action = DroneAction.Rise; break;
+            case SinkKey: action = DroneAction.Sink; break;
+            case RotateClockwiseKey: action = DroneAction.RotateClockwise; break;
+            case RotateCounterClockwiseKey: action = DroneAction.RotateCounterClockwise; break;
             case StopSpaceKey:
-            case StopKey: action = TelloAction.Stop; break;
+            case StopKey: action = DroneAction.Stop; break;
             
-            case TakeOffKey: action = TelloAction.TakeOff; break;
-            case LandKey: action = TelloAction.Land; break;
-            case EmergencyKey: action = TelloAction.Emergency; break;
+            case TakeOffKey: action = DroneAction.TakeOff; break;
+            case LandKey: action = DroneAction.Land; break;
+            case EmergencyKey: action = DroneAction.EmergencyLanding; break;
             
-            case BatteryKey: action = TelloAction.Battery; break;
+            case BatteryKey: action = DroneAction.Battery; break;
                 
             //case SetCheckpointKey: action = TelloAction.SetCheckpoint; break;
             //case RemoveLastCheckpointKey: action = TelloAction.DeleteCheckpoint; break;
-            case StartRecordedNavigationKey: action = TelloAction.StartRecordRepeatNavigation; break;
-            case StopRecordedNavigationKey: action = TelloAction.StopRecordRepeatNavigation; break; 
-            case StopRecordingKeyboardInputKey: action = TelloAction.StopRecordingKeyboardInput; break;
+            case StartRecordedNavigationKey: action = DroneAction.StartRecordRepeatNavigation; break;
+            case StopRecordedNavigationKey: action = DroneAction.StopRecordRepeatNavigation; break; 
+            case StopRecordingKeyboardInputKey: action = DroneAction.StopRecordRepeatNavigationRecording; break;
 
-            default: action = TelloAction.Unknown; break;
+            default: action = DroneAction.Unknown; break;
         } 
         return action;
     }

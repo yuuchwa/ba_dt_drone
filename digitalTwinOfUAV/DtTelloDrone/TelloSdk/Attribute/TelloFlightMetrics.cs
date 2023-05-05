@@ -7,6 +7,21 @@ public static class TelloFlightMetrics
 {
     public static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
     
+    #region Metrics 
+    public const float Length = 980;    // Millimeter
+    public const float Width = 925;     // Millimeter
+    public const float Height = 41;     // Millimeter
+
+    public const int Weight = 80; // Gramm
+
+    public const int MaxFlightDuration = 13; // Minutes
+    public const int MaxSpeed = 8000; // Millimeter / Seconds
+    public const int MaxAltitude = 30000; // Millimeter
+    public const int MaxrangeFromRemoteControl = 100000; // Millimeter
+    #endregion
+
+    #region Scopes
+
     // TODO: constanten umbenennen
     public const int MinInvalidTof = -1;
     public const int ValidNonMeasureableTof = 10; // Wert für jede ungültige Messung oder eine Flughöhe unter 30 cm werden.
@@ -72,6 +87,10 @@ public static class TelloFlightMetrics
 
     public const int BatteryLowThreshold = 15;
 
+    #endregion
+    
+    #region Public Methods
+    
     public static bool ValidateParameters(TelloStateParameter parameters)
     {
         return ValidateYaw(parameters.Yaw) &&
@@ -93,6 +112,10 @@ public static class TelloFlightMetrics
     {
         return battery < BatteryLowThreshold;
     }
+    
+    #endregion
+
+    #region Private Methods
     
     private static bool ValidateYaw(double yaw)
     {
@@ -182,4 +205,6 @@ public static class TelloFlightMetrics
     {
         return height <= MaxHeight;
     }
+    
+    #endregion
 }
