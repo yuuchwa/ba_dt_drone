@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Net;
@@ -11,7 +11,7 @@ using DtTelloDrone.RyzeSDK.Core;
 
 namespace DtTelloDrone.TelloSdk.CommunicationInferfaces
 {
-    public class DroneClient : IDroneClient
+    public class DroneClientFullActions : IDroneClient
     {
         private const string SuccessResponse = "ok";
         private const string FailedResponse = "failed";
@@ -19,21 +19,22 @@ namespace DtTelloDrone.TelloSdk.CommunicationInferfaces
         private readonly UdpClient _udpClient;
         private readonly IPAddress _ipAddress;
         private IPEndPoint _endPoint;
-
+        
         private readonly Thread _responseListener;
         private readonly ConcurrentQueue<string> _responses;
         private long _lastReceivedCommandTs;
 
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
-
-        private const int Idle = 0;
         
         public bool IsConnected() => _udpClient.Client.Connected;
+        
+        private const int Idle = 0;
+
 
         /// <summary>
         /// Instantiate the Tello client.
         /// </summary>
-        public DroneClient()
+        public DroneClientFullActions()
         {
             _udpClient = new UdpClient();
             _udpClient.Client.ReceiveTimeout = TelloSettings.ResponseTimeOut;
@@ -47,7 +48,7 @@ namespace DtTelloDrone.TelloSdk.CommunicationInferfaces
 
         public void Connect()
         {
-            Logger.Info("Message Broker successfully connected to Tello");
+            Debug.WriteLine("Socket connected.");
             _udpClient.Connect(new IPEndPoint(_ipAddress, TelloSettings.CommandUdpPort));
         }
 
@@ -61,76 +62,7 @@ namespace DtTelloDrone.TelloSdk.CommunicationInferfaces
 
         #region TelloControlExtensions
 
-        /// <summary>
-        /// Set tello to SDK mode.
-        /// </summary>
-        /// <param name="telloClient">Upd server connected to tello</param>
-        /// <returns></returns>
-        public Task<bool> InitDrone()
-        {
-            return SendCommandWithResponse("command");
-        }
         
-        /// <summary>
-        /// Command drone to Take off.
-        /// </summary>
-        /// <param name="telloClient">Upd server connected to tello</param>
-        /// <returns>The response</returns>
-        public Task<bool> TakeOff()
-        {
-            return SendCommandWithResponse("takeoff");
-        }
-        
-        /// <summary>
-        /// Command drone to land.
-        /// </summary>
-        /// <param name="telloClient">Upd server connected to tello</param>
-        /// <returns>The response</returns>
-        public Task<bool> Land()
-        {
-            return SendCommandWithResponse("land");
-        }
-
-        /// <summary>
-        /// Command drone to activate video stream.
-        /// </summary>
-        /// <param name="telloClient">Upd server connected to tello</param>
-        /// <returns></returns>
-        public Task<bool> StreamOn()
-        {
-            return SendCommandWithResponse("streamon");
-        }
-
-        /// <summary>
-        /// Command drone to deactivate video stream.
-        /// </summary>
-        /// <param name="telloClient">Upd server connected to tello</param>
-        /// <returns></returns>
-        public Task<bool> StreamOff()
-        {
-            return SendCommandWithResponse("streamoff");
-        }
-
-        /// <summary>
-        /// Command drone to land immediately.
-        /// </summary>
-        /// <param name="telloClient">Upd server connected to tello</param>
-        /// <returns></returns>
-        public Task<bool> Emergency()
-        {
-            return SendCommandWithResponse("emergency");
-        }
-
-        /// <summary>
-        /// Command drone to hover.
-        /// </summary>
-        /// <param name="telloClient">Upd server connected to tello</param>
-        /// <returns></returns>
-        public Task<bool> StopAction()
-        {
-            return SendCommandWithResponse("stop");
-        }
-
         /// <summary>
         /// Command drone to fly in a specific direciton.
         /// </summary>
@@ -201,7 +133,115 @@ namespace DtTelloDrone.TelloSdk.CommunicationInferfaces
             }
             SendCommandWithoutResponse(command);
         }
+        
+        /// <summary>
+        /// Set tello to SDK mode.
+        /// </summary>
+        /// <param name="telloClient">Upd server connected to tello</param>
+        /// <returns></returns>
+        public Task<bool> InitDrone()
+        {
+            return SendCommandWithResponse("command");
+        }
+        
+        /// <summary>
+        /// Command drone to Take off.
+        /// </summary>
+        /// <param name="telloClient">Upd server connected to tello</param>
+        /// <returns>The response</returns>
+        public Task<bool> TakeOff()
+        {
+            return SendCommandWithResponse("takeoff");
+        }
+        
+        /// <summary>
+        /// Command drone to land.
+        /// </summary>
+        /// <param name="telloClient">Upd server connected to tello</param>
+        /// <returns>The response</returns>
+        public Task<bool> Land()
+        {
+            return SendCommandWithResponse("land");
+        }
 
+        /// <summary>
+        /// Command drone to activate video stream.
+        /// </summary>
+        /// <param name="telloClient">Upd server connected to tello</param>
+        /// <returns></returns>
+        public Task<bool> StreamOn()
+        {
+            return SendCommandWithResponse("streamon");
+        }
+
+        /// <summary>
+        /// Command drone to deactivate video stream.
+        /// </summary>
+        /// <param name="telloClient">Upd server connected to tello</param>
+        /// <returns></returns>
+        public Task<bool> StreamOff()
+        {
+            return SendCommandWithResponse("streamoff");
+        }
+
+        /// <summary>
+        /// Command drone to land immediately.
+        /// </summary>
+        /// <param name="telloClient">Upd server connected to tello</param>
+        /// <returns></returns>
+        public Task<bool> Emergency()
+        {
+            return SendCommandWithResponse("emergency");
+        }
+
+        /// <summary>
+        /// Command drone to hover.
+        /// </summary>
+        /// <param name="telloClient">Upd server connected to tello</param>
+        /// <returns></returns>
+        public Task<bool> StopAction()
+        {
+            return SendCommandWithResponse("stop");
+        }
+        
+        /// <summary>
+        /// Command drone to fly in a specific direciton.
+        /// </summary>
+        /// <param name="telloClient">Upd server connected to tello.</param>
+        /// <param name="direction">the direction in which the drone should fly.</param>
+        /// <param name="distance">The distance in which the drone should fly in centimeter.</param>
+        /// <returns></returns>
+        public Task<bool> FlyDirection(MoveDirection direction, int cm)
+        {
+            CommandConstraints.CheckDistance(cm);
+            return SendCommandWithResponse($"{direction.ToString().ToLower()} {cm}");
+        }
+
+        /// <summary>
+        /// Command drone to rotate.
+        /// </summary>
+        /// <param name="telloClient">Upd server connected to tello</param>
+        /// <param name="clockwise">Where the drone should rotate clockwise.</param>
+        /// <param name="degree">The degree in which the drone should rotate.</param>
+        /// <returns></returns>
+        public Task<bool> RotateDirection(RotationDirection direction, int degree)
+        {
+            CommandConstraints.CheckDegree(degree);
+            return SendCommandWithResponse($"{(direction == RotationDirection.Clockwise ? "cw" : "ccw")} {degree}");
+        }
+
+        /// <summary>
+        /// Command drone to hover.
+        /// </summary>
+        /// <param name="telloClient">Upd server connected to tello</param>
+        /// <param name="direction">The direction in which the drone should do the flip.</param>
+        /// <returns></returns>
+        public Task<bool> Flip(FlipDirection direction)
+        {
+            return SendCommandWithResponse($"flip {direction.ToString().ToLower()[0]}");
+        }
+
+        // ToDo: FlyTo overload "mid"
         /// <summary>
         /// Command to fly to a specific position with a specific speed.
         /// </summary>
@@ -224,6 +264,7 @@ namespace DtTelloDrone.TelloSdk.CommunicationInferfaces
         /// <summary>
         /// Command the drone to fly at a curve according to the two given coordinate at speed (cm/s).
         /// </summary>
+        /// <param name="telloClient"></param>
         /// <param name="x1">x1 Coordinate</param>
         /// <param name="y1">y1 Coordinate</param>
         /// <param name="z1">z1 Coordinate</param>
@@ -241,7 +282,9 @@ namespace DtTelloDrone.TelloSdk.CommunicationInferfaces
             CommandConstraints.CheckDistance(y2);
             CommandConstraints.CheckDistance(z2);
             CommandConstraints.CheckSpeed(speed);
-            
+
+            // ToDo: x/y/z can’t be between -20 20 at the same time.
+
             return SendCommandWithResponse($"curve {x1} {y1} {z1} {x2} {y2} {z2} {speed}");
         }
 
@@ -260,7 +303,24 @@ namespace DtTelloDrone.TelloSdk.CommunicationInferfaces
             CommandConstraints.CheckSpeed(speed);
             return SendCommandWithResponse($"speed {speed}");
         }
-
+        
+        /// <summary>
+        /// Configurate the remote control.
+        /// </summary>
+        /// <param name="tello">The Udp client.</param>
+        /// <param name="leftright"></param>
+        /// <param name="forwardbackward"></param>
+        /// <param name="updown"></param>
+        /// <param name="yaw"></param>
+        /// <returns></returns>
+        public void RemoteControl(int leftright, int forwardbackward, int updown, int yaw)
+        {
+            CommandConstraints.CheckRC(leftright);
+            CommandConstraints.CheckRC(forwardbackward);
+            CommandConstraints.CheckRC(updown);
+            CommandConstraints.CheckRC(yaw);
+            SendCommandWithoutResponse($"rc {leftright} {forwardbackward} {updown} {yaw}");
+        }
 
         /// <summary>
         /// Set the Wifi name and Passwort.

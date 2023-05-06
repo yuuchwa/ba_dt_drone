@@ -2,7 +2,7 @@ using DtTelloDrone.MessageBroker;
 using DtTelloDrone.Model.Agent;
 using DtTelloDrone.RyzeSDK.CommunicationInferfaces;
 using DtTelloDrone.RyzeSDK.Core;
-using DtTelloDrone.RyzeSDK.Models;
+using DtTelloDrone.TelloSdk.DataModels;
 
 namespace DtTelloDrone.RyzeSDK;
 

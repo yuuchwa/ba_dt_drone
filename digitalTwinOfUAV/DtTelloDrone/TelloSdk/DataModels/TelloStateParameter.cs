@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using NetTopologySuite.Algorithm;
-using NUnit.Framework.Internal;
-using ServiceStack;
 
-namespace DtTelloDrone.RyzeSDK.Models
+namespace DtTelloDrone.TelloSdk.DataModels
 {
     public class TelloStateParameter
     {

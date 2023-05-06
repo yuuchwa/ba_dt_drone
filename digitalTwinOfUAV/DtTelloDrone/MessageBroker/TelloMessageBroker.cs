@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Threading;
 using DtTelloDrone.Model.Attributes;
 using DtTelloDrone.RyzeSDK;
+using DtTelloDrone.RyzeSDK.Attribute;
 using DtTelloDrone.RyzeSDK.CommunicationInferfaces;
 using DtTelloDrone.RyzeSDK.Core;
-using DtTelloDrone.RyzeSDK.Models;
 using DtTelloDrone.RyzeSDK.Output;
 using DtTelloDrone.TelloSdk.CommunicationInferfaces;
+using DtTelloDrone.TelloSdk.DataModels;
 
 // using Microsoft.Extensions.Logging;
 
@@ -22,7 +23,7 @@ public class TelloMessageBroker : IDroneMessageBroker
     private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
     
     private readonly IDroneClient _droneClient;
-    private readonly TelloStateServer _stateServer;
+    private readonly IDroneServer _stateServer;
 
     private readonly ConsoleCockpit _consoleOutput;
     
@@ -38,11 +39,6 @@ public class TelloMessageBroker : IDroneMessageBroker
     /// Token for terminating a thread.
     /// </summary>
     private CancellationTokenSource _commandProcessorCancellationToken;
-
-    /// <summary>
-    /// The state of the drone.
-    /// </summary>
-    private TelloStateParameter _telloStateParameter;
 
     public static TelloMessageBroker GetInstance()
     {
@@ -61,11 +57,8 @@ public class TelloMessageBroker : IDroneMessageBroker
         _commandHandlerThread.Start();
         
         _droneClient = new DroneClient();
-        _stateServer = new TelloStateServer();
+        _stateServer = new DroneStateServer();
         //_consoleOutput = new ConsoleCockpit(_stateServer);
-        
-        _stateServer.OnState += (s) => _telloStateParameter = s;
-        _stateServer.OnException += (ex) => Logger.Error("stateServer.OnException");
 
         IntitializeConnectionToTello();
         
@@ -119,7 +112,7 @@ public class TelloMessageBroker : IDroneMessageBroker
     /// <returns>Return the current state.</returns>
     public TelloStateParameter GetStateParameter()
     {
-        return _telloStateParameter;
+        return _stateServer.GetStateParameter();
     }
     
     public void QueryMessage(DroneMessage command)
@@ -167,36 +160,36 @@ public class TelloMessageBroker : IDroneMessageBroker
             
         try
         {
-            Logger.Info($"MessageBroker send action: {action}");
+            Logger.Info($"MessageBroker sends action: {action}");
             switch (action)
             {
                 // Antwort wird ignoriert.
                 case DroneAction.MoveForward:
-                    _droneClient.RemoteControl(0, value, 0, 0);
+                    _droneClient.Fly(MoveDirection.Forward, value);
                     break;
                 case DroneAction.MoveBackward:
-                    _droneClient.RemoteControl(0, (-1) * value, 0, 0);
+                    _droneClient.Fly(MoveDirection.Back, value);
                     break;
                 case DroneAction.MoveLeft:
-                    _droneClient.RemoteControl((-1) * value, 0, 0, 0);
+                    _droneClient.Fly(MoveDirection.Left, value);
                     break;
                 case DroneAction.MoveRight:
-                    _droneClient.RemoteControl(value, 0, 0, 0);
+                    _droneClient.Fly(MoveDirection.Right, value);
                     break;
                 case DroneAction.Rise:
-                    _droneClient.RemoteControl(0, 0, value, 0);
+                    _droneClient.Fly(MoveDirection.Rise, value);
                     break;
                 case DroneAction.Sink:
-                    _droneClient.RemoteControl(0, 0, (-1) * value, 0);
+                    _droneClient.Fly(MoveDirection.Sink, value);
                     break;
                 case DroneAction.RotateCounterClockwise:
-                    _droneClient.RemoteControl(0, 0, 0, (-1) * value);
+                    _droneClient.Rotate(RotationDirection.CounterClockwise, value);
                     break;
                 case DroneAction.RotateClockwise:
-                    _droneClient.RemoteControl(0, 0, 0, value);
+                    _droneClient.Rotate(RotationDirection.Clockwise, value);
                     break;
                 case DroneAction.Stop:
-                    _droneClient.RemoteControl(0, 0, 0, 0);
+                    _droneClient.Fly(MoveDirection.Stop, 0);
                     break;
                 case DroneAction.TakeOff:
                     await _droneClient.TakeOff();

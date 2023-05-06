@@ -10,8 +10,8 @@ using DtTelloDrone.RyzeSDK;
 using DtTelloDrone.RyzeSDK.Attribute;
 using DtTelloDrone.RyzeSDK.CommunicationInferfaces;
 using DtTelloDrone.RyzeSDK.Core;
-using DtTelloDrone.RyzeSDK.Models;
 using DtTelloDrone.Shared;
+using DtTelloDrone.TelloSdk.DataModels;
 using Mars.Components.Environments.Cartesian;
 using Mars.Interfaces.Agents;
 using Mars.Interfaces.Annotations;
@@ -116,6 +116,7 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
             
             // Aktuellen Zustandsparameter auslesen.
             var parameters = _droneMessageBroker.GetStateParameter();
+            Console.WriteLine(parameters.Yaw);
 
             if (parameters == null) 
                 return;

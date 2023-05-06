@@ -5,16 +5,14 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DtTelloDrone.RyzeSDK.Core;
-using DtTelloDrone.RyzeSDK.Models;
-using Mars.Components.Services.Planning;
-using ServiceStack;
+using DtTelloDrone.TelloSdk.DataModels;
 
-namespace DtTelloDrone.RyzeSDK.CommunicationInferfaces
+namespace DtTelloDrone.TelloSdk.CommunicationInferfaces
 {
     /// <summary>
     /// The class for receiving the state information of the tello drone.
     /// </summary>
-    public class TelloStateServer : ITelloServer
+    public class DroneStateServer : IDroneServer
     {
     	/// <summary>
         /// The UPD client
@@ -36,12 +34,15 @@ namespace DtTelloDrone.RyzeSDK.CommunicationInferfaces
         public event Action<Exception> OnException;
         public event Action<string> OnStateRaw;
         public event Action<TelloStateParameter> OnState;
+
+        private string _rawdata;
+        private TelloStateParameter _stateData;
         
         /// <summary>
         /// Instantiates the TelloStateServer.
         /// </summary>
         /// <param name="connectionSettings">The settings for Tello.</param>
-        public TelloStateServer()
+        public DroneStateServer()
         {
             udpServer = new UdpClient(new IPEndPoint(IPAddress.Any, TelloSettings.StateUdpPort));
             udpServer.Client.ReceiveTimeout = 3000;
@@ -64,6 +65,16 @@ namespace DtTelloDrone.RyzeSDK.CommunicationInferfaces
             _mainLoop = Task.Run(ListenTask, _cancellationToken.Token);
         }
 
+        public string GetRawState()
+        {
+            return _rawdata;
+        }
+
+        public TelloStateParameter GetStateParameter()
+        {
+            return _stateData;
+        }
+
         /// <summary>
         /// Listing on upd socket.
         /// </summary>
@@ -76,15 +87,14 @@ namespace DtTelloDrone.RyzeSDK.CommunicationInferfaces
                 {
                     var result = await udpServer.ReceiveAsync();
                     var data = Encoding.ASCII.GetString(result.Buffer).Replace('\n', ' ');
-                    OnStateRaw?.Invoke(data);
-                    var stateData = TelloStateParameter.FromString(data);
-                    OnState?.Invoke(stateData);
+                    _rawdata = data;
+                    _stateData = TelloStateParameter.FromString(data);
 
-                    Logger.Trace(stateData.ConvertToCsv());
+                    Logger.Trace(_stateData.ConvertToCsv());
                 }
                 catch (Exception ex)
                 {
-                    OnException?.Invoke(ex);
+                    Logger.Error(ex);
                 }
             }
         }

@@ -5,8 +5,9 @@
     /// </summary>
     public enum MoveDirection
     {
-        Up, 
-        Down, 
+        Stop,
+        Rise, 
+        Sink, 
         Left, 
         Right, 
         Forward, 

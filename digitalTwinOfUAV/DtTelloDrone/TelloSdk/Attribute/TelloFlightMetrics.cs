@@ -1,4 +1,4 @@
-using DtTelloDrone.RyzeSDK.Models;
+using DtTelloDrone.TelloSdk.DataModels;
 using NetTopologySuite.Operation.Valid;
 
 namespace DtTelloDrone.Model.Services;

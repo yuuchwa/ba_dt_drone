@@ -1,5 +1,5 @@
 using System.Threading;
-using DtTelloDrone.RyzeSDK.Models;
+using DtTelloDrone.TelloSdk.DataModels;
 using NUnit.Framework;
 
 namespace DtTelloDrone.Tests;

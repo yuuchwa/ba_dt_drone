@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using DtTelloDrone.Model.Attributes;
-using DtTelloDrone.RyzeSDK.Models;
+using DtTelloDrone.TelloSdk.DataModels;
 using static DtTelloDrone.Model.Services.TelloFlightMetrics;
 
 namespace DtTelloDrone.Model.Services;

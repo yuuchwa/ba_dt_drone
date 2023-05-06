@@ -1,14 +1,15 @@
 using System.Drawing;
 using DtTelloDrone.RyzeSDK.CommunicationInferfaces;
 using DtTelloDrone.RyzeSDK.Core;
-using DtTelloDrone.RyzeSDK.Models;
+using DtTelloDrone.TelloSdk.CommunicationInferfaces;
+using DtTelloDrone.TelloSdk.DataModels;
 using Console = Colorful.Console;
 
 namespace DtTelloDrone.RyzeSDK.Output;
 
 public class ConsoleCockpit
 {
-    public ConsoleCockpit(TelloStateServer stateServer)
+    public ConsoleCockpit(DroneStateServer stateServer)
     {
         RenderConsole(new TelloStateParameter());
         stateServer.OnState += (s) => RenderConsole(s, false);

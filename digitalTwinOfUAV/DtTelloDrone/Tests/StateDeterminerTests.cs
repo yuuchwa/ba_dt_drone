@@ -1,6 +1,6 @@
 using DtTelloDrone.Model.Attributes;
 using DtTelloDrone.Model.Services;
-using DtTelloDrone.RyzeSDK.Models;
+using DtTelloDrone.TelloSdk.DataModels;
 using NUnit.Framework;
 
 namespace DtTelloDrone.Tests;
