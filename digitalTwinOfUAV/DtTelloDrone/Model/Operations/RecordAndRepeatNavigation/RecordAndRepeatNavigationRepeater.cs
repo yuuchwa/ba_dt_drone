@@ -1,18 +1,16 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using DtTelloDrone.Model.Attributes;
-using DtTelloDrone.Model.HelperServices;
-using DtTelloDrone.Model.PathPlanning;
-using DtTelloDrone.RyzeSDK.Attribute;
 using Mars.Interfaces.Environments;
-using ServiceStack;
 
 namespace DtTelloDrone.Model.Operations.RecordAndRepeatNavigation;
 
-public class RecordAndRepeatNavigation
+/// <summary>
+/// This class enables the drone to record and repeat navigation paths.
+/// </summary>
+public class RecordAndRepeatNavigationRepeater
 {
     private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger() ;
 
@@ -21,10 +19,15 @@ public class RecordAndRepeatNavigation
     private int _returnedRecordcounter;
     private const int DeviationTolerance = 10;
 
-    public RecordAndRepeatNavigation(string path)
+    public RecordAndRepeatNavigationRepeater(string path)
     {
         _path = path;
         ReadRecordedKeyinputs();
+    }
+
+    public List<RecordAndRepeatNavigationRecord?> GetAllRecords()
+    {
+        return _records;
     }
 
     public RecordAndRepeatNavigationRecord? GetNextRecord()

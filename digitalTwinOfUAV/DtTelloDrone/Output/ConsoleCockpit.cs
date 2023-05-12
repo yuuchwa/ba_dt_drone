@@ -1,12 +1,13 @@
 using System.Drawing;
-using DtTelloDrone.RyzeSDK.CommunicationInferfaces;
-using DtTelloDrone.RyzeSDK.Core;
 using DtTelloDrone.TelloSdk.CommunicationInferfaces;
 using DtTelloDrone.TelloSdk.DataModels;
 using Console = Colorful.Console;
 
-namespace DtTelloDrone.RyzeSDK.Output;
+namespace DtTelloDrone.Output;
 
+/// <summary>
+/// This class visulize the drone information on a console.
+/// </summary>
 public class ConsoleCockpit
 {
     public ConsoleCockpit(DroneStateServer stateServer)

@@ -7,7 +7,6 @@ using DtTelloDrone.Model.Attributes;
 using DtTelloDrone.Model.HelperServices;
 using DtTelloDrone.RyzeSDK;
 using DtTelloDrone.RyzeSDK.Attribute;
-using DtTelloDrone.RyzeSDK.CommunicationInferfaces;
 using DtTelloDrone.RyzeSDK.Core;
 using DtTelloDrone.Shared;
 using Mars.Components.Starter;
@@ -17,8 +16,8 @@ namespace DtTelloDrone.RemoteControl.Control
     public class KeyboardControl
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
-        private static readonly ResourceDirectoryManager _directoryManager =
-            ResourceDirectoryManager.GetDirectoryManager();
+        private static readonly RecordRepeatNavigationRecorder _directoryManager =
+            RecordRepeatNavigationRecorder.GetDirectoryManager();
 
         private SimulationStarter _simulation;
         
@@ -53,6 +52,9 @@ namespace DtTelloDrone.RemoteControl.Control
             _simulation = simulation;
         }
 
+        /// <summary>
+        /// Starts the thread for the keyboard control
+        /// </summary>
         public void StartKeyboardControl()
         {
             _cancellationToken = new CancellationTokenSource();
@@ -61,7 +63,10 @@ namespace DtTelloDrone.RemoteControl.Control
             _mainloop = Task.Run(StartConsoleWorker, _cancellationToken.Token);
         }
 
-        private async void StartConsoleWorker()
+        /// <summary>
+        /// Starts a worker thread to listen for keyboard inputs and map them to drone actions.
+        /// </summary>
+        private void StartConsoleWorker()
         {
             Logger.Info("Keyboard Control started.");
             DroneMessage command;
@@ -70,15 +75,6 @@ namespace DtTelloDrone.RemoteControl.Control
             {
                 var key = Console.ReadKey(true).Key.ToString();;
 
-                /*
-                if (key == "Delete")
-                {
-                    // Simulation unterbrechen.
-                    Close();
-                    _telloDroneMessageBroker.Close();
-                }
-                */
-                
                 DroneAction selectedAction = KeyboardControlKeymapper.MapKeyToAction(key);
                 
                 if (selectedAction == DroneAction.Unknown) continue;
@@ -91,7 +87,7 @@ namespace DtTelloDrone.RemoteControl.Control
                 else 
                     topic = MessageTopic.DroneCommand;
 
-                command = new DroneMessage(topic, MessageSender.KeyboardControl, new(selectedAction, _speed.ToString()));
+                command = new DroneMessage(topic, MessageSender.RemoteControl, new(selectedAction, _speed.ToString()));
 
                 _telloDroneMessageBroker.QueryMessage(command);
             }

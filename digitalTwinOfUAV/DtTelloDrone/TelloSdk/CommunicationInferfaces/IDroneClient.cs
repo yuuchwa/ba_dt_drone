@@ -13,12 +13,17 @@ namespace DtTelloDrone.TelloSdk.CommunicationInferfaces
 
         void Connect();
         void Disconnect();
+
+        public bool DroneIsActive();
+        public bool CommandModeEnabled();
         
         public void Fly(MoveDirection direction, int speed);
 
         public void Rotate(RotationDirection direction, int speed);
+        
+        public Task<bool>  DisableCommandMode();
 
-        public Task<bool> InitDrone();
+        public Task<bool>  EnableCommandMode();
 
         public Task<bool> TakeOff();
 
@@ -35,11 +40,5 @@ namespace DtTelloDrone.TelloSdk.CommunicationInferfaces
         public Task<string> GetBattery();
 
         public Task<string> GetTime();
-
-        public Task<string> GetWifi();
-
-        public Task<string> GetSDK();
-
-        public Task<string> GetSerialNumber();
     }
 }

@@ -1,8 +1,10 @@
 using DtTelloDrone.TelloSdk.DataModels;
-using NetTopologySuite.Operation.Valid;
 
-namespace DtTelloDrone.Model.Services;
+namespace DtTelloDrone.TelloSdk.Attribute;
 
+/// <summary>
+/// This static class contains constants and methods for validation the drone flight paramters.
+/// </summary>
 public static class TelloFlightMetrics
 {
     public static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();

@@ -1,5 +1,5 @@
 using System;
-using DtTelloDrone.Model.Services;
+using DtTelloDrone.Model.HelperServices;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
 
@@ -43,7 +43,7 @@ public class TelloAgentTest
         double expectedMotionBearing = 0;
         Assert.AreEqual(expectedMotionBearing, motionBearing);
 
-        double motionBearingMars = DataMapper.MapNormalCoordinateToMars(motionBearing);
+        double motionBearingMars = DataMapper.MapCoordinateToMarsCoordinate(motionBearing);
         double flyDirection = DataMapper.CalculateFlyDirection(Bearing, motionBearingMars);
 
         double expectedflyDirection = 0;
@@ -82,7 +82,7 @@ public class TelloAgentTest
         double expectedMotionBearing = 180;
         Assert.AreEqual(expectedMotionBearing, motionBearing);
 
-        double motionBearingMars = DataMapper.MapNormalCoordinateToMars(motionBearing);
+        double motionBearingMars = DataMapper.MapCoordinateToMarsCoordinate(motionBearing);
         double flyDirection = DataMapper.CalculateFlyDirection(Bearing, motionBearingMars);
 
         double expectedflyDirection = 180;
@@ -121,7 +121,7 @@ public class TelloAgentTest
         double expectedMotionBearing = 90;
         Assert.AreEqual(expectedMotionBearing, motionBearing);
 
-        double MotionBearingMars = DataMapper.MapNormalCoordinateToMars(motionBearing);
+        double MotionBearingMars = DataMapper.MapCoordinateToMarsCoordinate(motionBearing);
         double flyDirection = DataMapper.CalculateFlyDirection(Bearing, MotionBearingMars);
 
         double expectedflyDirection = 270;
@@ -160,7 +160,7 @@ public class TelloAgentTest
         double expectedMotionBearing = 270;
         Assert.AreEqual(expectedMotionBearing, motionBearing);
 
-        double motionBearingMars = DataMapper.MapNormalCoordinateToMars(motionBearing);
+        double motionBearingMars = DataMapper.MapCoordinateToMarsCoordinate(motionBearing);
         double flyDirection = DataMapper.CalculateFlyDirection(Bearing, motionBearingMars);
 
         double expectedflyDirection = 90;
@@ -199,7 +199,7 @@ public class TelloAgentTest
         double expectedMotionBearing = 45;
         Assert.AreEqual(expectedMotionBearing, motionBearing, 0.1);
 
-        double motionBearingMars = DataMapper.MapNormalCoordinateToMars(motionBearing);
+        double motionBearingMars = DataMapper.MapCoordinateToMarsCoordinate(motionBearing);
         double flyDirection = DataMapper.CalculateFlyDirection(Bearing, motionBearingMars);
 
         double expectedflyDirection = 315;
@@ -238,7 +238,7 @@ public class TelloAgentTest
         double expectedMotionBearing = 225;
         Assert.AreEqual(expectedMotionBearing, motionBearing, 0.1);
 
-        double motionBearingMars = DataMapper.MapNormalCoordinateToMars(motionBearing);
+        double motionBearingMars = DataMapper.MapCoordinateToMarsCoordinate(motionBearing);
         double flyDirection = DataMapper.CalculateFlyDirection(Bearing, motionBearingMars);
 
         double expectedflyDirection = 135;
@@ -277,7 +277,7 @@ public class TelloAgentTest
         double expectedMotionBearing = 45;
         Assert.AreEqual(expectedMotionBearing, motionBearing, 0.1);
 
-        double motionBearingMars = DataMapper.MapNormalCoordinateToMars(motionBearing);
+        double motionBearingMars = DataMapper.MapCoordinateToMarsCoordinate(motionBearing);
         double flyDirection = DataMapper.CalculateFlyDirection(Bearing, motionBearingMars);
 
         double expectedflyDirection = 315;
@@ -316,7 +316,7 @@ public class TelloAgentTest
         double expectedMotionBearing = 225;
         Assert.AreEqual(expectedMotionBearing, motionBearing, 0.1);
 
-        double motionBearingMars = DataMapper.MapNormalCoordinateToMars(motionBearing);
+        double motionBearingMars = DataMapper.MapCoordinateToMarsCoordinate(motionBearing);
         double flyDirection = DataMapper.CalculateFlyDirection(Bearing, motionBearingMars);
 
         double expectedflyDirection = 135;
@@ -355,7 +355,7 @@ public class TelloAgentTest
         double expectedMotionBearing = 0;
         Assert.AreEqual(expectedMotionBearing, motionBearing);
 
-        double motionBearingMars = DataMapper.MapNormalCoordinateToMars(motionBearing);
+        double motionBearingMars = DataMapper.MapCoordinateToMarsCoordinate(motionBearing);
         double flyDirection = DataMapper.CalculateFlyDirection(Bearing, motionBearingMars);
 
         double expectedflyDirection = 55;
@@ -394,7 +394,7 @@ public class TelloAgentTest
         double expectedMotionBearing = 0;
         Assert.AreEqual(expectedMotionBearing, motionBearing);
 
-        double motionBearingMars = DataMapper.MapNormalCoordinateToMars(motionBearing);
+        double motionBearingMars = DataMapper.MapCoordinateToMarsCoordinate(motionBearing);
         double flyDirection = DataMapper.CalculateFlyDirection(Bearing, motionBearingMars);
 
         double expectedflyDirection = 0;
@@ -433,7 +433,7 @@ public class TelloAgentTest
         double expectedMotionBearing = 51.334;
         Assert.AreEqual(expectedMotionBearing, motionBearing, 0.1);
 
-        double motionBearingMars = DataMapper.MapNormalCoordinateToMars(motionBearing);
+        double motionBearingMars = DataMapper.MapCoordinateToMarsCoordinate(motionBearing);
         double flyDirection = DataMapper.CalculateFlyDirection(Bearing, motionBearingMars);
 
         double expectedflyDirection = 308.664;
@@ -472,7 +472,7 @@ public class TelloAgentTest
         double expectedMotionBearing = 230.191;
         Assert.AreEqual(expectedMotionBearing, motionBearing, 0.1);
 
-        double motionBearingMars = DataMapper.MapNormalCoordinateToMars(motionBearing);
+        double motionBearingMars = DataMapper.MapCoordinateToMarsCoordinate(motionBearing);
         double flyDirection = DataMapper.CalculateFlyDirection(Bearing, motionBearingMars);
 
         double expectedflyDirection = 129.808;
@@ -511,7 +511,7 @@ public class TelloAgentTest
         double expectedMotionBearing = 230.191;
         Assert.AreEqual(expectedMotionBearing, motionBearing, 0.1);
 
-        double motionBearingMars = DataMapper.MapNormalCoordinateToMars(motionBearing);
+        double motionBearingMars = DataMapper.MapCoordinateToMarsCoordinate(motionBearing);
         double flyDirection = DataMapper.CalculateFlyDirection(Bearing, motionBearingMars);
 
         double expectedflyDirection = 195.808;
@@ -541,7 +541,7 @@ public class TelloAgentTest
 
         double motionBearing = DataMapper.CalculateAngleOfTwoVectors(vec1, vec2);
         
-        double motionBearingMars = DataMapper.MapNormalCoordinateToMars(motionBearing);
+        double motionBearingMars = DataMapper.MapCoordinateToMarsCoordinate(motionBearing);
         double flyDirection = DataMapper.CalculateFlyDirection(Bearing, motionBearingMars);
         
         double travelingDistance = DataMapper.CalculateMagnitude(vec1) + DataMapper.CalculateMagnitude(vec2);

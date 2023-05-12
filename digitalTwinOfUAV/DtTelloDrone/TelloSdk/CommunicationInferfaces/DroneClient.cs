@@ -58,23 +58,56 @@ namespace DtTelloDrone.TelloSdk.CommunicationInferfaces
         }
 
         public void Dispose() => _udpClient.Dispose();
+        
+        public bool CommandModeEnabled()
+        {
+            try
+            {
+                Fly(MoveDirection.Stop, 0);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        public bool DroneIsActive()
+        {
+            try
+            {
+                GetBattery();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
 
         #region TelloControlExtensions
 
         /// <summary>
-        /// Set tello to SDK mode.
+        /// Enable Tello to receive messages.
         /// </summary>
-        /// <param name="telloClient">Upd server connected to tello</param>
-        /// <returns></returns>
-        public Task<bool> InitDrone()
+        /// <returns>The response.</returns>
+        public Task<bool> EnableCommandMode()
         {
             return SendCommandWithResponse("command");
         }
-        
+
+        /// <summary>
+        /// Disable Tello to receive messages.
+        /// </summary>
+        /// <returns>The response</returns>
+        public Task<bool> DisableCommandMode()
+        {
+            return SendCommandWithResponse("command");
+        }
+
         /// <summary>
         /// Command drone to Take off.
         /// </summary>
-        /// <param name="telloClient">Upd server connected to tello</param>
         /// <returns>The response</returns>
         public Task<bool> TakeOff()
         {
@@ -84,7 +117,6 @@ namespace DtTelloDrone.TelloSdk.CommunicationInferfaces
         /// <summary>
         /// Command drone to land.
         /// </summary>
-        /// <param name="telloClient">Upd server connected to tello</param>
         /// <returns>The response</returns>
         public Task<bool> Land()
         {
@@ -94,7 +126,6 @@ namespace DtTelloDrone.TelloSdk.CommunicationInferfaces
         /// <summary>
         /// Command drone to activate video stream.
         /// </summary>
-        /// <param name="telloClient">Upd server connected to tello</param>
         /// <returns></returns>
         public Task<bool> StreamOn()
         {
@@ -122,19 +153,8 @@ namespace DtTelloDrone.TelloSdk.CommunicationInferfaces
         }
 
         /// <summary>
-        /// Command drone to hover.
-        /// </summary>
-        /// <param name="telloClient">Upd server connected to tello</param>
-        /// <returns></returns>
-        public Task<bool> StopAction()
-        {
-            return SendCommandWithResponse("stop");
-        }
-
-        /// <summary>
         /// Command drone to fly in a specific direciton.
         /// </summary>
-        /// <param name="telloClient">Upd server connected to tello.</param>
         /// <param name="direction">the direction in which the drone should fly.</param>
         /// <param name="speed">The speed in which the drone should fly.s</param>
         /// <returns></returns>
@@ -205,7 +225,6 @@ namespace DtTelloDrone.TelloSdk.CommunicationInferfaces
         /// <summary>
         /// Command to fly to a specific position with a specific speed.
         /// </summary>
-        /// <param name="telloClient">Upd server connected to tello</param>
         /// <param name="x">X Position</param>
         /// <param name="y">Y Position</param>
         /// <param name="z">Z Position</param>
@@ -252,7 +271,6 @@ namespace DtTelloDrone.TelloSdk.CommunicationInferfaces
         /// <summary>
         /// Sets the speed of the Tello drone.
         /// </summary>
-        /// <param name="tello">The Udp client.</param>
         /// <param name="speed">The speed.</param>
         /// <returns>Success Status</returns>
         public Task<bool> Speed( int speed)
@@ -265,7 +283,6 @@ namespace DtTelloDrone.TelloSdk.CommunicationInferfaces
         /// <summary>
         /// Set the Wifi name and Passwort.
         /// </summary>
-        /// <param name="tello">The Udp client.</param>
         /// <param name="ssid">The WiFi name.</param>
         /// <param name="pass">The WiFi password.</param>
         /// <returns></returns>

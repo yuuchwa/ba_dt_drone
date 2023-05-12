@@ -1,7 +1,7 @@
 namespace DtTelloDrone.Model.Attributes;
 
 /// <summary>
-/// The actions of the Tello drone.
+/// This class represents the action within the system.
 /// </summary>
 public enum DroneAction
 {
@@ -22,6 +22,7 @@ public enum DroneAction
     Speed,
     Time,
     Connect,
+    Disconnect,
     Unknown,
     
     SetCheckpoint,

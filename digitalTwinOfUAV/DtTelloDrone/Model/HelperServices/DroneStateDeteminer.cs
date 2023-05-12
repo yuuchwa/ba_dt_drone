@@ -2,12 +2,12 @@ using System;
 using System.Collections.Generic;
 using DtTelloDrone.Model.Attributes;
 using DtTelloDrone.TelloSdk.DataModels;
-using static DtTelloDrone.Model.Services.TelloFlightMetrics;
+using static DtTelloDrone.TelloSdk.Attribute.TelloFlightMetrics;
 
-namespace DtTelloDrone.Model.Services;
+namespace DtTelloDrone.Model.HelperServices;
 
 /// <summary>
-/// This class determines the current state of the drone.
+/// This class is responsable for determining the state of the drone.
 /// </summary>
 public class StateDeterminer
 {
@@ -63,8 +63,8 @@ public class StateDeterminer
     public DroneState DetermineState(TelloStateParameter currState)
     {
         _stateParameter = currState;
-
         DroneState currentState = DroneState.Unknown;
+        
         foreach (Func<DroneState> function in _functions)
         {
             var droneState = function();
@@ -100,7 +100,7 @@ public class StateDeterminer
     }
     
     /// <summary>
-    /// Checks if the drone is taking off
+    /// Checks if the drone is taking off.
     /// </summary>
     /// <returns>the state of the drone</returns>
     private DroneState TakingOff()

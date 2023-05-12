@@ -1,4 +1,4 @@
-using DtTelloDrone.Model.Services;
+using DtTelloDrone.Model.HelperServices;
 using NUnit.Framework;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;

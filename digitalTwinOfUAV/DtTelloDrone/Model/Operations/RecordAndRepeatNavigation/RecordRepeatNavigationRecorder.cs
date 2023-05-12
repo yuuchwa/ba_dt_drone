@@ -1,29 +1,28 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
 namespace DtTelloDrone.Shared;
 
-public class ResourceDirectoryManager
+public class RecordRepeatNavigationRecorder
 {
     private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
-    private static ResourceDirectoryManager _manager;
+    private static RecordRepeatNavigationRecorder _manager;
     private readonly string _directoryPath =
         "/home/leon/Documents/Studium/Bachelorarbeit/ba_dt_drone/digitalTwinOfUAV/DtTelloDrone/OutputResources/";
 
     private readonly string _keyboardInputFilePath = "KeyboardInput.csv";
     private static FileStream _keyboardInputFile;
     
-    public static ResourceDirectoryManager GetDirectoryManager()
+    public static RecordRepeatNavigationRecorder GetDirectoryManager()
     {
         return _manager ??= new();
     }
 
-    private ResourceDirectoryManager()
+    private RecordRepeatNavigationRecorder()
     {
         var now = DateTime.Now;
-        string dateFolder = "Resources." + now.ToString("yyyy-MM-dd") + "/";
+        string dateFolder = "RrnRecord." + now.ToString("yyyy-MM-dd") + "/";
         string sessionFolder = "Session." + now.ToString("HH-mm-ss") + "/";
 
         _directoryPath = _directoryPath + dateFolder + sessionFolder;
@@ -57,7 +56,7 @@ public class ResourceDirectoryManager
         {
             _keyboardInputFile.Dispose();
             _keyboardInputFile = null;
-            Logger.Info("Resource Directory Manager disposed");
+            Logger.Info("Recorder disposed");
         }
     }
 }

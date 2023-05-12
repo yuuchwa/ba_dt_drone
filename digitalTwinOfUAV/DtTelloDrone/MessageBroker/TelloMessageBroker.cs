@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using System.Threading;
 using DtTelloDrone.Model.Attributes;
+using DtTelloDrone.Output;
 using DtTelloDrone.RyzeSDK;
 using DtTelloDrone.RyzeSDK.Attribute;
-using DtTelloDrone.RyzeSDK.CommunicationInferfaces;
 using DtTelloDrone.RyzeSDK.Core;
-using DtTelloDrone.RyzeSDK.Output;
 using DtTelloDrone.TelloSdk.CommunicationInferfaces;
 using DtTelloDrone.TelloSdk.DataModels;
 
@@ -15,7 +14,7 @@ using DtTelloDrone.TelloSdk.DataModels;
 namespace DtTelloDrone.MessageBroker;
 
 /// <summary>
-/// This class handels all communications with the tello drone.
+/// The TelloMessageBroker class handles all communications with the Tello drone.
 /// </summary>
 public class TelloMessageBroker : IDroneMessageBroker
 {
@@ -27,7 +26,8 @@ public class TelloMessageBroker : IDroneMessageBroker
 
     private readonly ConsoleCockpit _consoleOutput;
     
-    private bool _connectionStatus;
+    private bool _droneConnected;
+    private bool _commandModeActive;
     private bool _stopThread;
 
     private readonly Queue<DroneMessage> _commandQueue = null;
@@ -63,17 +63,37 @@ public class TelloMessageBroker : IDroneMessageBroker
         IntitializeConnectionToTello();
         
         _commandProcessorCancellationToken = new CancellationTokenSource();
-
-        //this.ffmpeg = ffmpeg;
     }
     
+    /// <summary>
+    /// The method add a new subscriber to the list of subscribers.
+    /// </summary>
+    /// <param name="subscriber">The subscriber ti be added</param>
     public void Subscribe(IMessageBrokerSubscriber subscriber)
     {
         _subscribers.Add(subscriber);
     }
-    
+
     /// <summary>
-    /// Initialize the communication the Tello drone.
+    /// Check whether the drone is active.
+    /// </summary>
+    /// <returns>true, if active</returns>
+    public bool DroneConnected()
+    {
+        return _droneConnected;
+    }
+
+    /// <summary>
+    /// check whether the drone is set to receive commands.
+    /// </summary>
+    /// <returns>true, if set to receive commands.</returns>
+    public bool DroneIsInCommandMode()
+    {
+        return _commandModeActive;
+    }
+
+    /// <summary>
+    /// Connect to the ports which are used to send commands and receive drone information.
     /// </summary>
     private async void IntitializeConnectionToTello()
     {
@@ -81,6 +101,10 @@ public class TelloMessageBroker : IDroneMessageBroker
         _stateServer.Listen();
     }
 
+    /// <summary>
+    /// Publish a message to the subscribers.
+    /// </summary>
+    /// <param name="message"></param>
     private void PublishMessage(DroneMessage message)
     {
         foreach (var subscriber in _subscribers)
@@ -101,9 +125,8 @@ public class TelloMessageBroker : IDroneMessageBroker
         _commandQueue.Clear();
         _commandProcessorCancellationToken.Cancel();
         _droneClient.Disconnect();
+        _droneClient.Dispose();
         _stateServer.Close();
-
-        //ffmpeg.Close();
     }
 
     /// <summary>
@@ -115,12 +138,19 @@ public class TelloMessageBroker : IDroneMessageBroker
         return _stateServer.GetStateParameter();
     }
     
+    /// <summary>
+    /// Query a message to the command queue.
+    /// </summary>
+    /// <param name="command">The command.</param>
     public void QueryMessage(DroneMessage command)
     {
         _commandQueue.Enqueue(command);
     }
 
-    private async void ProcessCommandTask()
+    /// <summary>
+    /// A task which process the messages in the command queue.
+    /// </summary>
+    private void ProcessCommandTask()
     {
         while (!_stopThread)
         {
@@ -146,6 +176,11 @@ public class TelloMessageBroker : IDroneMessageBroker
         }
     }
 
+    /// <summary>
+    /// Process the action message and send the message to the drone.
+    /// (Not called if the drone is not connected to the dronesystem)
+    /// </summary>
+    /// <param name="command">Tuple containing the drone action and value.</param>
     private async void ProcessDroneActionMessage(Tuple<DroneAction, string> command)
     {
         if (command == null)
@@ -157,10 +192,9 @@ public class TelloMessageBroker : IDroneMessageBroker
         DroneAction action = command.Item1 ;
         if(!int.TryParse(command.Item2, out int value))
             Logger.Error($"Command value {value} was not a number");
-            
+        
         try
         {
-            Logger.Info($"MessageBroker sends action: {action}");
             switch (action)
             {
                 // Antwort wird ignoriert.
@@ -209,16 +243,13 @@ public class TelloMessageBroker : IDroneMessageBroker
                 case DroneAction.Time:
                     await _droneClient.GetTime();
                     break;
-                case DroneAction.Connect: 
-                    if (await _droneClient.InitDrone())
-                    {
-                        _connectionStatus = true;
-                        Logger.Info("Message Broker successfully connected to Tello");
-                    }
-                    else
-                    {
-                        Logger.Info("Connectio to Tello failed");
-                    }
+                case DroneAction.Connect:
+                    await _droneClient.EnableCommandMode();
+                    _droneConnected = true;
+                    break;
+                case DroneAction.Disconnect:
+                    _droneClient.DisableCommandMode();
+                    _droneConnected = false;
                     break;
                 default: 
                     await _droneClient.Emergency(); 
@@ -227,8 +258,8 @@ public class TelloMessageBroker : IDroneMessageBroker
         }
         catch (Exception e)
         { 
-            _connectionStatus = false;
-            Logger.Error($"Tello throwed error on action {action}");
+            _droneConnected = false;
+            Logger.Info($"Socket Timeout. System is not yet connected to the drone");
         }
     }
 }

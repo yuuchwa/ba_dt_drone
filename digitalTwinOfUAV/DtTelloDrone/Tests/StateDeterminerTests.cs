@@ -1,5 +1,5 @@
 using DtTelloDrone.Model.Attributes;
-using DtTelloDrone.Model.Services;
+using DtTelloDrone.Model.HelperServices;
 using DtTelloDrone.TelloSdk.DataModels;
 using NUnit.Framework;
 

@@ -1,7 +1,7 @@
 ﻿namespace DtTelloDrone.RyzeSDK.Attribute
 {
     /// <summary>
-    /// Move directions.
+    /// The enum represents the direction drone can move.
     /// </summary>
     public enum MoveDirection
     {
@@ -14,6 +14,9 @@
         Back
     }
 
+    /// <summary>
+    /// The enum represents the direction drone can rotate.
+    /// </summary>
     public enum RotationDirection
     {
         Clockwise,

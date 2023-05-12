@@ -1,18 +1,22 @@
 using System;
-using Mars.Common.Core;
-using static DtTelloDrone.Model.Services.TelloFlightMetrics;
 using MathNet.Numerics.LinearAlgebra;
-using NLog;
+using static DtTelloDrone.TelloSdk.Attribute.TelloFlightMetrics;
 
-namespace DtTelloDrone.Model.Services;
+namespace DtTelloDrone.Model.HelperServices;
 
 /// <summary>
-/// This class support the agent with auxillary methods.
+/// This static class provides auxiliary methods to support the agent with
+/// various mathematical calculations related to drone movement and direction.
 /// </summary>
 public static class DataMapper
 {
     private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
     
+    /// <summary>
+    /// Maps a yaw value to a corresponding Mars bearing value.
+    /// </summary>
+    /// <param name="yaw">A value representing the yaw value.</param>
+    /// <returns>A value representing the corresonding MARS bearing angle.</returns>
     public static double MapToMarsBearing(double yaw)
     {
         double marsBearing = -1;
@@ -34,17 +38,22 @@ public static class DataMapper
         return Math.Truncate(marsBearing);
     }
 
-    public static double MapNormalCoordinateToMars(double bearing)
+    /// <summary>
+    /// This method maps a given bearing to its corresponding coordinate in Mars.
+    /// </summary>
+    /// <param name="bearing">he bearing in degrees.</param>
+    /// <returns>The corresponding coordinate in Mars.</returns>
+    public static double MapCoordinateToMarsCoordinate(double bearing)
     {
         return (360 - bearing) % 360;
     }
 
     /// <summary>
-    /// Calculates the distance in mm in which the drone is travelled.
+    /// /// Calculates the speed of the drone based on the given time interval, acceleration and initial velocity.
     /// </summary>
-    /// <param name="timeInterval">Time in seconds</param>
+    /// <param name="timeInterval">The time interval in seconds</param>
     /// <param name="acceleration">Acceleration in mm/s^2</param>
-    /// <param name="initialVelocity"></param>
+    /// <param name="initialVelocity">The initial velocity in mm/s</param>
     /// <returns></returns>
     public static double CalculateSpeed(double timeInterval, double acceleration, double initialVelocity)
     {
@@ -53,12 +62,12 @@ public static class DataMapper
     }
 
     /// <summary>
-    /// Calculates the angle of two given vectors.
+    /// Calculates the angle between two given vectors using the dot product formula.
     /// https://www.cuemath.com/geometry/angle-between-vectors/
     /// </summary>
-    /// <param name="vec1">Vector 1</param>
-    /// <param name="vec2">Vector 2</param>
-    /// <returns>The angle</returns>
+    /// <param name="vec1">The first vector.</param>
+    /// <param name="vec2">The second vector.</param>
+    /// <returns>The angle in degrees</returns>
     public static double CalculateAngleOfTwoVectors(Vector<double> vec1, Vector<double> vec2)
     {
         if (CalculateMagnitude(vec1) == 0 && CalculateMagnitude(vec2) == 0)
@@ -126,32 +135,21 @@ public static class DataMapper
     }
 
     /// <summary>
-    /// Calculates the dot product of two given vectors.
+    /// This method calculates the magnitude of a given vector.
     /// </summary>
-    /// <param name="vec1">Vector 1</param>
-    /// <param name="vec2">Vector 2</param>
-    /// <returns>The result the dot product.</returns>
-    public static double CalculateDotProduct(Vector<double> vec1, Vector<double> vec2)
-    {
-        return vec1.At(0) * vec2.At(0) + vec1.At(1) * vec2.At(1);
-    }
-
+    /// <param name="vec">the vector.</param>
+    /// <returns>The magnitude</returns>
     public static double CalculateMagnitude(Vector<double> vec)
     {
         return Math.Sqrt(vec.At(0) * vec.At(0) + vec.At(1) * vec.At(1));
     }
 
     /// <summary>
-    /// Calculates the angle between two given vectors.
+    /// Calculates the direction of movement relative to the environment.
     /// </summary>
-    /// <param name="vec1">Vector 1</param>
-    /// <param name="vec2">Vector 2</param>
-    /// <returns>The sum vector.</returns>
-    private static Vector<double> CalculateSumVector(Vector<double> vec1, Vector<double> vec2)
-    {
-        return null;
-    }
-
+    /// <param name="bearingSelf">The actual bearing of the drone.</param>
+    /// <param name="bearingMotion">The direction of the movement relative to the bearing of the drone</param>
+    /// <returns>The direction in degrees.</returns>
     public static double CalculateFlyDirection(double bearingSelf, double bearingMotion)
     {
         return (bearingMotion + bearingSelf) % 360;

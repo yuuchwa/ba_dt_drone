@@ -60,7 +60,7 @@ public static class Startup
     {
         _keyboardControl.Close();
         TelloMessageBroker.Close();
-        ResourceDirectoryManager.Close();
+        RecordRepeatNavigationRecorder.Close();
         Logger.Info("Ressoures Disposed");
     }
 }

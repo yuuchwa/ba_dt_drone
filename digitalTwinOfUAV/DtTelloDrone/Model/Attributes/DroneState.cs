@@ -1,13 +1,11 @@
-using System;
-
 namespace DtTelloDrone.Model.Attributes;
 
 /// <summary>
-/// Enum which indicates the current action.
+/// This enum represent the possible states of the drone.
 /// </summary>
 public enum DroneState
 {
-    Unknown, // Deckt alle Zustände ab, die nicht definiert sind. Muss kein Fehlerzustand sein.
+    Unknown, // this value is used to represent all states which are not covered yet.
     Standby,
     Hovering,
     TakingOff,
