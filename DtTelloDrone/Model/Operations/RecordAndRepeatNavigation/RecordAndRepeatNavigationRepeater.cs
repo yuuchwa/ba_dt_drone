@@ -77,13 +77,17 @@ public class RecordAndRepeatNavigationRepeater
 
             for(int i = 1; i < instructions.Length; ++i)
             {
-                var timestamp = Convert.ToInt64(instructions[i][0]);
                 
                 if (!Enum.TryParse<DroneAction>(instructions[i][1], out var action))
                 {
                     Logger.Error($"{instructions[i][1]} not an Action in .csv file");
                     continue;
                 }
+                
+                if(action == DroneAction.Unknown)
+                    continue;
+                
+                var timestamp = Convert.ToInt64(instructions[i][0]);
 
                 var positionX = Convert.ToInt32(instructions[i][2]);
                 var positionY = Convert.ToInt32(instructions[i][3]);

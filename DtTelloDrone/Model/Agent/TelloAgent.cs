@@ -55,7 +55,7 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
     
     // In eine externe Datei auslagern, beim Startup den Pfad reinläd.
     private const string _keyboardRecordPath = "./home/leon/Documents/Studium/Bachelorarbeit/BA_DigitalTwinDrone_Code/DtTelloDrone/bin/Debug/net7.0/DtTelloDroneLogs/Log.2023-04-25/Session_20230425_1157/KeyboardControl.log";
-    private const string _demoRessourcesPath =  "/home/leon/Documents/Studium/Bachelorarbeit/BA_DigitalTwinDrone_Code/DtTelloDrone/OutputResources/TestingResources/PlaybackNavigationDemos/VorlageLFlug.csv";
+    private const string _demoRessourcesPath =  "/home/leon/Documents/Studium/Bachelorarbeit/BA_DigitalTwinDrone_Code/DtTelloDrone/OutputResources/TestingResources/PlaybackNavigationDemos/KeyboardInput.csv";
     
     #endregion
     
@@ -228,6 +228,7 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
         
         if (DistanceTolerance <= travelingDistance)
         {
+            _newRecords.Add(CreateRecord(DroneAction.Unknown));
             Position = _layer._landScapeEnvironment.Move(this, flyDirection, travelingDistance);
         }
 
@@ -306,6 +307,7 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
                 _height = (int) ((-1) * simulationFlySpeed * duration);
             }
             Logger.Info($"{action};{Position.X};{Position.Y};{_height}");
+            _newRecords.Add(CreateRecord(action));
             _recordAndRepeatNavigationRepeater.RecordExecuted();
             record = _recordAndRepeatNavigationRepeater.GetNextRecord();
             
@@ -420,7 +422,7 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
                     _droneMessageBroker.QueryMessage(command);
                     _operation = Operation.None;
                     Logger.Info($"{action} could not be executed and the operation has been aborted.");
-                    Logger.Info($"The drone is not located at the intended position X:{_record.GetPosition().X} Y:{_record.GetPosition().Y}, but outside the valid range of 10cm at X:{Position.X} Y:{Position.Y}.");
+                    Logger.Info($"The drone is not located at the intended position at X:{_record.GetPosition().X} Y:{_record.GetPosition().Y}, but outside the valid range of 10cm at X:{Position.X} Y:{Position.Y}.");
                 }
             }
             
@@ -445,7 +447,7 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
 
         if (topic == MessageTopic.DroneCommand)
         {
-            _newRecords.Add(CreateRecord(message));
+            _newRecords.Add(CreateRecord(message.GetCommand().Item1));
         }
         else if (topic == MessageTopic.Operation)
         {
@@ -461,7 +463,7 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
                     Logger.Info("Record-Repeat Navigation stopped");
                     break;
                 case DroneAction.StopRecordRepeatNavigationRecording:
-                    _newRecords.Add(CreateRecord(message));
+                    _newRecords.Add(CreateRecord(action));
                     FlushRecords();
                     RecordRepeatNavigationRecorder.Close();
                     break;
@@ -470,10 +472,10 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
         }
     }
 
-    private string CreateRecord(DroneMessage message)
+    private string CreateRecord(DroneAction action)
     {
         return DateTime.Now.ToString("hhmmssfff") + ";" + 
-               message.GetCommand().Item1 + ";" +
+               action + ";" +
                Math.Truncate(Position.X) + ";" + 
                Math.Truncate(Position.Y) + ";" + 
                _height + ";"+
