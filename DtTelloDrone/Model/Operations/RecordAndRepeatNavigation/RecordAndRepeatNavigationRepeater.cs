@@ -81,7 +81,7 @@ public class RecordAndRepeatNavigationRepeater
                 
                 if (!Enum.TryParse<DroneAction>(instructions[i][1], out var action))
                 {
-                    Logger.Error($"Not existing Action in .csv file");
+                    Logger.Error($"{instructions[i][1]} not an Action in .csv file");
                     continue;
                 }
 

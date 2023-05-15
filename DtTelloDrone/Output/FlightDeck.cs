@@ -8,9 +8,9 @@ namespace DtTelloDrone.Output;
 /// <summary>
 /// This class visulize the drone information on a console.
 /// </summary>
-public class ConsoleCockpit
+public class FlightDeck
 {
-    public ConsoleCockpit(DroneStateServer stateServer)
+    public FlightDeck(DroneStateServer stateServer)
     {
         RenderConsole(new TelloStateParameter());
         stateServer.OnState += (s) => RenderConsole(s, false);

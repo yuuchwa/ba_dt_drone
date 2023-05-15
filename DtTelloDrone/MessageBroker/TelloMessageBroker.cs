@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net.Sockets;
 using System.Threading;
 using DtTelloDrone.Model.Attributes;
 using DtTelloDrone.Output;
@@ -24,7 +25,7 @@ public class TelloMessageBroker : IDroneMessageBroker
     private readonly IDroneClient _droneClient;
     private readonly IDroneServer _stateServer;
 
-    private readonly ConsoleCockpit _consoleOutput;
+    private readonly FlightDeck _consoleOutput;
     
     private bool _droneConnected;
     private bool _commandModeActive;
@@ -195,9 +196,9 @@ public class TelloMessageBroker : IDroneMessageBroker
         
         try
         {
+            Logger.Info($"Action {action} sent to Tello.");
             switch (action)
             {
-                // Antwort wird ignoriert.
                 case DroneAction.MoveForward:
                     _droneClient.Fly(MoveDirection.Forward, value);
                     break;
@@ -238,25 +239,28 @@ public class TelloMessageBroker : IDroneMessageBroker
                     await _droneClient.GetSpeed();
                     break;
                 case DroneAction.Battery:
-                    await _droneClient.GetBattery();
+                    Logger.Info(await _droneClient.GetBattery());
+                    
                     break;
                 case DroneAction.Time:
                     await _droneClient.GetTime();
                     break;
                 case DroneAction.Connect:
                     await _droneClient.EnableCommandMode();
-                    _droneConnected = true;
+                    Logger.Info("Command mode activated");
                     break;
                 case DroneAction.Disconnect:
-                    _droneClient.DisableCommandMode();
+                    //_droneClient.DisableCommandMode();
                     _droneConnected = false;
                     break;
                 default: 
                     await _droneClient.Emergency(); 
                     break;
             }
+            
+            _droneConnected = true;
         }
-        catch (Exception e)
+        catch (SocketException ex)
         { 
             _droneConnected = false;
             Logger.Info($"Socket Timeout. System is not yet connected to the drone");

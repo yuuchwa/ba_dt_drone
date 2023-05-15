@@ -47,7 +47,7 @@ namespace DtTelloDrone.TelloSdk.CommunicationInferfaces
 
         public void Connect()
         {
-            Logger.Info("Message Broker successfully connected to Tello");
+            Logger.Info($"Message Broker listening on {TelloSettings.CommandUdpPort}");
             _udpClient.Connect(new IPEndPoint(_ipAddress, TelloSettings.CommandUdpPort));
         }
 

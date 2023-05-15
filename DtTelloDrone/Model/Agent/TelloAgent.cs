@@ -5,7 +5,6 @@ using DtTelloDrone.Model.Attributes;
 using DtTelloDrone.Model.HelperServices;
 using DtTelloDrone.Model.Layer;
 using DtTelloDrone.Model.Operations.RecordAndRepeatNavigation;
-using DtTelloDrone.Shared;
 using DtTelloDrone.TelloSdk.Attribute;
 using DtTelloDrone.TelloSdk.DataModels;
 using Mars.Components.Environments.Cartesian;
@@ -14,6 +13,7 @@ using Mars.Interfaces.Annotations;
 using Mars.Interfaces.Environments;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
+using NLog;
 
 namespace DtTelloDrone.Model.Agent;
 
@@ -29,8 +29,6 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
     private Random _random = new();
 
     private LandScapeLayer _layer;
-    private int _tickCount = 0;
-
     private Queue<DroneMessage> _messages = new();
     
     private Operation _operation = Operation.None;
@@ -56,8 +54,8 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
     # region Paths
     
     // In eine externe Datei auslagern, beim Startup den Pfad reinläd.
-    private const string _keyboardRecordPath = "./home/leon/Documents/Studium/Bachelorarbeit/ba_dt_drone/digitalTwinOfUAV/DtTelloDrone/bin/Debug/net7.0/DtTelloDroneLogs/Log.2023-04-25/Session_20230425_1157/KeyboardControl.log";
-    private const string _demoRessourcesPath =  "/home/leon/Documents/Studium/Bachelorarbeit/ba_dt_drone/digitalTwinOfUAV/DtTelloDrone/OutputResources/TestingResources/PlaybackNavigationDemos/demoFile.csv";
+    private const string _keyboardRecordPath = "./home/leon/Documents/Studium/Bachelorarbeit/BA_DigitalTwinDrone_Code/DtTelloDrone/bin/Debug/net7.0/DtTelloDroneLogs/Log.2023-04-25/Session_20230425_1157/KeyboardControl.log";
+    private const string _demoRessourcesPath =  "/home/leon/Documents/Studium/Bachelorarbeit/BA_DigitalTwinDrone_Code/DtTelloDrone/OutputResources/TestingResources/PlaybackNavigationDemos/VorlageLFlug.csv";
     
     #endregion
     
@@ -81,6 +79,7 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
 
     private const double DistanceTolerance = 0.1;
     private const double BearingTolerance = 2;
+    private const double AgentSimulationSpeedScaling = 20.0;
 
     #endregion
 
@@ -94,7 +93,6 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
         _recordAndRepeatNavigationRepeater = new RecordAndRepeatNavigationRepeater(_demoRessourcesPath);
         _droneMessageBroker.Subscribe(this);
         
-        Logger.Trace(_layer);
         Logger.Info("Agent has been initialized");
     }
 
@@ -125,10 +123,10 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
                     return;
 
                 DroneState state = _stateDeterminer.DetermineState(parameters);
-            
+                /*
                 if (state != _prevDroneState) 
                     Logger.Trace($"Drone changed to {state}");
-                
+                */
                 UpdateAgentState(parameters, state);
                 
                 _prevParameters = parameters;
@@ -137,7 +135,6 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
             }
             
             ExecuteNextOperation();
-            _tickCount++;
         }
         catch (Exception ex)
         {
@@ -185,8 +182,6 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
         }
         
         _height = parameters.Height;
-
-        Logger.Trace($"Agent moved to {Position}");
     }
 
     /// <summary>
@@ -200,32 +195,27 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
         double timeInterval = Math.Abs(parameters.TimeStamp.Millisecond - _prevParameters.TimeStamp.Millisecond);
         timeInterval /= 1000;
         
-        // Die Negation verbessert die Lesbarkeit der Positionsänderung (x_prev, y_prev) => (x_curr,y_curr).
-        // nach der Korrektur liest man:
-        //  x_prev < x_curr => right,
-        //  x_curr < x_prev => left
-        //  y_prev < y_curr => fordwar,
-        //  y_curr < y_prev => back
+        // Acceleration negiert, um die Vorzeichen mit der Velocity anzugleichen
         double accelerationX = Math.Round(parameters.AccelerationX) * -1;       // cm/ms^2
-        double accelerationY = Math.Round(parameters.AccelerationY) * -1;
+        double accelerationY = Math.Round(parameters.AccelerationY) * 1;
         double velocityX = parameters.VelocityX;             // cm/ms
-        double velocityY = parameters.VelocityY;
-
+        double velocityY = parameters.VelocityY * (-1);
+        
         if (TelloFlightMetrics.ForwardAccelerationThreshold < accelerationX &&
             accelerationX < TelloFlightMetrics.BackwardAccelerationThreshold)
         {
             accelerationX = 0;
         }
-        
-        if (TelloFlightMetrics.LeftAccelerationThreshold < accelerationY &&
-            accelerationY < TelloFlightMetrics.RightAccelerationThreshold)
+
+        if (TelloFlightMetrics.RightAccelerationThreshold < accelerationY &&
+            accelerationY < TelloFlightMetrics.LeftAccelerationThreshold)
         {
             accelerationY = 0;
         }
         
         double speedX = DataMapper.CalculateSpeed(timeInterval, accelerationX, velocityX);
         double speedY = DataMapper.CalculateSpeed(timeInterval, accelerationY, velocityY);
-
+        
         Vector<double> vec1 = new DenseVector(new []{speedX, 0});
         Vector<double> vec2 = new DenseVector(new []{0,speedY});
 
@@ -234,16 +224,25 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
 
         double flyDirection = DataMapper.CalculateFlyDirection(Bearing, motionBearingMars);
 
-        double travelingDistance = (DataMapper.CalculateMagnitude(vec1) + DataMapper.CalculateMagnitude(vec2)) / 30;
-
-        Logger.Trace($"Bearing {Bearing}");
+        double travelingDistance = (DataMapper.CalculateMagnitude(vec1) + DataMapper.CalculateMagnitude(vec2)) / AgentSimulationSpeedScaling;
         
         if (DistanceTolerance <= travelingDistance)
         {
-            Logger.Trace($"FlyDirection {flyDirection}");
-            Logger.Trace($"TravelingDistance {travelingDistance}");
             Position = _layer._landScapeEnvironment.Move(this, flyDirection, travelingDistance);
         }
+
+        Logger.Trace($"Time since last tick: {timeInterval}");
+        Logger.Trace("------------- X - Values ------------");
+        Logger.Trace($"AccelerationY: {accelerationX}");
+        Logger.Trace($"VelocityY: {velocityX}");
+        Logger.Trace($"X-Speed: {speedX}");
+        Logger.Trace("------------- Y - Values ------------");
+        Logger.Trace($"AccelerationY: {accelerationY}");
+        Logger.Trace($"VelocityY: {velocityY}");
+        Logger.Trace($"Y-Speed: {speedY}");
+        Logger.Trace("------------- Results ------------");
+        Logger.Trace($"Bearing {Bearing}");
+        Logger.Trace($"travelingDistance: {travelingDistance}");
 
         return Position;
     }
@@ -255,29 +254,133 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
         {
             if (InSimulationMode())
             {
-                RunRecordRepeatNavigationInSimulation();
+                RunRecordRepeatNavigationInSimulation2();
+                _operation = Operation.None;
             }
             else
             {
                 RunRecordRepeatNavigationAsDt();
-                _recordAndRepeatNavigationRepeater.RecordExecuted();
-                _record = null;
-                _lastExecActionTs = DateTime.Now;
             }
         }
     }
 
+    private void RunRecordRepeatNavigationInSimulation2()
+    {
+        RecordAndRepeatNavigationRecord record = _recordAndRepeatNavigationRepeater.GetNextRecord();;
+
+        while (record != null)  {
+            var duration = _recordAndRepeatNavigationRepeater.GetWaitTime() / 1000.0;
+            var action = record.GetAction();
+            
+            var simulationFlySpeed = Speed / 10;
+
+            if (action == DroneAction.MoveForward ||
+                action == DroneAction.MoveBackward || 
+                action == DroneAction.MoveLeft || 
+                action == DroneAction.MoveRight)
+            {
+                var direction = DataMapper.CalculateFlyDirection(Bearing, DataMapper.MapActionToBearing(action));
+                var travelDistance = simulationFlySpeed * duration;
+
+                Position = _layer._landScapeEnvironment.Move(this, direction, travelDistance);
+            }
+            else if (action == DroneAction.RotateClockwise ||
+                     action == DroneAction.RotateCounterClockwise)
+            {
+                Bearing = (Bearing + DataMapper.CalculateRotation(action, Speed, duration)) % 360; // könnte falsch sein, weil nicht mars gerecht.
+            }
+            else if (action == DroneAction.TakeOff)
+            {
+                _height = 120;
+            }
+            else if (action == DroneAction.Land)
+            {
+                _height = 0;
+            }
+            else if (action == DroneAction.Rise)
+            {
+                _height += (int) (simulationFlySpeed * duration);
+            }            
+            else if (action == DroneAction.Sink)
+            {
+                _height = (int) ((-1) * simulationFlySpeed * duration);
+            }
+            Logger.Info($"{action};{Position.X};{Position.Y};{_height}");
+            _recordAndRepeatNavigationRepeater.RecordExecuted();
+            record = _recordAndRepeatNavigationRepeater.GetNextRecord();
+            
+        }
+        
+        Logger.Info($"Simulation Record-Repeat Navigation successfully completed");
+    }
+    /*
     private void RunRecordRepeatNavigationInSimulation()
     {
         var records = _recordAndRepeatNavigationRepeater.GetAllRecords();
-        foreach (var record in records)
+
+        if (records.Count == 0)
+        {
+            return;
+        }
+        
+        for (int index = 0; index < records.Count; ++index)
         {
             // lese die nächsten zwei Aktionen aus
-            // bestimme die dauert der Aktionen
-            // Berechne bei einer bewegung die zurückgelegte Strecke in der Simulation.
-            // stetze den Agenten auf die neue Position.
+            if (index == records.Count - 1)
+                continue;
+            
+            var record1 = records[index];
+            var record2 = records[index + 1];
+
+            if (record1 == null)
+                continue;
+            
+            if (record2 == null)
+            {
+                index += 1;
+                continue;
+            }
+            
+            var action = record1.GetAction();
+            var duration = (record2.GetTimestamp() - record1.GetTimestamp()) / 1000;
+            var simulationFlySpeed = Speed / AgentSimulationSpeedScaling;
+
+            if (action == DroneAction.MoveForward ||
+                action == DroneAction.MoveBackward || 
+                action == DroneAction.MoveLeft || 
+                action == DroneAction.MoveRight)
+            {
+                var direction = DataMapper.CalculateFlyDirection(Bearing, DataMapper.MapActionToBearing(action));
+                var travelDistance = simulationFlySpeed * duration;
+
+                Position = _layer._landScapeEnvironment.Move(this, direction, travelDistance);
+                Logger.Trace($"Agent moved to {Position}");
+            }
+            else if (action == DroneAction.RotateClockwise ||
+                     action == DroneAction.RotateCounterClockwise)
+            {
+                Bearing = (Bearing + DataMapper.CalculateRotation(action, Speed, duration)) % 360; // könnte falsch sein, weil nicht mars gerecht.
+            }
+            else if (action == DroneAction.TakeOff)
+            {
+                _height = 120;
+            }
+            else if (action == DroneAction.Land)
+            {
+                _height = 0;
+            }
+            else if (action == DroneAction.Rise)
+            {
+                _height += (int) (simulationFlySpeed * duration);
+            }            
+            else if (action == DroneAction.Sink)
+            {
+                _height = (int) ((-1) * simulationFlySpeed * duration);
+            }
         }
-    }
+
+        Logger.Info($"Simulation Record-Repeat Navigation successfully completed");
+    }*/
 
     private void RunRecordRepeatNavigationAsDt()
     {
@@ -288,7 +391,7 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
             if (_record == null)
             {
                 _operation = Operation.None;
-                Logger.Info($"Record and Repeat Navigation successfully completed at Position at X:{Position.X} Y:{Position.Y}");
+                Logger.Info($"Digital Twin Record-Repeat Navigation successfully completed");
                 return;
             }
         }
@@ -320,6 +423,10 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
                     Logger.Info($"The drone is not located at the intended position X:{_record.GetPosition().X} Y:{_record.GetPosition().Y}, but outside the valid range of 10cm at X:{Position.X} Y:{Position.Y}.");
                 }
             }
+            
+            _recordAndRepeatNavigationRepeater.RecordExecuted();
+            _record = null;
+            _lastExecActionTs = DateTime.Now;
         }   
     }
 
@@ -354,6 +461,7 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
                     Logger.Info("Record-Repeat Navigation stopped");
                     break;
                 case DroneAction.StopRecordRepeatNavigationRecording:
+                    _newRecords.Add(CreateRecord(message));
                     FlushRecords();
                     RecordRepeatNavigationRecorder.Close();
                     break;
@@ -365,11 +473,12 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
     private string CreateRecord(DroneMessage message)
     {
         return DateTime.Now.ToString("hhmmssfff") + ";" + 
-               message.GetCommand().Item1 + ";" + 
+               message.GetCommand().Item1 + ";" +
                Math.Truncate(Position.X) + ";" + 
                Math.Truncate(Position.Y) + ";" + 
-               _height + 
-               "\n";
+               _height + ";"+
+               Bearing + 
+                "\n";
     }
     
     private void FlushRecords()

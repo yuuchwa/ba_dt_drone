@@ -2,14 +2,14 @@ using System;
 using System.IO;
 using System.Text;
 
-namespace DtTelloDrone.Shared;
+namespace DtTelloDrone.Model.Operations.RecordAndRepeatNavigation;
 
 public class RecordRepeatNavigationRecorder
 {
     private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
     private static RecordRepeatNavigationRecorder _manager;
     private readonly string _directoryPath =
-        "/home/leon/Documents/Studium/Bachelorarbeit/ba_dt_drone/digitalTwinOfUAV/DtTelloDrone/OutputResources/";
+        "/home/leon/Documents/Studium/Bachelorarbeit/BA_DigitalTwinDrone_Code/DtTelloDrone/OutputResources/";
 
     private readonly string _keyboardInputFilePath = "KeyboardInput.csv";
     private static FileStream _keyboardInputFile;
@@ -36,7 +36,7 @@ public class RecordRepeatNavigationRecorder
         if (!File.Exists(_keyboardInputFilePath))
         {
             _keyboardInputFile = File.Open(_keyboardInputFilePath, FileMode.Create, FileAccess.Write);
-            byte[] bytes = "time;input;xPos;yPos;zPos\n"u8.ToArray();
+            byte[] bytes = "time;input;xPos;yPos;zPos;Bearing\n"u8.ToArray();
             _keyboardInputFile.Write(bytes);
         }
 

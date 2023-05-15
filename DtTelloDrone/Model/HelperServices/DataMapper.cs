@@ -1,4 +1,5 @@
 using System;
+using DtTelloDrone.Model.Attributes;
 using MathNet.Numerics.LinearAlgebra;
 using static DtTelloDrone.TelloSdk.Attribute.TelloFlightMetrics;
 
@@ -153,5 +154,28 @@ public static class DataMapper
     public static double CalculateFlyDirection(double bearingSelf, double bearingMotion)
     {
         return (bearingMotion + bearingSelf) % 360;
+    }
+
+    public static double MapActionToBearing(DroneAction action)
+    {
+        switch (action)
+        {
+            case DroneAction.MoveForward: return 0;
+            case DroneAction.MoveLeft: return 270;
+            case DroneAction.MoveBackward: return 180;
+            case DroneAction.MoveRight: return 80;
+            default: return 0;
+        }
+    }
+
+    public static double CalculateRotation(DroneAction action, double speed, double time)
+    {
+        double deg = 0;
+        if(action == DroneAction.RotateClockwise)
+            deg = speed * time;
+        else if (action == DroneAction.RotateCounterClockwise)
+            deg = -speed * time;
+
+        return deg;
     }
 }

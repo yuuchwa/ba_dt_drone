@@ -29,7 +29,7 @@
         /// <summary>
         /// Time until thread abort waiting for a reponse.
         /// </summary>
-        public const int ResponseTimeOut = 2000; // in Milliseconds
+        public const int ResponseTimeOut = 20000; // in Milliseconds
         
         /// <summary>
         /// Time between next command.

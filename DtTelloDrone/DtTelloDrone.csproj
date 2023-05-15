@@ -36,6 +36,5 @@
     </ItemGroup>
     <ItemGroup>
       <Folder Include="OutputResources\" />
-      <Folder Include="TelloSdk\CommunicationInferfaces\Message\" />
     </ItemGroup>
 </Project>
