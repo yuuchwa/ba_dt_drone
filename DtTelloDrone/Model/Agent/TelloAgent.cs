@@ -13,7 +13,6 @@ using Mars.Interfaces.Annotations;
 using Mars.Interfaces.Environments;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
-using NLog;
 
 namespace DtTelloDrone.Model.Agent;
 
@@ -53,9 +52,9 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
 
     # region Paths
     
-    // In eine externe Datei auslagern, beim Startup den Pfad reinläd.
+    // In eine externe Datei auslagern, beim Startup den Pfad läd.
     private const string _keyboardRecordPath = "./home/leon/Documents/Studium/Bachelorarbeit/BA_DigitalTwinDrone_Code/DtTelloDrone/bin/Debug/net7.0/DtTelloDroneLogs/Log.2023-04-25/Session_20230425_1157/KeyboardControl.log";
-    private const string _demoRessourcesPath =  "/home/leon/Documents/Studium/Bachelorarbeit/BA_DigitalTwinDrone_Code/DtTelloDrone/OutputResources/TestingResources/PlaybackNavigationDemos/KeyboardInput.csv";
+    private const string _demoRessourcesPath =  "/home/leon/Documents/Studium/Bachelorarbeit/BA_DigitalTwinDrone_Code/DtTelloDrone/OutputResources/TestingResources/PlaybackNavigationDemos/BA_Exp2_Trajection.csv";
     
     #endregion
     
@@ -231,27 +230,15 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
             Position = _layer._landScapeEnvironment.Move(this, flyDirection, travelingDistance);
         }
         
-        Console.WriteLine("--- X-Values --- --- Y-Values ---");
-        Console.WriteLine($"AccX Before: {parameters.AccelerationX} AccY Before: {parameters.AccelerationY}");
-        Console.WriteLine($"AccX After:  {accelerationX} AccY After:  {accelerationY}");
-        Console.WriteLine($"VelX:        {velocityX} VelY:        {velocityY}");
-        Console.WriteLine($"SpeedX:      {speedX}  SpeedY:      {speedY}");
-        Console.WriteLine($"flyDirection:     {flyDirection}");
-        Console.WriteLine($"TraveledDistance: {travelingDistance}");
-        
-        Logger.Trace("------------- X - Values ------------");
-        Logger.Trace($"AccelerationY: {accelerationX}");
-        Logger.Trace($"VelocityY: {velocityX}");
-        Logger.Trace($"X-Speed: {speedX}");
-        Logger.Trace("------------- Y - Values ------------");
-        Logger.Trace($"AccelerationY: {accelerationY}");
-        Logger.Trace($"VelocityY: {velocityY}");
-        Logger.Trace($"Y-Speed: {speedY}");
-        Logger.Trace("------------- Results ------------");
-        Logger.Trace($"Time since last tick: {timeInterval}");
-        Logger.Trace($"Flydirection {flyDirection}");
+        Logger.Trace("--- X-Values --- --- Y-Values ---");
+        Logger.Trace($"AccX Before: {parameters.AccelerationX} AccY Before: {parameters.AccelerationY}");
+        Logger.Trace($"AccX After:  {accelerationX} AccY After:  {accelerationY}");
+        Logger.Trace($"VelX:        {velocityX} VelY:        {velocityY}");
+        Logger.Trace($"SpeedX:      {speedX}  SpeedY:      {speedY}");
         Logger.Trace($"Bearing {Bearing}");
-        Logger.Trace($"travelingDistance: {travelingDistance}");
+        Logger.Trace($"Time since last tick: {timeInterval}");
+        Logger.Trace($"flyDirection:     {flyDirection}");
+        Logger.Trace($"TraveledDistance: {travelingDistance}");
 
         return Position;
     }
@@ -323,74 +310,6 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
         
         Logger.Info($"Simulation Record-Repeat Navigation successfully completed");
     }
-    /*
-    private void RunRecordRepeatNavigationInSimulation()
-    {
-        var records = _recordAndRepeatNavigationRepeater.GetAllRecords();
-
-        if (records.Count == 0)
-        {
-            return;
-        }
-        
-        for (int index = 0; index < records.Count; ++index)
-        {
-            // lese die nächsten zwei Aktionen aus
-            if (index == records.Count - 1)
-                continue;
-            
-            var record1 = records[index];
-            var record2 = records[index + 1];
-
-            if (record1 == null)
-                continue;
-            
-            if (record2 == null)
-            {
-                index += 1;
-                continue;
-            }
-            
-            var action = record1.GetAction();
-            var duration = (record2.GetTimestamp() - record1.GetTimestamp()) / 1000;
-            var simulationFlySpeed = Speed / AgentSimulationSpeedScaling;
-
-            if (action == DroneAction.MoveForward ||
-                action == DroneAction.MoveBackward || 
-                action == DroneAction.MoveLeft || 
-                action == DroneAction.MoveRight)
-            {
-                var direction = DataMapper.CalculateFlyDirection(Bearing, DataMapper.MapActionToBearing(action));
-                var travelDistance = simulationFlySpeed * duration;
-
-                Position = _layer._landScapeEnvironment.Move(this, direction, travelDistance);
-                Logger.Trace($"Agent moved to {Position}");
-            }
-            else if (action == DroneAction.RotateClockwise ||
-                     action == DroneAction.RotateCounterClockwise)
-            {
-                Bearing = (Bearing + DataMapper.CalculateRotation(action, Speed, duration)) % 360; // könnte falsch sein, weil nicht mars gerecht.
-            }
-            else if (action == DroneAction.TakeOff)
-            {
-                _height = 120;
-            }
-            else if (action == DroneAction.Land)
-            {
-                _height = 0;
-            }
-            else if (action == DroneAction.Rise)
-            {
-                _height += (int) (simulationFlySpeed * duration);
-            }            
-            else if (action == DroneAction.Sink)
-            {
-                _height = (int) ((-1) * simulationFlySpeed * duration);
-            }
-        }
-
-        Logger.Info($"Simulation Record-Repeat Navigation successfully completed");
-    }*/
 
     private void RunRecordRepeatNavigationAsDt()
     {
@@ -427,10 +346,13 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
                 if (!isValid)
                 {
                     command = new DroneMessage(MessageTopic.DroneCommand, MessageSender.DigitalTwin, new(DroneAction.Land, Speed.ToString()));
-                    _droneMessageBroker.QueryMessage(command);
+                    //_droneMessageBroker.QueryMessage(command);
                     _operation = Operation.None;
                     Logger.Info($"{action} could not be executed and the operation has been aborted.");
                     Logger.Info($"The drone is not located at the intended position at X:{_record.GetPosition().X} Y:{_record.GetPosition().Y}, but outside the valid range of 10cm at X:{Position.X} Y:{Position.Y}.");
+                    _newRecords.Add(CreateRecord(DroneAction.EmergencyLanding));
+                    FlushRecords();
+                    RecordRepeatNavigationRecorder.Close();
                 }
             }
             
@@ -482,7 +404,7 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
 
     private string CreateRecord(DroneAction action)
     {
-        return DateTime.Now.ToString("hhmmssfff") + ";" + 
+        return DateTime.Now.ToString("mmssfff") + ";" + 
                action + ";" +
                Math.Truncate(Position.X) + ";" + 
                Math.Truncate(Position.Y) + ";" + 

@@ -17,7 +17,7 @@ public class RecordAndRepeatNavigationRepeater
     private readonly string _path;
     private List<RecordAndRepeatNavigationRecord?> _records = new();
     private int _returnedRecordcounter;
-    private const int DeviationTolerance = 10;
+    private const double DeviationTolerance = 2;
 
     public RecordAndRepeatNavigationRepeater(string path)
     {
