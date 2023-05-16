@@ -123,10 +123,7 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
                     return;
 
                 DroneState state = _stateDeterminer.DetermineState(parameters);
-                /*
-                if (state != _prevDroneState) 
-                    Logger.Trace($"Drone changed to {state}");
-                */
+
                 UpdateAgentState(parameters, state);
                 
                 _prevParameters = parameters;
@@ -171,7 +168,7 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
         }
 
         Bearing = DataMapper.MapToMarsBearing(parameters.Yaw);
-
+        
         if (state == DroneState.MovingForward || 
             state == DroneState.MovingBackward ||
             state == DroneState.MovingLeft || 
@@ -180,7 +177,7 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
         {
             Position = UpdatePosition(parameters);
         }
-        
+
         _height = parameters.Height;
     }
 
@@ -197,7 +194,7 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
         
         // Acceleration negiert, um die Vorzeichen mit der Velocity anzugleichen
         double accelerationX = Math.Round(parameters.AccelerationX) * -1;       // cm/ms^2
-        double accelerationY = Math.Round(parameters.AccelerationY) * 1;
+        double accelerationY = Math.Round(parameters.AccelerationY);
         double velocityX = parameters.VelocityX;             // cm/ms
         double velocityY = parameters.VelocityY * (-1);
         
@@ -207,12 +204,14 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
             accelerationX = 0;
         }
 
-        if (TelloFlightMetrics.RightAccelerationThreshold < accelerationY &&
-            accelerationY < TelloFlightMetrics.LeftAccelerationThreshold)
+        if ((accelerationY < TelloFlightMetrics.RightAccelerationThresholdMax ||
+            TelloFlightMetrics.RightAccelerationThreshold < accelerationY) &&
+            (accelerationY < TelloFlightMetrics.LeftAccelerationThreshold ||
+            TelloFlightMetrics.LeftAccelerationThresholdMax < accelerationY))
         {
             accelerationY = 0;
         }
-        
+
         double speedX = DataMapper.CalculateSpeed(timeInterval, accelerationX, velocityX);
         double speedY = DataMapper.CalculateSpeed(timeInterval, accelerationY, velocityY);
         
@@ -226,13 +225,20 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
 
         double travelingDistance = (DataMapper.CalculateMagnitude(vec1) + DataMapper.CalculateMagnitude(vec2)) / AgentSimulationSpeedScaling;
         
-        if (DistanceTolerance <= travelingDistance)
+        if (DistanceTolerance < travelingDistance)
         {
             _newRecords.Add(CreateRecord(DroneAction.Unknown));
             Position = _layer._landScapeEnvironment.Move(this, flyDirection, travelingDistance);
         }
-
-        Logger.Trace($"Time since last tick: {timeInterval}");
+        
+        Console.WriteLine("--- X-Values --- --- Y-Values ---");
+        Console.WriteLine($"AccX Before: {parameters.AccelerationX} AccY Before: {parameters.AccelerationY}");
+        Console.WriteLine($"AccX After:  {accelerationX} AccY After:  {accelerationY}");
+        Console.WriteLine($"VelX:        {velocityX} VelY:        {velocityY}");
+        Console.WriteLine($"SpeedX:      {speedX}  SpeedY:      {speedY}");
+        Console.WriteLine($"flyDirection:     {flyDirection}");
+        Console.WriteLine($"TraveledDistance: {travelingDistance}");
+        
         Logger.Trace("------------- X - Values ------------");
         Logger.Trace($"AccelerationY: {accelerationX}");
         Logger.Trace($"VelocityY: {velocityX}");
@@ -242,6 +248,8 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
         Logger.Trace($"VelocityY: {velocityY}");
         Logger.Trace($"Y-Speed: {speedY}");
         Logger.Trace("------------- Results ------------");
+        Logger.Trace($"Time since last tick: {timeInterval}");
+        Logger.Trace($"Flydirection {flyDirection}");
         Logger.Trace($"Bearing {Bearing}");
         Logger.Trace($"travelingDistance: {travelingDistance}");
 
