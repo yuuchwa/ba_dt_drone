@@ -20,6 +20,8 @@ public static class TelloFlightMetrics
     public const int MaxSpeed = 8000; // Millimeter / Seconds
     public const int MaxAltitude = 30000; // Millimeter
     public const int MaxrangeFromRemoteControl = 100000; // Millimeter
+    public const double CriticalBatteryState = 5;
+
     #endregion
 
     #region Scopes

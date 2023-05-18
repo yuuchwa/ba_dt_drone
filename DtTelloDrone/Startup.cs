@@ -35,7 +35,6 @@ public static class Startup
 
     private static void RunSimulation()
     {
-
         // Create a new model description that holds all parts of the model (agents, entities, layers).
         var description = new ModelDescription();
         description.AddLayer<LandScapeLayer>();
@@ -45,8 +44,6 @@ public static class Startup
         var config = SimulationConfig.Deserialize(file);
         
         _simulationStarter = SimulationStarter.Start(description, config);
-        
-        _keyboardControl.AddSimulation(_simulationStarter);
 
         var loopResults = _simulationStarter.Run();
                 

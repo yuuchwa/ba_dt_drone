@@ -21,7 +21,7 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IMessageBrokerSubs
     #region Properties and Fields
 
     private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger() ;
-    private static readonly RecordRepeatNavigationRecorder ResourceManager = RecordRepeatNavigationRecorder.GetDirectoryManager();
+    private static readonly RecordRepeatNavigationRecorder ResourceManager = RecordRepeatNavigationRecorder.GetRecorder();
     
     private readonly IDroneMessageBroker _droneMessageBroker = TelloMessageBroker.GetInstance();
     private readonly StateDeterminer _stateDeterminer = StateDeterminer.getStateDeterminerInstance();
@@ -111,6 +111,22 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IMessageBrokerSubs
 
                 if (parameters == null)
                     return;
+
+                if (parameters.Battery <= TelloFlightMetrics.CriticalBatteryState)
+                {
+                    var emergencyMsg = new DroneMessage(
+                        MessageTopic.Operation, 
+                        MessageSender.DigitalTwin,
+                        new(DroneAction.Stop, String.Empty));
+                    _droneMessageBroker.QueryMessage(emergencyMsg);
+                    
+                    emergencyMsg = new DroneMessage(
+                        MessageTopic.Operation, 
+                        MessageSender.DigitalTwin,
+                        new(DroneAction.Land, String.Empty));
+                    _droneMessageBroker.QueryMessage(emergencyMsg);
+                    Logger.Info("The drone was landed because its battery level is below 5%.");
+                }
                 
                 if (parameters.TimeStamp == _lastUpdateTs) 
                     return;

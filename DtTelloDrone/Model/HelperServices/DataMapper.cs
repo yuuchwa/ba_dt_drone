@@ -166,6 +166,11 @@ public static class DataMapper
         return (bearingMotion + bearingSelf) % 360;
     }
 
+    /// <summary>
+    /// Maps a DroneAction to its corresponding bearing in degrees.
+    /// </summary>
+    /// <param name="action">The DroneAction to map.</param>
+    /// <returns>The bearing in degrees corresponding to the given DroneAction.</returns>
     public static double MapActionToBearing(DroneAction action)
     {
         switch (action)
@@ -178,6 +183,13 @@ public static class DataMapper
         }
     }
 
+    /// <summary>
+    /// Calculates the rotation in degrees based on the given action, speed, and time.
+    /// </summary>
+    /// <param name="action">The drone action (e.g., RotateClockwise, RotateCounterClockwise).</param>
+    /// <param name="speed">The speed of rotation in degrees per second.</param>
+    /// <param name="time">The duration of rotation in seconds.</param>
+    /// <returns>The rotation in degrees based on the given action, speed, and time.</returns>
     public static double CalculateRotation(DroneAction action, double speed, double time)
     {
         double deg = 0;

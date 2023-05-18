@@ -14,7 +14,7 @@ public class RecordRepeatNavigationRecorder
     private readonly string _keyboardInputFilePath = "KeyboardInput.csv";
     private static FileStream _keyboardInputFile;
     
-    public static RecordRepeatNavigationRecorder GetDirectoryManager()
+    public static RecordRepeatNavigationRecorder GetRecorder()
     {
         return _manager ??= new();
     }
