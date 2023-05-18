@@ -1,19 +1,51 @@
 using System.Drawing;
-using DtTelloDrone.TelloSdk.CommunicationInferfaces;
+using System.Threading;
+using System.Threading.Tasks;
+using DtTelloDrone.MessageBroker;
 using DtTelloDrone.TelloSdk.DataModels;
 using Console = Colorful.Console;
 
-namespace DtTelloDrone.Output;
+namespace DtTelloDrone.RemoteControl.Output;
 
 /// <summary>
 /// This class visulize the drone information on a console.
 /// </summary>
 public class FlightDeck
 {
-    public FlightDeck(DroneStateServer stateServer)
+    private readonly IDroneMessageBroker _telloDroneMessageBroker = TelloMessageBroker.GetInstance();
+    private Task _mainloop;
+    private CancellationTokenSource _cancellationToken;
+
+    public FlightDeck()
     {
         RenderConsole(new TelloStateParameter());
-        stateServer.OnState += (s) => RenderConsole(s, false);
+    }
+    
+    public void Close()
+    {
+        _cancellationToken.Cancel();
+
+    }
+    
+    /// <summary>
+    /// Starts the thread.
+    /// </summary>
+    public void StartFlightDeck()
+    {
+        _cancellationToken = new CancellationTokenSource();
+        _mainloop = Task.Run(StartConsoleRender, _cancellationToken.Token);
+    }
+
+    private void StartConsoleRender()
+    {
+        while (true)
+        {
+            var paramters = _telloDroneMessageBroker.GetStateParameter();
+            if (paramters != null)
+            {
+                RenderConsole(paramters, false);
+            }
+        }
     }
 
     private void RenderConsole(TelloStateParameter state, bool firstTime = true)

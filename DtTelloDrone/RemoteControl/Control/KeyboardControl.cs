@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using DtTelloDrone.MessageBroker;
 using DtTelloDrone.Model.Attributes;
 using DtTelloDrone.Model.HelperServices;
 using DtTelloDrone.Model.Operations.RecordAndRepeatNavigation;
-using DtTelloDrone.RyzeSDK;
-using DtTelloDrone.RyzeSDK.Attribute;
-using DtTelloDrone.RyzeSDK.Core;
 using Mars.Components.Starter;
 
 namespace DtTelloDrone.RemoteControl.Control

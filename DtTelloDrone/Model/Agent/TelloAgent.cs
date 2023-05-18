@@ -16,7 +16,7 @@ using MathNet.Numerics.LinearAlgebra.Double;
 
 namespace DtTelloDrone.Model.Agent;
 
-public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMessageBrokerSubscriber
+public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IMessageBrokerSubscriber
 {
     #region Properties and Fields
 
@@ -25,10 +25,9 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
     
     private readonly IDroneMessageBroker _droneMessageBroker = TelloMessageBroker.GetInstance();
     private readonly StateDeterminer _stateDeterminer = StateDeterminer.getStateDeterminerInstance();
-    private Random _random = new();
 
     private LandScapeLayer _layer;
-    private Queue<DroneMessage> _messages = new();
+    private readonly  Queue<DroneMessage> _messages = new();
     
     private Operation _operation = Operation.None;
     private RecordAndRepeatNavigationRepeater _recordAndRepeatNavigationRepeater;
@@ -37,10 +36,7 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
     private RecordAndRepeatNavigationRecord _record;
 
     private DateTime _lastExecActionTs = DateTime.Now;
-    private long _waitTime;
     
-    private Position _target = null;
-
     public Guid ID { get; set; }
     private int _height;
     public Position Position { get; set; }
@@ -53,8 +49,7 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
     # region Paths
     
     // In eine externe Datei auslagern, beim Startup den Pfad läd.
-    private const string _keyboardRecordPath = "./home/leon/Documents/Studium/Bachelorarbeit/BA_DigitalTwinDrone_Code/DtTelloDrone/bin/Debug/net7.0/DtTelloDroneLogs/Log.2023-04-25/Session_20230425_1157/KeyboardControl.log";
-    private const string _demoRessourcesPath =  "/home/leon/Documents/Studium/Bachelorarbeit/BA_DigitalTwinDrone_Code/DtTelloDrone/OutputResources/TestingResources/PlaybackNavigationDemos/BA_Exp2_Trajection.csv";
+    private const string DemoRessourcesPath =  "/home/leon/Documents/Studium/Bachelorarbeit/BA_DigitalTwinDrone_Code/DtTelloDrone/OutputResources/TestingResources/PlaybackNavigationDemos/BA_Exp2_Trajection.csv";
     
     #endregion
     
@@ -77,7 +72,6 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
     #region Constants
 
     private const double DistanceTolerance = 0.1;
-    private const double BearingTolerance = 2;
     private const double AgentSimulationSpeedScaling = 20.0;
 
     #endregion
@@ -89,7 +83,7 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
         _layer = layer;
         Position = Position.CreatePosition(StartX, StartY);
         _layer._landScapeEnvironment.Insert(this, Position);
-        _recordAndRepeatNavigationRepeater = new RecordAndRepeatNavigationRepeater(_demoRessourcesPath);
+        _recordAndRepeatNavigationRepeater = new RecordAndRepeatNavigationRepeater(DemoRessourcesPath);
         _droneMessageBroker.Subscribe(this);
         
         Logger.Info("Agent has been initialized");
@@ -183,7 +177,6 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
     /// <summary>
     /// Update the position depending on the new parameters.
     /// </summary>
-    /// <param name="state">The current drone state.</param>
     /// <param name="parameters">The new parameters</param>
     /// <returns>The new position the drone is moving to.</returns>
     private Position UpdatePosition(TelloStateParameter parameters)
@@ -250,7 +243,7 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
         {
             if (InSimulationMode())
             {
-                RunRecordRepeatNavigationInSimulation2();
+                RunRecordRepeatNavigationInSimulation();
                 _operation = Operation.None;
             }
             else
@@ -260,9 +253,9 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
         }
     }
 
-    private void RunRecordRepeatNavigationInSimulation2()
+    private void RunRecordRepeatNavigationInSimulation()
     {
-        RecordAndRepeatNavigationRecord record = _recordAndRepeatNavigationRepeater.GetNextRecord();;
+        RecordAndRepeatNavigationRecord record = _recordAndRepeatNavigationRepeater.GetNextRecord();
 
         while (record != null)  {
             var duration = _recordAndRepeatNavigationRepeater.GetWaitTime() / 1000.0;
@@ -335,14 +328,12 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
             
         if (action != DroneAction.NoAction && waitTime < timePastSinceLastAction.TotalMilliseconds)
         {
-            bool isValid = true;
-                
             DroneMessage command = new DroneMessage(MessageTopic.DroneCommand, MessageSender.DigitalTwin, new(action, Speed.ToString()));
             _droneMessageBroker.QueryMessage(command);
                 
             if (action == DroneAction.Stop)
             {
-                isValid = _recordAndRepeatNavigationRepeater.ValidateCheckpoint(this.Position);
+                bool isValid = _recordAndRepeatNavigationRepeater.ValidateCheckpoint(this.Position);
                 if (!isValid)
                 {
                     command = new DroneMessage(MessageTopic.DroneCommand, MessageSender.DigitalTwin, new(DroneAction.Land, Speed.ToString()));
@@ -397,7 +388,6 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
                     FlushRecords();
                     RecordRepeatNavigationRecorder.Close();
                     break;
-                default: break;
             }
         }
     }
@@ -419,12 +409,6 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IPositionable, IMe
         {
             ResourceManager.AppendToKeyboardInputFile(record);
         }
-    }
-    
-    private void createGPX()
-    {
-        // Nachkommastellen reduzieren.
-        // Qgis
     }
 
     /// <summary>

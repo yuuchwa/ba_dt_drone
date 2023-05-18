@@ -7,6 +7,7 @@ using DtTelloDrone.Model.Agent;
 using DtTelloDrone.Model.Layer;
 using DtTelloDrone.Model.Operations.RecordAndRepeatNavigation;
 using DtTelloDrone.RemoteControl.Control;
+using DtTelloDrone.RemoteControl.Output;
 using DtTelloDrone.RyzeSDK;
 using log4net;
 using Mars.Components.Starter;
@@ -21,11 +22,13 @@ public static class Startup
     private static readonly TelloMessageBroker TelloMessageBroker = TelloMessageBroker.GetInstance();
 
     private static KeyboardControl _keyboardControl;
+    private static FlightDeck _flightDeck;
     private static SimulationStarter _simulationStarter;
 
     public static void Run()
     {
         RunKeybordControl();
+        RunFlightDeck();
         RunSimulation();
         DisposeApplicationRessources();
     }
@@ -56,6 +59,12 @@ public static class Startup
         _keyboardControl.StartKeyboardControl();
     }
 
+    private static void RunFlightDeck()
+    {
+        _flightDeck = new FlightDeck();
+        _flightDeck.StartFlightDeck();
+    }
+    
     private static void DisposeApplicationRessources()
     {
         _keyboardControl.Close();
