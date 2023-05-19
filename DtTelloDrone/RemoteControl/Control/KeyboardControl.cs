@@ -65,8 +65,8 @@ public class KeyboardControl
             if (selectedAction == DroneAction.Unknown) continue;
 
             MessageTopic topic;
-            if (selectedAction == DroneAction.StartRecordRepeatNavigation || 
-                selectedAction == DroneAction.StopRecordRepeatNavigation || 
+            if (selectedAction == DroneAction.StartRrNavigation || 
+                selectedAction == DroneAction.StopRrNavigation || 
                 selectedAction == DroneAction.StopRecordRepeatNavigationRecording)
                 topic = MessageTopic.Operation;
             else 

@@ -5,6 +5,8 @@ using System.Linq;
 using DtTelloDrone.Model.Attributes;
 using Mars.Interfaces.Environments;
 
+using static DtTelloDrone.TelloSdk.Attribute.TelloFlightMetrics;
+
 namespace DtTelloDrone.Model.Operations.RecordAndRepeatNavigation;
 
 /// <summary>
@@ -17,7 +19,7 @@ public class RecordAndRepeatNavigationRepeater
     private readonly string _path;
     private List<RecordAndRepeatNavigationRecord?> _records = new();
     private int _returnedRecordcounter;
-    private const double DeviationTolerance = 2;
+    private const double DeviationTolerance = 10 / AgentSimulationDistanceScaling; // in cm
 
     public RecordAndRepeatNavigationRepeater(string path)
     {

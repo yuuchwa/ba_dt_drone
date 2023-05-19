@@ -11,7 +11,7 @@ using DtTelloDrone.RyzeSDK.Core;
 
 namespace DtTelloDrone.TelloSdk.CommunicationInferfaces
 {
-    public class DroneClient : IDroneClient
+    public class TelloClient : IDroneClient
     {
         private const string SuccessResponse = "ok";
         private const string FailedResponse = "failed";
@@ -33,7 +33,7 @@ namespace DtTelloDrone.TelloSdk.CommunicationInferfaces
         /// <summary>
         /// Instantiate the Tello client.
         /// </summary>
-        public DroneClient()
+        public TelloClient()
         {
             _udpClient = new UdpClient();
             _udpClient.Client.ReceiveTimeout = TelloSettings.ResponseTimeOut;

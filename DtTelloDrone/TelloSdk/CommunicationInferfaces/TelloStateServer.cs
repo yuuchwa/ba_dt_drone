@@ -12,7 +12,7 @@ namespace DtTelloDrone.TelloSdk.CommunicationInferfaces
     /// <summary>
     /// The class for receiving the state information of the tello drone.
     /// </summary>
-    public class DroneStateServer : IDroneServer
+    public class TelloStateServer : IDroneServer
     {
     	/// <summary>
         /// The UPD client
@@ -42,7 +42,7 @@ namespace DtTelloDrone.TelloSdk.CommunicationInferfaces
         /// Instantiates the TelloStateServer.
         /// </summary>
         /// <param name="connectionSettings">The settings for Tello.</param>
-        public DroneStateServer()
+        public TelloStateServer()
         {
             udpServer = new UdpClient(new IPEndPoint(IPAddress.Any, TelloSettings.StateUdpPort));
             udpServer.Client.ReceiveTimeout = 3000;

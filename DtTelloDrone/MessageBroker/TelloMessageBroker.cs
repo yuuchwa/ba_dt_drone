@@ -57,8 +57,8 @@ public class TelloMessageBroker : IDroneMessageBroker
         _commandHandlerThread = new Thread(ProcessCommandTask);
         _commandHandlerThread.Start();
         
-        _droneClient = new DroneClient();
-        _stateServer = new DroneStateServer();
+        _droneClient = new TelloClient();
+        _stateServer = new TelloStateServer();
 
         IntitializeConnectionToTello();
         

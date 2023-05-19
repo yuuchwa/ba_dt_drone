@@ -58,9 +58,8 @@ public static class DataMapper
     /// <returns></returns>
     public static double CalculateSpeed(double timeInterval, double acceleration, double initialVelocity)
     {
-        double speed = 0.0;
-        
-        if (-3 < initialVelocity && initialVelocity < 3)
+        double speed;
+        if (MinVelocityForCalculatingSpeed < initialVelocity && initialVelocity < MaxVelocityForCalculatingSpeed)
         {
             speed = acceleration * timeInterval + initialVelocity;
         }
@@ -68,7 +67,6 @@ public static class DataMapper
         {
             speed = initialVelocity;
         }
-
         return Math.Round(speed, 3);
     }
 

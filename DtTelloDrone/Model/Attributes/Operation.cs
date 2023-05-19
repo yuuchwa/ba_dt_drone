@@ -1,5 +1,3 @@
-using NUnit.Framework.Constraints;
-
 namespace DtTelloDrone.Model.Attributes;
 
 /// <summary>
@@ -9,5 +7,5 @@ public enum Operation
 {
     None,
     RecordAndRepeatNavigation,
-    PointToPointNavigatio,
+    PointToPointNavigation,
 }

@@ -19,29 +19,33 @@ public static class TelloFlightMetrics
     public const int MaxFlightDuration = 13; // Minutes
     public const int MaxSpeed = 8000; // Millimeter / Seconds
     public const int MaxAltitude = 30000; // Millimeter
-    public const int MaxrangeFromRemoteControl = 100000; // Millimeter
     public const double CriticalBatteryState = 5;
 
     #endregion
 
     #region Scopes
+    
+    public const double MinFlyDistanceInCm = 2.5;
+    public const double MinVelocityForCalculatingSpeed = -4;
+    public const double MaxVelocityForCalculatingSpeed = 4;
+    
+    public const double AgentSimulationDistanceScaling = 10;
 
-    // TODO: constanten umbenennen
     public const int MinInvalidTof = -1;
     public const int ValidNonMeasureableTof = 10; // Wert für jede ungültige Messung oder eine Flughöhe unter 30 cm werden.
     public const int StartMeasureableTof = 30; // Ab 30 cm aufwärts kann die ToF Messung erfasst werden
     public const int MaxHeight = 10000;
     
     // Acceleration
-    public const int ForwardAccelerationThreshold = -22;
+    public const int ForwardAccelerationThreshold = -25;
     public const int ForwardAccelerationThresholdMax = -40;
 
-    public const int BackwardAccelerationThreshold = 22;
+    public const int BackwardAccelerationThreshold = 27;
     public const int BackwardAccelerationThresholdMax = 40;
     
-    public const int LeftAccelerationThreshold = 27;
+    public const int LeftAccelerationThreshold = 25;
     public const int LeftAccelerationThresholdMax = 35;
-    public const int RightAccelerationThreshold = -21;
+    public const int RightAccelerationThreshold = -25;
     public const int RightAccelerationThresholdMax = -35;
 
     public const int SinkAccelerationThreshold = -1000; //-1100;
