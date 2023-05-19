@@ -28,7 +28,7 @@ public static class Startup
     public static void Run()
     {
         RunKeybordControl();
-        RunFlightDeck();
+        //RunFlightDeck();
         RunSimulation();
         DisposeApplicationRessources();
     }
