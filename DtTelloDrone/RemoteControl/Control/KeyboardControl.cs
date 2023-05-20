@@ -67,7 +67,7 @@ public class KeyboardControl
             MessageTopic topic;
             if (selectedAction == DroneAction.StartRrNavigation || 
                 selectedAction == DroneAction.StopRrNavigation || 
-                selectedAction == DroneAction.StopRecordRepeatNavigationRecording)
+                selectedAction == DroneAction.StopRrNavigationRecording)
                 topic = MessageTopic.Operation;
             else 
                 topic = MessageTopic.DroneCommand;

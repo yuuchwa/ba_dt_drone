@@ -19,7 +19,6 @@ public class RecordAndRepeatNavigationRepeater
     private readonly string _path;
     private List<RecordAndRepeatNavigationRecord?> _records = new();
     private int _returnedRecordcounter;
-    private const double DeviationTolerance = 10 / AgentSimulationDistanceScaling; // in cm
 
     public RecordAndRepeatNavigationRepeater(string path)
     {
@@ -91,8 +90,8 @@ public class RecordAndRepeatNavigationRepeater
                 
                 var timestamp = Convert.ToInt64(instructions[i][0]);
 
-                var positionX = Convert.ToInt32(instructions[i][2]);
-                var positionY = Convert.ToInt32(instructions[i][3]);
+                var positionX = Convert.ToDouble(instructions[i][2]);
+                var positionY = Convert.ToDouble(instructions[i][3]);
                 var positionZ = Convert.ToInt32(instructions[i][4]);
 
                 var horizontalPosition = new Position(positionX, positionY);

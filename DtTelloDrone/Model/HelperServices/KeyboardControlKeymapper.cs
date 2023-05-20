@@ -57,7 +57,7 @@ public static class KeyboardControlKeymapper
             case BatteryKey: action = DroneAction.Battery; break;
             case StartRecordedNavigationKey: action = DroneAction.StartRrNavigation; break;
             case StopRecordedNavigationKey: action = DroneAction.StopRrNavigation; break; 
-            case StopRecordingKeyboardInputKey: action = DroneAction.StopRecordRepeatNavigationRecording; break;
+            case StopRecordingKeyboardInputKey: action = DroneAction.StopRrNavigationRecording; break;
             default: action = DroneAction.Unknown; break;
         } 
         return action;

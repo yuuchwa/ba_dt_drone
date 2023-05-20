@@ -30,6 +30,7 @@ public static class TelloFlightMetrics
     public const double MaxVelocityForCalculatingSpeed = 4;
     
     public const double AgentSimulationDistanceScaling = 10;
+    public const double DeviationTolerance = (30 / AgentSimulationDistanceScaling); // in cm
 
     public const int MinInvalidTof = -1;
     public const int ValidNonMeasureableTof = 10; // Wert für jede ungültige Messung oder eine Flughöhe unter 30 cm werden.

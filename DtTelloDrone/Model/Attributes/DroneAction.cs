@@ -32,5 +32,5 @@ public enum DroneAction
     CompleteRrNavigation,
     AbortRrNavigation,
     
-    StopRecordRepeatNavigationRecording
+    StopRrNavigationRecording
 }
