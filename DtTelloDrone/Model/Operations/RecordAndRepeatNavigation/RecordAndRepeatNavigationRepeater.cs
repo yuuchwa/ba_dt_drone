@@ -58,8 +58,8 @@ public class RecordAndRepeatNavigationRepeater
     public bool ValidateCheckpoint(Position agentPosition)
     {
         return 
-            (Math.Abs(agentPosition.X - _records[_returnedRecordcounter]!.GetPosition().X) < DeviationTolerance) && 
-            (Math.Abs(agentPosition.Y - _records[_returnedRecordcounter]!.GetPosition().Y) < DeviationTolerance);
+            (Math.Abs(agentPosition.X - _records[_returnedRecordcounter]!.GetPosition().X) < DeviationRadius) && 
+            (Math.Abs(agentPosition.Y - _records[_returnedRecordcounter]!.GetPosition().Y) < DeviationRadius);
     }
 
     public void RecordExecuted()

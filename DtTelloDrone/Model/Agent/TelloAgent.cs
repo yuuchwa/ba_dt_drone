@@ -48,9 +48,7 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IMessageBrokerSubs
 
     # region Paths
     
-    // In eine externe Datei auslagern, beim Startup den Pfad läd.
-    private const string DemoRessourcesPath =  "/home/leon/Documents/Studium/Bachelorarbeit/BA_DigitalTwinDrone_Code/DtTelloDrone/OutputResources/TestingResources/PlaybackNavigationDemos/BA_Exp2_DemoTrajectory.csv";
-    //private const string DemoRessourcesPath =  "/home/leon/Documents/Studium/Bachelorarbeit/BA_DigitalTwinDrone_Code/DtTelloDrone/OutputResources/TestingResources/PlaybackNavigationDemos/KeyboardInput.csv";
+    private const string DemoRessourcesPath =  "/home/leon/Documents/Studium/Bachelorarbeit/BA_DigitalTwinDrone_Code/DtTelloDrone/OutputResources/TestingResources/PlaybackNavigationDemos/BA_Exp2_Trajectory.csv";
 
     #endregion
     
@@ -283,8 +281,8 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IMessageBrokerSubs
         var timePastSinceLastAction = (DateTime.Now - _lastExecActionTs).TotalMilliseconds;
         long waitTime = _recordAndRepeatNavigationRepeater.GetWaitTime();
                 
-        Console.WriteLine($"WaitTime {waitTime} for action {action}");
-        Console.WriteLine("TimePast: " + timePastSinceLastAction);
+        //Console.WriteLine($"WaitTime {waitTime} for action {action}");
+        //Console.WriteLine("TimePast: " + timePastSinceLastAction);
             
         if (waitTime <= timePastSinceLastAction)
         {
@@ -304,7 +302,11 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IMessageBrokerSubs
                     _newRecords.Add(CreateRecord(DroneAction.AbortRrNavigation));
                     FlushRecords();
                     RecordRepeatNavigationRecorder.Close();
-                    Logger.Info($"The drone is not located at the intended position at X:{_record.GetPosition().X} Y:{_record.GetPosition().Y}, but outside more than {DeviationTolerance} units at X:{Position.X} Y:{Position.Y}.");
+                    var deviationX = Math.Abs(_record.GetPosition().X - Position.X);
+                    var deviationY = Math.Abs(_record.GetPosition().Y - Position.Y);
+                    Vector<double> devitionVec = new DenseVector(new []{deviationX, deviationY});
+                    var devMagnitude = DataMapper.CalculateMagnitude(devitionVec);
+                    Logger.Info($"The operation was terminated because the drone was outside the valid radius of {DeviationRadius} by a distance of {devMagnitude}.");
                     Logger.Info($"{action} could not be executed and the operation has been aborted.");
                 }
             }
@@ -375,7 +377,6 @@ public class TelloAgent : IAgent<LandScapeLayer>, ICharacter, IMessageBrokerSubs
 
     private void ReadMessage(DroneMessage message)
     {
-        // Eigene Nachichten nicht empfangen
         if (message.GetSource() == MessageSender.Drone)
             return;
         

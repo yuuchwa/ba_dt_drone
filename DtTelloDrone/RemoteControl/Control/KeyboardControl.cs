@@ -53,7 +53,6 @@ public class KeyboardControl
     /// </summary>
     private void StartConsoleWorker()
     {
-        Logger.Info("Keyboard Control started.");
         DroneMessage command;
         string record;
         while (true)
