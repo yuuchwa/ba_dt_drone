@@ -113,7 +113,7 @@ public class TelloStateParameter
 
         if (result.Length > 0)
         {
-            result = result.Remove(result.Length - 2); // entfernt das letzte Komma und Leerzeichen
+            result = result.Remove(result.Length - 2);
         }
 
         return result;

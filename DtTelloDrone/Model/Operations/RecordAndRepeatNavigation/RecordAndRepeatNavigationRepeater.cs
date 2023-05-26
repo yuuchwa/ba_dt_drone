@@ -5,6 +5,8 @@ using System.Linq;
 using DtTelloDrone.Model.Attributes;
 using Mars.Interfaces.Environments;
 
+using static DtTelloDrone.TelloSdk.Attribute.TelloFlightMetrics;
+
 namespace DtTelloDrone.Model.Operations.RecordAndRepeatNavigation;
 
 /// <summary>
@@ -17,7 +19,6 @@ public class RecordAndRepeatNavigationRepeater
     private readonly string _path;
     private List<RecordAndRepeatNavigationRecord?> _records = new();
     private int _returnedRecordcounter;
-    private const int DeviationTolerance = 10;
 
     public RecordAndRepeatNavigationRepeater(string path)
     {
@@ -57,8 +58,8 @@ public class RecordAndRepeatNavigationRepeater
     public bool ValidateCheckpoint(Position agentPosition)
     {
         return 
-            (Math.Abs(agentPosition.X - _records[_returnedRecordcounter]!.GetPosition().X) < DeviationTolerance) && 
-            (Math.Abs(agentPosition.Y - _records[_returnedRecordcounter]!.GetPosition().Y) < DeviationTolerance);
+            (Math.Abs(agentPosition.X - _records[_returnedRecordcounter]!.GetPosition().X) < DeviationRadius) && 
+            (Math.Abs(agentPosition.Y - _records[_returnedRecordcounter]!.GetPosition().Y) < DeviationRadius);
     }
 
     public void RecordExecuted()
@@ -89,8 +90,8 @@ public class RecordAndRepeatNavigationRepeater
                 
                 var timestamp = Convert.ToInt64(instructions[i][0]);
 
-                var positionX = Convert.ToInt32(instructions[i][2]);
-                var positionY = Convert.ToInt32(instructions[i][3]);
+                var positionX = Convert.ToDouble(instructions[i][2]);
+                var positionY = Convert.ToDouble(instructions[i][3]);
                 var positionZ = Convert.ToInt32(instructions[i][4]);
 
                 var horizontalPosition = new Position(positionX, positionY);

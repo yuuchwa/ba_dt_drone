@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Threading;
 using DtTelloDrone.Model.Attributes;
-using DtTelloDrone.Output;
+using DtTelloDrone.RemoteControl.Output;
 using DtTelloDrone.RyzeSDK;
 using DtTelloDrone.RyzeSDK.Attribute;
 using DtTelloDrone.RyzeSDK.Core;
@@ -57,9 +57,8 @@ public class TelloMessageBroker : IDroneMessageBroker
         _commandHandlerThread = new Thread(ProcessCommandTask);
         _commandHandlerThread.Start();
         
-        _droneClient = new DroneClient();
-        _stateServer = new DroneStateServer();
-        //_consoleOutput = new ConsoleCockpit(_stateServer);
+        _droneClient = new TelloClient();
+        _stateServer = new TelloStateServer();
 
         IntitializeConnectionToTello();
         

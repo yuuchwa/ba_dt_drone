@@ -27,8 +27,10 @@ public enum DroneAction
     
     SetCheckpoint,
     DeleteCheckpoint,
-    StartRecordRepeatNavigation,
-    StopRecordRepeatNavigation,
+    StartRrNavigation,
+    StopRrNavigation,
+    CompleteRrNavigation,
+    AbortRrNavigation,
     
-    StopRecordRepeatNavigationRecording
+    StopRrNavigationRecording
 }

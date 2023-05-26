@@ -1,17 +1,13 @@
 using System;
 using System.IO;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using DtTelloDrone.MessageBroker;
 using DtTelloDrone.Model.Agent;
 using DtTelloDrone.Model.Layer;
 using DtTelloDrone.Model.Operations.RecordAndRepeatNavigation;
 using DtTelloDrone.RemoteControl.Control;
-using DtTelloDrone.RyzeSDK;
-using log4net;
+using DtTelloDrone.RemoteControl.Output;
 using Mars.Components.Starter;
 using Mars.Interfaces.Model;
-using LoggerFactory = Microsoft.Extensions.Logging.LoggerFactory;
 
 namespace DtTelloDrone;
 
@@ -21,19 +17,19 @@ public static class Startup
     private static readonly TelloMessageBroker TelloMessageBroker = TelloMessageBroker.GetInstance();
 
     private static KeyboardControl _keyboardControl;
+    private static FlightDeck _flightDeck;
     private static SimulationStarter _simulationStarter;
 
     public static void Run()
     {
         RunKeybordControl();
+        RunFlightDeck();
         RunSimulation();
         DisposeApplicationRessources();
     }
 
     private static void RunSimulation()
     {
-
-        // Create a new model description that holds all parts of the model (agents, entities, layers).
         var description = new ModelDescription();
         description.AddLayer<LandScapeLayer>();
         description.AddAgent<TelloAgent, LandScapeLayer>();
@@ -42,8 +38,6 @@ public static class Startup
         var config = SimulationConfig.Deserialize(file);
         
         _simulationStarter = SimulationStarter.Start(description, config);
-        
-        _keyboardControl.AddSimulation(_simulationStarter);
 
         var loopResults = _simulationStarter.Run();
                 
@@ -56,6 +50,12 @@ public static class Startup
         _keyboardControl.StartKeyboardControl();
     }
 
+    private static void RunFlightDeck()
+    {
+        _flightDeck = new FlightDeck();
+        _flightDeck.StartFlightDeck();
+    }
+    
     private static void DisposeApplicationRessources()
     {
         _keyboardControl.Close();

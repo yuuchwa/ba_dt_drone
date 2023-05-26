@@ -17,7 +17,7 @@ public class TelloAgentTest
     /******************* Valid Inputs ****************************/
     
     [Test]
-    public void TestUpdatePositionDroneMovingForwardStraight()
+    public void UpdatePosition_DroneMovingForwardStraight()
     {
         double timeInterval = 0.1;
         double accelerationX = Math.Round(-40.0) * -1;       // cm/ms^2
@@ -56,7 +56,7 @@ public class TelloAgentTest
     }
     
     [Test]
-    public void TestUpdatePositionDroneMovingBackwardsStraigth()
+    public void UpdatePosition_DroneMovingBackwardsStraight()
     {
         double timeInterval = 0.1;
         double accelerationX = Math.Round(40.0) * -1;       // cm/ms^2
@@ -95,7 +95,7 @@ public class TelloAgentTest
     }
     
     [Test]
-    public void TestUpdatePositionDroneMovingLeftStraight()
+    public void UpdatePosition_DroneMovingLeftStraight()
     {
         double timeInterval = 0.1;
         double accelerationX = 0;       // cm/ms^2
@@ -134,7 +134,7 @@ public class TelloAgentTest
     }
     
     [Test]
-    public void TestUpdatePositionDroneMovingRightStraight()
+    public void UpdatePosition_DroneMovingRightStraight()
     {
         double timeInterval = 0.1;
         double accelerationX = 0;       // cm/ms^2
@@ -173,7 +173,7 @@ public class TelloAgentTest
     }
     
     [Test]
-    public void TestUpdatePositionDroneMovingForwardDiagonalRight()
+    public void UpdatePosition_DroneMovingForwardDiagonalRight()
     {
         double timeInterval = 0.1;
         double accelerationX = Math.Round(-40.0) * -1;       // cm/ms^2
@@ -212,7 +212,7 @@ public class TelloAgentTest
     }
     
     [Test]
-    public void TestUpdatePositionDroneMovingBackwardsDiagonalRight()
+    public void UpdatePosition_DroneMovingBackwardsDiagonalRight()
     {
         double timeInterval = 0.1;
         double accelerationX = Math.Round(40.0) * -1;       // cm/ms^2
@@ -251,7 +251,7 @@ public class TelloAgentTest
     }
 
     [Test]
-    public void TestUpdatePositionDroneMovingForwardDiagonalLeft()
+    public void UpdatePosition_DroneMovingForwardDiagonalLeft()
     {
         double timeInterval = 0.1;
         double accelerationX = Math.Round(-40.0) * -1;       // cm/ms^2
@@ -290,7 +290,7 @@ public class TelloAgentTest
     }
     
     [Test]
-    public void TestUpdatePositionDroneMovingBackwardDiagonalLeft()
+    public void UpdatePosition_DroneMovingBackwardDiagonalLeft()
     {
         double timeInterval = 0.1;
         double accelerationX = Math.Round(40.0) * -1;       // cm/ms^2
@@ -329,7 +329,7 @@ public class TelloAgentTest
     }
     
     [Test]
-    public void TestUpdatePositionDroneMovingForwardWithInitialBearing()
+    public void UpdatePosition_DroneMovingForwardWithInitialBearing()
     {
         double timeInterval = 0.1;
         double accelerationX = Math.Round(-40.0) * -1;       // cm/ms^2
@@ -368,7 +368,7 @@ public class TelloAgentTest
     }
     
     [Test]
-    public void TestUpdatePositionDroneMovingForwardWithInitialVelocityX()
+    public void UpdatePosition_DroneMovingForwardWithInitialVelocityX()
     {
         double timeInterval = 0.1;
         double accelerationX = Math.Round(-40.0) * -1;       // cm/ms^2
@@ -380,7 +380,7 @@ public class TelloAgentTest
         double speedX = DataMapper.CalculateSpeed(timeInterval, accelerationX, velocityX);
         double speedY = DataMapper.CalculateSpeed(timeInterval, accelerationY, velocityY);
 
-        double expectedSpeedX = 9;
+        double expectedSpeedX = velocityX;
         double expectedSpeedY = 0;
 
         Assert.AreEqual(expectedSpeedX, speedX);
@@ -402,12 +402,12 @@ public class TelloAgentTest
 
         double travelingDistance = DataMapper.CalculateMagnitude(vec1) + DataMapper.CalculateMagnitude(vec2);
 
-        double expectedTravelingDistance = 9; // cm
+        double expectedTravelingDistance = 5; // cm
         Assert.AreEqual(expectedTravelingDistance, travelingDistance);
     }
     
     [Test]
-    public void TestUpdatePositionDroneMovingForwardWithInitialVelocityY()
+    public void UpdatePosition_DroneMovingForwardWithInitialVelocityY()
     {
         double timeInterval = 0.1;
         double accelerationX = Math.Round(-40.0) * -1;       // cm/ms^2
@@ -446,7 +446,7 @@ public class TelloAgentTest
     }
     
     [Test]
-    public void TestUpdatePositionDroneMovingForwardDiagonalRightWithInitialVelocityYAndVelocityX()
+    public void UpdatePosition_DroneMovingForwardDiagonalRight_WithInitialVelocityYAndVelocityX()
     {
         double timeInterval = 0.1;
         double accelerationX = Math.Round(40.0) * -1;       // cm/ms^2
@@ -458,8 +458,8 @@ public class TelloAgentTest
         double speedX = DataMapper.CalculateSpeed(timeInterval, accelerationX, velocityX);
         double speedY = DataMapper.CalculateSpeed(timeInterval, accelerationY, velocityY);
 
-        double expectedSpeedX = -10;
-        double expectedSpeedY = -12;
+        double expectedSpeedX = velocityX;
+        double expectedSpeedY = velocityY;
 
         Assert.AreEqual(expectedSpeedX, speedX);
         Assert.AreEqual(expectedSpeedY, speedY);
@@ -469,23 +469,23 @@ public class TelloAgentTest
 
         double motionBearing = DataMapper.CalculateAngleOfTwoVectors(vec1, vec2);
 
-        double expectedMotionBearing = 230.191;
+        double expectedMotionBearing = 233.113;
         Assert.AreEqual(expectedMotionBearing, motionBearing, 0.1);
 
         double motionBearingMars = DataMapper.MapCoordinateToMarsCoordinate(motionBearing);
         double flyDirection = DataMapper.CalculateFlyDirection(Bearing, motionBearingMars);
 
-        double expectedflyDirection = 129.808;
+        double expectedflyDirection = 126.886;
         Assert.AreEqual(expectedflyDirection, flyDirection, 0.1);
 
         double travelingDistance = DataMapper.CalculateMagnitude(vec1) + DataMapper.CalculateMagnitude(vec2);
 
-        double expectedTravelingDistance = 22; // cm
+        double expectedTravelingDistance = 14; // cm
         Assert.AreEqual(expectedTravelingDistance, travelingDistance);
     }
     
     [Test]
-    public void TestUpdatePositionDroneMovingForwardWithInitialVelocityYAndVelocityXAndBearing()
+    public void UpdatePosition_DroneMovingForwardWithInitialVelocityYAndVelocityXAndBearing()
     {
         double timeInterval = 0.1;
         double accelerationX = Math.Round(40.0) * -1;       // cm/ms^2
@@ -497,8 +497,8 @@ public class TelloAgentTest
         double speedX = DataMapper.CalculateSpeed(timeInterval, accelerationX, velocityX);
         double speedY = DataMapper.CalculateSpeed(timeInterval, accelerationY, velocityY);
 
-        double expectedSpeedX = -10;
-        double expectedSpeedY = -12;
+        double expectedSpeedX = velocityX;
+        double expectedSpeedY = velocityY;
 
         Assert.AreEqual(expectedSpeedX, speedX);
         Assert.AreEqual(expectedSpeedY, speedY);
@@ -508,23 +508,23 @@ public class TelloAgentTest
 
         double motionBearing = DataMapper.CalculateAngleOfTwoVectors(vec1, vec2);
 
-        double expectedMotionBearing = 230.191;
+        double expectedMotionBearing = 233.191;
         Assert.AreEqual(expectedMotionBearing, motionBearing, 0.1);
 
         double motionBearingMars = DataMapper.MapCoordinateToMarsCoordinate(motionBearing);
         double flyDirection = DataMapper.CalculateFlyDirection(Bearing, motionBearingMars);
 
-        double expectedflyDirection = 195.808;
+        double expectedflyDirection = 192.886;
         Assert.AreEqual(expectedflyDirection, flyDirection, 0.1);
 
         double travelingDistance = DataMapper.CalculateMagnitude(vec1) + DataMapper.CalculateMagnitude(vec2);
 
-        double expectedTravelingDistance = 22; // cm
+        double expectedTravelingDistance = 14; // cm
         Assert.AreEqual(expectedTravelingDistance, travelingDistance);
     }
     
     [Test]
-    public void TestUpdatePositionReadData()
+    public void UpdatePosition_ReadData()
     {
         double timeInterval = 0.102;
         double accelerationX = Math.Round(28.0) * -1;       // cm/ms^2

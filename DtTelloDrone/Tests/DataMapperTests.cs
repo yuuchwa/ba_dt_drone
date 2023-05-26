@@ -1,3 +1,4 @@
+using DtTelloDrone.Model.Attributes;
 using DtTelloDrone.Model.HelperServices;
 using NUnit.Framework;
 using MathNet.Numerics.LinearAlgebra;
@@ -8,7 +9,7 @@ namespace DtTelloDrone.Tests;
 public class DataMapperTests
 {
     [Test]
-    public void TestMapToMarsBearingValidInput()
+    public void MapToMarsBearing_ValidInput()
     {
         double inputYaw = 0;
         double expectedBearing = 0;
@@ -82,7 +83,7 @@ public class DataMapperTests
     }
 
     [Test]
-    public void TestMapToMarsBearingInvalidInput()
+    public void MapToMarsBearing_InvalidInput()
     {
         double inputYaw = 180;
         double expectedBearing = -1;
@@ -111,7 +112,7 @@ public class DataMapperTests
     }
 
     [Test]
-    public void TestCalculateAngleOfTwoVectorsVecXisGreateVecY()
+    public void CalculateAngleOfTwoVectors_VecXisGreateVecY()
     {
         double speedX = 6;
         double speedY = 3;;
@@ -148,7 +149,7 @@ public class DataMapperTests
     }
 
     [Test]
-    public void TestCalculateAngleOfTwoVectorsVecYisGreateVecX()
+    public void CalculateAngleOfTwoVectors_VecYisGreateVecX()
     {
         double speedX = 3;
         double speedY = 6;;
@@ -185,7 +186,7 @@ public class DataMapperTests
     }
     
     [Test]
-    public void TestCalculateAngleOfTwoVectorsVecYSameLengthAsVecX()
+    public void CalculateAngleOfTwoVectors_VecYSameLengthAsVecX()
     {
         double speedX = 3;
         double speedY = 3;;
@@ -222,7 +223,7 @@ public class DataMapperTests
     }
 
     [Test]
-    public void TestCalculateAngleOfTwoVectorsVecYAndVecXHasSameRatio()
+    public void CalculateAngleOfTwoVectors_VecYAndVecXHasSameRatio()
     {
         double speedX = 3;
         double speedY = 3;
@@ -302,7 +303,7 @@ public class DataMapperTests
     }
 
     [Test]
-    public void TestCalculateFlyDirectionPositivInputs()
+    public void CalculateFlyDirection_PositivInputs()
     {
         double bearingOne = 0;
         double bearingTwo = 0;
@@ -354,7 +355,7 @@ public class DataMapperTests
     }
 
     [Test]
-    public void TestCalculateFlyDirectionNegativeInputs()
+    public void CalculateFlyDirection_NegativeInputs()
     {        
         double bearingOne = 45;
         double bearingTwo = 180;
@@ -386,6 +387,156 @@ public class DataMapperTests
         result = DataMapper.CalculateFlyDirection(bearingOne, bearingTwo);
         Assert.AreEqual(expectedResult, result);
     }
+    
+    [Test]
+    public void CalculateSpeed_WithSmallInitialVelocity_ReturnsCorrectSpeed()
+    {
+        double timeInterval = 1.0;
+        double acceleration = 2.0;
+        double initialVelocity = 2.0;
+
+        double speed = DataMapper.CalculateSpeed(timeInterval, acceleration, initialVelocity);
+
+        Assert.AreEqual(4.0, speed);
+    }
+
+    [Test]
+    public void CalculateSpeed_WithLargeInitialVelocity_ReturnsInitialVelocity()
+    {
+        double timeInterval = 1.0;
+        double acceleration = 2.0;
+        double initialVelocity = 5.0;
+
+        double speed = DataMapper.CalculateSpeed(timeInterval, acceleration, initialVelocity);
+
+        Assert.AreEqual(5.0, speed);
+    }
+
+    [Test]
+    public void CalculateSpeed_WithNegativeInitialVelocity_ReturnsInitialVelocity()
+    {
+        double timeInterval = 1.0;
+        double acceleration = 2.0;
+        double initialVelocity = -4.0;
+
+        double speed = DataMapper.CalculateSpeed(timeInterval, acceleration, initialVelocity);
+
+        Assert.AreEqual(-4.0, speed);
+    }
+    
+    [Test]
+    public void CalculateSpeed_WithZeroTimeInterval_ReturnsInitialVelocity()
+    {
+        double timeInterval = 0.0;
+        double acceleration = 2.0;
+        double initialVelocity = 3.0;
+    
+        double speed = DataMapper.CalculateSpeed(timeInterval, acceleration, initialVelocity);
+    
+        Assert.AreEqual(3.0, speed);
+    }
+    
+    [Test]
+    public void CalculateSpeed_WithNegativeAcceleration_ReturnsInitialVelocity()
+    {
+        double timeInterval = 1.0;
+        double acceleration = -2.0;
+        double initialVelocity = 4.0;
+    
+        double speed = DataMapper.CalculateSpeed(timeInterval, acceleration, initialVelocity);
+    
+        Assert.AreEqual(4.0, speed);
+    }
+    
+    [Test]
+    public void CalculateSpeed_WithZeroAcceleration_ReturnsInitialVelocity()
+    {
+        double timeInterval = 1.0;
+        double acceleration = 0.0;
+        double initialVelocity = 2.5;
+    
+        double speed = DataMapper.CalculateSpeed(timeInterval, acceleration, initialVelocity);
+    
+        Assert.AreEqual(2.5, speed);
+    }
+    
+    [Test]
+    public void CalculateSpeed_WithLargeAcceleration_ReturnsCorrectSpeed()
+    {
+        double timeInterval = 1.5;
+        double acceleration = 3.0;
+        double initialVelocity = 1.0;
+    
+        double speed = DataMapper.CalculateSpeed(timeInterval, acceleration, initialVelocity);
+    
+        Assert.AreEqual(5.5, speed);
+    }
+    
+    [Test]
+    public void CalculateSpeed_WithRoundedSpeed_ReturnsCorrectRoundedSpeed()
+    {
+        double timeInterval = 1.0;
+        double acceleration = 2.0;
+        double initialVelocity = -3.333;
+    
+        double speed = DataMapper.CalculateSpeed(timeInterval, acceleration, initialVelocity);
+    
+        Assert.AreEqual(-3.333, speed);
+    }
+    
+    [Test]
+    public void MapActionToBearing_MoveForward_Returns0()
+    {
+        DroneAction action = DroneAction.MoveForward;
+
+        double result = DataMapper.MapActionToBearing(action);
+
+        Assert.AreEqual(0, result);
+    }
+
+    [Test]
+    public void MapActionToBearingMoveLeftReturns270()
+    {
+        DroneAction action = DroneAction.MoveLeft;
+
+        double result = DataMapper.MapActionToBearing(action);
+
+        Assert.AreEqual(270, result);
+    }
+
+    [Test]
+    public void MapActionToBearingMoveBackwardReturns180()
+    {
+        DroneAction action = DroneAction.MoveBackward;
+        
+        double result = DataMapper.MapActionToBearing(action);
+        
+        Assert.AreEqual(180, result);
+    }
+
+    [Test]
+    public void MapActionToBearingMoveRightReturns80()
+    {
+        DroneAction action = DroneAction.MoveRight;
+        
+        double result = DataMapper.MapActionToBearing(action);
+        
+        Assert.AreEqual(80, result);
+    }
+
+    [Test]
+    public void MapActionToBearingInvalidActionReturnsDefault()
+    {
+        DroneAction action = DroneAction.Land; // An invalid action
+        double result = DataMapper.MapActionToBearing(action);
+        
+        Assert.AreEqual(0, result);
+
+        action = DroneAction.TakeOff; // An invalid action
+        result = DataMapper.MapActionToBearing(action);
+        
+        Assert.AreEqual(0, result);
+    }
 
     /*
     [Test]
@@ -395,7 +546,6 @@ public class DataMapperTests
         double acceleration = 40;
         double initialVelocity = 5;
 
-        var expectedResult = 0.4;
         var result = DataMapper.CalculateSpeed(timeInterval, acceleration, initialVelocity);
         Assert.AreEqual(expectedResult, result);
     }
