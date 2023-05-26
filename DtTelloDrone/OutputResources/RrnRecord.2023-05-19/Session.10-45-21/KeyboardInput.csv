@@ -1,0 +1,9 @@
+time;input;xPos;yPos;zPos;Bearing
+4523354;Connect;50;50;0;0
+4524216;TakeOff;50;50;0;0
+4524789;Unknown;50;50;0;0
+4531675;Land;50;49;70;0
+4532797;Unknown;50;49;60;0
+4534735;Unknown;50;50;0;1
+4534939;Unknown;50;50;0;1
+4535501;StopRecordRepeatNavigationRecording;50;50;0;1

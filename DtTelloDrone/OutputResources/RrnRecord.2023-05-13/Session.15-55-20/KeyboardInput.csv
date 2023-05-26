@@ -1,0 +1,11 @@
+time;input;xPos;yPos;zPos
+035521278;Connect;50;50;0
+035522500;TakeOff;50;50;0
+035531140;MoveForward;50;49;70
+035533543;Stop;50;54;70
+035534743;RotateClockwise;50;61;70
+035537146;Stop;50;61;70
+035537546;MoveForward;50;61;70
+035538346;Stop;50;61;70
+035539347;RotateClockwise;47;64;70
+035542148;StopRecordRepeatNavigationRecording;20;55;-170
