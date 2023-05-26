@@ -35,7 +35,7 @@ Personally, I was using the specification for the [second version](https://dl-cd
 4. If connection is established, the drone led will blink green and the system is set up.
 5. Fly the drone by using the commands listed [down below][## Keyboard Control]
 
-## How to used the digital twin?
+## How to use the digital twin?
 After following the first 3 step from the guide on how to manually fly the drone the digital twin will start receiving and mirroring the state of the drone, but it does not interfer at any of the command sent from the drone control. The digital twin can be used for autonomous operation. One simple operation is developed in this system and will be presented next.
 
 ## How to use the digital twin?
