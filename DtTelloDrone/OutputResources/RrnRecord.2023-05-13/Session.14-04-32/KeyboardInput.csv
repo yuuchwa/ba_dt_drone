@@ -1,0 +1,6 @@
+time;input;xPos;yPos;zPos
+020433458;Connect;50;50;0
+020434737;TakeOff;50;50;0
+020440141;MoveRight;49;50;70
+020442543;Stop;49;50;80
+020444343;Land;50;50;80
