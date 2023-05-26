@@ -1,18 +1,13 @@
 using System;
 using System.IO;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using DtTelloDrone.MessageBroker;
 using DtTelloDrone.Model.Agent;
 using DtTelloDrone.Model.Layer;
 using DtTelloDrone.Model.Operations.RecordAndRepeatNavigation;
 using DtTelloDrone.RemoteControl.Control;
 using DtTelloDrone.RemoteControl.Output;
-using DtTelloDrone.RyzeSDK;
-using log4net;
 using Mars.Components.Starter;
 using Mars.Interfaces.Model;
-using LoggerFactory = Microsoft.Extensions.Logging.LoggerFactory;
 
 namespace DtTelloDrone;
 
@@ -28,14 +23,13 @@ public static class Startup
     public static void Run()
     {
         RunKeybordControl();
-        //RunFlightDeck();
+        RunFlightDeck();
         RunSimulation();
         DisposeApplicationRessources();
     }
 
     private static void RunSimulation()
     {
-        // Create a new model description that holds all parts of the model (agents, entities, layers).
         var description = new ModelDescription();
         description.AddLayer<LandScapeLayer>();
         description.AddAgent<TelloAgent, LandScapeLayer>();
