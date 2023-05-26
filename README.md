@@ -14,11 +14,11 @@ In order to use the application at it full potential the Tello is needed.
 The application is developed .Net 7.0 and C# 10.
 
 The following Nuget packages are needed:
-- NLog 5.1.4 (For recording application precceses and received flight parameters)
-- Mars.Life.Simulation 4.5.2 (The Framework which is used to build the MAS simulation. It is developed and maintained by the Mars labratory ground at the HAW)
-- MathNet.Numers 5.0.0 (Used for trajekctories calculation)
-- NUnit 3.13.3 (Used for writing unit tests)
-- Colorful.Console (Used for displaying console outputs in different colors)
+- NLog 5.1.4 
+- Mars.Life.Simulation 4.5.2 
+- MathNet.Numers 5.0.0
+- NUnit 3.13.3
+- Colorful.Console
 
 ## Drone specification
 Further information regarding the drone can be found [on this website](https://dl-cdn.ryzerobotics.com/downloads/tello/20180910/Tello%20SDK%20Documentation%20EN_1.3.pdf
