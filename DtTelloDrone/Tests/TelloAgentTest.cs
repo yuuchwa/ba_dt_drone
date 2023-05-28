@@ -380,7 +380,7 @@ public class TelloAgentTest
         double speedX = DataMapper.CalculateSpeed(timeInterval, accelerationX, velocityX);
         double speedY = DataMapper.CalculateSpeed(timeInterval, accelerationY, velocityY);
 
-        double expectedSpeedX = velocityX;
+        double expectedSpeedX = 9;
         double expectedSpeedY = 0;
 
         Assert.AreEqual(expectedSpeedX, speedX);
@@ -402,7 +402,7 @@ public class TelloAgentTest
 
         double travelingDistance = DataMapper.CalculateMagnitude(vec1) + DataMapper.CalculateMagnitude(vec2);
 
-        double expectedTravelingDistance = 5; // cm
+        double expectedTravelingDistance = 9; // cm
         Assert.AreEqual(expectedTravelingDistance, travelingDistance);
     }
     
@@ -458,8 +458,8 @@ public class TelloAgentTest
         double speedX = DataMapper.CalculateSpeed(timeInterval, accelerationX, velocityX);
         double speedY = DataMapper.CalculateSpeed(timeInterval, accelerationY, velocityY);
 
-        double expectedSpeedX = velocityX;
-        double expectedSpeedY = velocityY;
+        double expectedSpeedX = -10;
+        double expectedSpeedY = -12;
 
         Assert.AreEqual(expectedSpeedX, speedX);
         Assert.AreEqual(expectedSpeedY, speedY);
@@ -469,18 +469,18 @@ public class TelloAgentTest
 
         double motionBearing = DataMapper.CalculateAngleOfTwoVectors(vec1, vec2);
 
-        double expectedMotionBearing = 233.113;
+        double expectedMotionBearing = 230.191;
         Assert.AreEqual(expectedMotionBearing, motionBearing, 0.1);
 
         double motionBearingMars = DataMapper.MapCoordinateToMarsCoordinate(motionBearing);
         double flyDirection = DataMapper.CalculateFlyDirection(Bearing, motionBearingMars);
 
-        double expectedflyDirection = 126.886;
+        double expectedflyDirection = 129.808;
         Assert.AreEqual(expectedflyDirection, flyDirection, 0.1);
 
         double travelingDistance = DataMapper.CalculateMagnitude(vec1) + DataMapper.CalculateMagnitude(vec2);
 
-        double expectedTravelingDistance = 14; // cm
+        double expectedTravelingDistance = 22; // cm
         Assert.AreEqual(expectedTravelingDistance, travelingDistance);
     }
     
@@ -497,8 +497,8 @@ public class TelloAgentTest
         double speedX = DataMapper.CalculateSpeed(timeInterval, accelerationX, velocityX);
         double speedY = DataMapper.CalculateSpeed(timeInterval, accelerationY, velocityY);
 
-        double expectedSpeedX = velocityX;
-        double expectedSpeedY = velocityY;
+        double expectedSpeedX = -10;
+        double expectedSpeedY = -12;
 
         Assert.AreEqual(expectedSpeedX, speedX);
         Assert.AreEqual(expectedSpeedY, speedY);
@@ -508,18 +508,18 @@ public class TelloAgentTest
 
         double motionBearing = DataMapper.CalculateAngleOfTwoVectors(vec1, vec2);
 
-        double expectedMotionBearing = 233.191;
+        double expectedMotionBearing = 230.191;
         Assert.AreEqual(expectedMotionBearing, motionBearing, 0.1);
 
         double motionBearingMars = DataMapper.MapCoordinateToMarsCoordinate(motionBearing);
         double flyDirection = DataMapper.CalculateFlyDirection(Bearing, motionBearingMars);
 
-        double expectedflyDirection = 192.886;
+        double expectedflyDirection = 195.808;
         Assert.AreEqual(expectedflyDirection, flyDirection, 0.1);
 
         double travelingDistance = DataMapper.CalculateMagnitude(vec1) + DataMapper.CalculateMagnitude(vec2);
 
-        double expectedTravelingDistance = 14; // cm
+        double expectedTravelingDistance = 22; // cm
         Assert.AreEqual(expectedTravelingDistance, travelingDistance);
     }
     

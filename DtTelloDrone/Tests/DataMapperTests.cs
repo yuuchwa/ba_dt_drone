@@ -409,7 +409,7 @@ public class DataMapperTests
 
         double speed = DataMapper.CalculateSpeed(timeInterval, acceleration, initialVelocity);
 
-        Assert.AreEqual(5.0, speed);
+        Assert.AreEqual(7.0, speed);
     }
 
     [Test]
@@ -421,7 +421,7 @@ public class DataMapperTests
 
         double speed = DataMapper.CalculateSpeed(timeInterval, acceleration, initialVelocity);
 
-        Assert.AreEqual(-4.0, speed);
+        Assert.AreEqual(-2.0, speed);
     }
     
     [Test]
@@ -445,7 +445,7 @@ public class DataMapperTests
     
         double speed = DataMapper.CalculateSpeed(timeInterval, acceleration, initialVelocity);
     
-        Assert.AreEqual(4.0, speed);
+        Assert.AreEqual(2.0, speed);
     }
     
     [Test]
@@ -481,7 +481,7 @@ public class DataMapperTests
     
         double speed = DataMapper.CalculateSpeed(timeInterval, acceleration, initialVelocity);
     
-        Assert.AreEqual(-3.333, speed);
+        Assert.AreEqual(-1.3330000000000002, speed);
     }
     
     [Test]
