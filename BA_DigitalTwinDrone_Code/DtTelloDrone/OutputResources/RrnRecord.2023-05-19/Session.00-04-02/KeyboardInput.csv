@@ -1,0 +1,7 @@
+time;input;xPos;yPos;zPos;Bearing
+0403270;Connect;50;50;0;0
+0404095;TakeOff;50;50;0;0
+0411700;MoveForward;50;50;80;0
+0415104;Stop;50;50;80;0
+0416305;Land;50;50;80;0
+0419106;StopRecordRepeatNavigationRecording;50;50;0;0

@@ -1,0 +1,10 @@
+time;input;xPos;yPos;zPos;Bearing
+045740728;MoveForward;50;50;0;0
+045741534;MoveBackward;50;50;0;0
+045741935;MoveRight;50;50;0;0
+045742136;MoveLeft;50;50;0;0
+045742336;MoveRight;50;50;0;0
+045742536;MoveForward;50;50;0;0
+045743337;MoveForward;50;50;0;0
+045743538;MoveForward;50;50;0;0
+045744339;StopRecordRepeatNavigationRecording;50;50;0;0

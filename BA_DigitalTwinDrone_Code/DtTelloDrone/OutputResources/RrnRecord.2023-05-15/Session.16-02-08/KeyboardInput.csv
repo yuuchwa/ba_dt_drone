@@ -1,0 +1,9 @@
+time;input;xPos;yPos;zPos;Bearing
+040214718;Connect;50;50;0;0
+040215616;TakeOff;50;50;0;0
+040222020;MoveRight;49;50;80;0
+040224623;MoveLeft;54;50;80;0
+040227024;MoveRight;50;50;80;0
+040229627;MoveLeft;52;51;80;0
+040232429;MoveRight;47;50;80;0
+040237431;StopRecordRepeatNavigationRecording;48;49;0;0
