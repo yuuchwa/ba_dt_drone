@@ -1,9 +1,0 @@
-time;input;xPos;yPos;zPos;Bearing
-0237140;StartRrNavigation;50;50;0;0
-0238339;TakeOff;50;50;0;0
-0238799;Unknown;50;50;0;0
-0239207;Unknown;50;50;0;0
-0239309;Unknown;49;50;0;0
-0246552;Unknown;49;50;60;0
-0246961;Unknown;49;49;60;0
-0247779;AbortRrNavigation;49;50;70;0

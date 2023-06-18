@@ -1,8 +1,0 @@
-time;input;xPos;yPos;zPos
-014007451;Connect;50;50;0
-014009087;TakeOff;50;50;0
-014014090;MoveForward;49;48;60
-014017093;Stop;51;49;60
-014018093;RotateCounterClockwise;52;55;60
-014023496;Stop;51;55;60
-014025497;Land;51;55;70

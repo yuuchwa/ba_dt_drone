@@ -1,7 +1,0 @@
-time;input;xPos;yPos;zPos;Bearing
-030942584;Connect;50;50;0;0
-030943825;TakeOff;50;50;0;313
-030954110;MoveForward;50;48;60;314
-030957314;Stop;52;66;60;314
-030959315;Land;48;76;60;314
-031004596;StopRecordRepeatNavigationRecording;48;79;0;310
