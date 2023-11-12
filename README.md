@@ -1,6 +1,6 @@
 # Digital Twin of the tello drone
 
-This project contains the the technical Implementation of a digital twin of a [Tello](https://www.ryzerobotics.com/de/tello).
+This project contains the technical Implementation of a digital twin of a [Tello](https://www.ryzerobotics.com/de/tello).
 This project is part of my bachelor thesis at the University of Applied Sciencs (HAW) in Hamburg, Germany. 
 The main objective of my thesis is to design and develop a digital twin using the principles of a multi-agent system(MAS). A digital twin refers to the creation of a virtual counterpart that can represent various entities such as objects, individuals, production lines, or distributed systems. The fundamental idea behind this concept is to create an accurate and real-time representation of the internal state of the physical system. By doing so, we can gain valuable insights into the system's current status, enhance its efficiency, and anticipate potential failures by predicting its health condition. This approach not only enables effective system monitoring but also offers opportunities for continuous improvement.
 
